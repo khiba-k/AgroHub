@@ -29,14 +29,19 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname
 
-  // Always allow these public paths through (no redirects)
+  // Allow API routes to pass through without redirect logic
+  if (pathname.startsWith('/api/')) {
+    return supabaseResponse
+  }
+
+  // Public paths for page routes only
   const PUBLIC_PATHS = [
     '/welcome',
     '/login',
     '/register',
     '/auth/confirm',
     '/auth/email',
-    '/error',
+    '/error'
   ]
 
   const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path))

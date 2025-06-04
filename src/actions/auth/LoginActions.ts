@@ -44,3 +44,18 @@ export async function signup(formData: FormData) {
   revalidatePath('/', 'layout')
   redirect('/auth/email')
 }
+
+// export async function signout() {
+//   console.log("Getting triggered");
+//   const supabase = await createClient()
+
+//   const { error } = await supabase.auth.signOut({ scope: 'local' }) // or 'global' if you want all sessions gone
+
+//   if (error) {
+//     console.error('Signout error:', error.message)
+//     redirect('/error') // optional error page
+//   }
+
+//   revalidatePath('/', 'layout')
+//   redirect('/welcome')
+// }
