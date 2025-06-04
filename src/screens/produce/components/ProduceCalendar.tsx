@@ -131,7 +131,7 @@ export function ProduceCalendar() {
                         components={{
                             Day: ({ day, ...props }) => (
                                 <div {...props}>
-                                    {day.day}
+                                    {day.date.getDate()}
                                     {renderDay(day.date)}
                                 </div>
                             ),
