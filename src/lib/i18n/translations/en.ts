@@ -153,7 +153,7 @@ export const en = {
     ownerInformation: "Owner Information",
     investNow: "Invest Now",
     contactOwner: "Contact Owner",
-    description: "Description",
+    landDescription: "Description",
     location: "Location",
     investmentDetails: "Investment Details",
     mapViewPlaceholder: "Map view would be displayed here",
@@ -176,7 +176,7 @@ export const en = {
       "Arrange a time to visit this land and meet with the owner.",
     schedulingPlaceholder:
       "Visit scheduling functionality would be implemented here.",
-    title: "Title",
+    listingTitle: "Title",
     titlePlaceholder: "Fertile Farmland in Maseru District",
     titleDescription: "A descriptive title for your land listing",
     sizeHectares: "Size (hectares)",

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Paperclip, Send, Phone, Video, Mic, Image } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { useTranslation } from "@/lib/i18n";
+import { Image, Mic, Paperclip, Phone, Send, Video } from "lucide-react";
+import { useRef, useState } from "react";
 
 interface Message {
   id: string;
@@ -145,7 +145,7 @@ export function MessageChat({
   };
 
   // Render message attachments
-  const renderAttachment = (attachment: Message["attachments"][0]) => {
+  const renderAttachment = (attachment: NonNullable<Message["attachments"]>[number]) => {
     switch (attachment.type) {
       case "image":
         return (

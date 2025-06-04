@@ -241,7 +241,7 @@ export function AuctionsCalendar() {
                         components={{
                             Day: ({ day, ...props }) => (
                                 <div {...props}>
-                                    {day.day}
+                                    {day.date.getDate()}
                                     {renderDay(day.date)}
                                 </div>
                             ),
