@@ -65,6 +65,7 @@ export default function SideBar({
                 "consumer",
             ],
         },
+        /*
         {
             label: "Social Feed",
             icon: Users,
@@ -107,6 +108,8 @@ export default function SideBar({
                 },
             ],
         },
+        */
+       /*
         {
             label: "Messages",
             icon: MessageSquare,
@@ -121,18 +124,14 @@ export default function SideBar({
             ],
             badge: "3",
         },
+        */
         {
             label: "Marketplace",
             icon: ShoppingCart,
             href: "/marketplace",
             roles: [
-                "farmer",
-                "retailer",
-                "logistics",
-                "distributor",
-                "service",
-                "consumer",
-            ],
+                "farmer", "retailer", "logistics", "distributor", "service", "consumer",],
+            /*
             children: [
                 {
                     label: "Browse Products",
@@ -147,31 +146,61 @@ export default function SideBar({
                         "consumer",
                     ],
                 },
+                
                 {
                     label: "My Orders",
                     icon: ShoppingCart,
                     href: "/marketplace/orders",
                     roles: ["farmer", "retailer", "consumer"],
                 },
+                
             ],
+            */
         },
         {
-            label: "Livestock Auctions",
+            label: "Auctions",
             icon: BarChart,
             href: "/auctions",
             roles: ["farmer", "retailer", "distributor", "consumer"],
         },
+        /*
         {
             label: "Farm Analytics",
             icon: BarChart,
             href: "/analytics",
             roles: ["farmer"],
         },
+        */
         {
             label: "My Produce",
             icon: Leaf,
             href: "/produce",
-            roles: ["farmer"],
+            roles: [
+                "farmer"
+            ],
+            children: [
+                {
+                    label: "Listings",
+                    icon: ShoppingCart,
+                    href: "/produce",
+                    roles: [
+                        "farmer",
+                        "retailer",
+                        "logistics",
+                        "distributor",
+                        "service",
+                        "consumer",
+                    ],
+                },
+            
+                {
+                    label: "Orders",
+                    icon: ShoppingCart,
+                    href: "/produce/orders",
+                    roles: ["farmer", "retailer", "consumer"],
+                },
+            
+            ],
         },
         {
             label: "My Store",
