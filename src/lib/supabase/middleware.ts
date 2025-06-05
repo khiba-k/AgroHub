@@ -34,18 +34,31 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse
   }
 
-  // Public paths for page routes only
+  // Public paths (always accessible regardless of auth status)
   const PUBLIC_PATHS = [
     '/welcome',
     '/login',
     '/register',
     '/auth/confirm',
     '/auth/email',
+    '/auth/callback',
     '/error'
   ]
 
   const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path))
 
+  // Handle root path differently
+  if (pathname === '/') {
+    const url = request.nextUrl.clone()
+    if (user) {
+      url.pathname = '/dashboard'
+    } else {
+      url.pathname = '/welcome'
+    }
+    return NextResponse.redirect(url)
+  }
+
+  // For non-authenticated users
   if (!user) {
     if (!isPublicPath) {
       const url = request.nextUrl.clone()
@@ -53,7 +66,9 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url)
     }
   } else {
-    if (pathname === '/' || isPublicPath) {
+    // For authenticated users - only redirect if they're on auth pages (but NOT /welcome)
+    const authPages = ['/login', '/register']
+    if (authPages.some(path => pathname.startsWith(path))) {
       const url = request.nextUrl.clone()
       url.pathname = '/dashboard'
       return NextResponse.redirect(url)

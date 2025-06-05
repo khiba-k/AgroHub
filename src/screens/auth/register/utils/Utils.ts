@@ -1,4 +1,4 @@
-import { signup } from "@/actions/auth/LoginActions";
+import { signup } from "@/actions/auth/BasicAuthActions";
 import { RegisterForm, RegisterFormType } from "./RegisterFormValidation";
 
 export async function handleSubmit(values: RegisterFormType) {

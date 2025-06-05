@@ -1,5 +1,6 @@
 "use client";
 
+import { getUserObj } from "@/actions/auth/BasicAuthActions";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { Header } from "./Header";
@@ -19,12 +20,32 @@ export function AppLayout({
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [role, setRole] = useState(userRole);
+    const [email, setEmail] = useState<string | undefined>(undefined);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
 
     // Update local state when prop changes
     useEffect(() => {
         setRole(userRole);
     }, [userRole]);
+
+    // Fetch user email on component mount
+    useEffect(() => {
+        const fetchUserEmail = async () => {
+            try {
+                const user = await getUserObj();
+                if (user) {
+                    setEmail(user.email);
+                }
+            } catch (error) {
+                console.error("Error fetching user:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserEmail();
+    }, []);
 
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
@@ -93,7 +114,7 @@ export function AppLayout({
                     onRoleChange={handleRoleChange}
                     user={{
                         name: getName(),
-                        email: `${role}@agrohub.com`,
+                        email: email,
                         avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${getAvatarSeed()}`,
                         role: role,
                     }}

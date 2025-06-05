@@ -28,6 +28,7 @@ import { Input } from "@/components/ui/input";
 // import { Leaf, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import LoginGoogleBtn from "../../login/components/LoginGoogleBtn";
 
 export function RegisterForm() {
     const [isLoading, setIsLoading] = useState(false);
@@ -70,6 +71,7 @@ export function RegisterForm() {
                         {error}
                     </div>
                 )}
+                <LoginGoogleBtn />
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         {/* Full Name (optional, add schema if needed) */}

@@ -26,6 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useState } from "react";
+import LoginGoogleBtn from "./LoginGoogleBtn";
 
 export function LoginForm() {
     const [isLoading, setIsLoading] = useState(false);
@@ -41,15 +42,12 @@ export function LoginForm() {
     });
 
     async function onSubmit(values: LoginSchemaType) {
-        try {
-            setIsLoading(true);
-            await onSubmitHandler(values);
-        } catch (err) {
-            setError("Invalid credentials or something went wrong.");
-            console.error(err);
-        } finally {
-            setIsLoading(false);
+        setIsLoading(true);
+        const result = await onSubmitHandler(values);
+        if (result?.error) {
+            setError(result.error);
         }
+        setIsLoading(false);
     }
 
     return (
@@ -64,6 +62,7 @@ export function LoginForm() {
                         {error}
                     </div>
                 )}
+                <LoginGoogleBtn />
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField

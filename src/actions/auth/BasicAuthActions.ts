@@ -8,8 +8,6 @@ import { createClient } from '@/lib/supabase/server'
 export async function login(formData: FormData) {
   const supabase = await createClient()
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
   const data = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
@@ -18,7 +16,11 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword(data)
 
   if (error) {
-    redirect('/error')
+    if (error.message.includes("Email not confirmed")) {
+      return { error: "Please confirm your email before logging in." }
+    }
+
+    return { error: "Invalid email or password." }
   }
 
   revalidatePath('/', 'layout')
@@ -38,24 +40,29 @@ export async function signup(formData: FormData) {
   const { error } = await supabase.auth.signUp(data)
 
   if (error) {
-    redirect('/error')
+    throw new Error;
   }
 
   revalidatePath('/', 'layout')
   redirect('/auth/email')
 }
 
-// export async function signout() {
-//   console.log("Getting triggered");
-//   const supabase = await createClient()
+export async function getUserObj() {
+  const supabase = await createClient()
 
-//   const { error } = await supabase.auth.signOut({ scope: 'local' }) // or 'global' if you want all sessions gone
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
 
-//   if (error) {
-//     console.error('Signout error:', error.message)
-//     redirect('/error') // optional error page
-//   }
+  if (error || !user) return null
 
-//   revalidatePath('/', 'layout')
-//   redirect('/welcome')
-// }
+  return {
+    id: user.id,
+    email: user.email,
+    metadata: user.user_metadata,
+    role: user.role,
+    createdAt: user.created_at,
+    all: user,
+  }
+}
