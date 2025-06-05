@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import { Camera, PlusCircle } from "lucide-react";
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
-import { PlusCircle, ChevronLeft, ChevronRight, Camera } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -53,8 +53,8 @@ const StoriesCarousel = ({
     name: "John Farmer",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=john",
   },
-  onStoryClick = () => {},
-  onCreateStory = () => {},
+  onStoryClick = () => { },
+  onCreateStory = () => { },
 }: StoriesCarouselProps) => {
   const [hoveredStory, setHoveredStory] = useState<string | null>(null);
 
@@ -94,7 +94,7 @@ const StoriesCarousel = ({
                   </div>
                   <Button
                     size="icon"
-                    variant="primary"
+                    variant="default"
                     className="absolute -bottom-2 -right-2 h-6 w-6 rounded-full bg-primary text-primary-foreground shadow-md"
                     onClick={onCreateStory}
                   >

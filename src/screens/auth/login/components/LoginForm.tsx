@@ -1,5 +1,11 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { LoginSchema, LoginSchemaType } from "../utils/LoginFormValidation";
+import { handleLoginSubmit as onSubmitHandler } from "../utils/Utils";
+
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -9,68 +15,48 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function LoginForm() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const router = useRouter();
-    const supabase = createClient();
+    const [showPassword, setShowPassword] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setError(null);
+    const form = useForm<LoginSchemaType>({
+        resolver: zodResolver(LoginSchema),
+        defaultValues: {
+            email: "",
+            password: "",
+        },
+    });
 
+    async function onSubmit(values: LoginSchemaType) {
         try {
-            // Check if Supabase is properly initialized
-            if (
-                !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-                !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-            ) {
-                // Fallback to simulation if environment variables aren't set
-                setTimeout(() => {
-                    setIsLoading(false);
-                    router.push("/social");
-                }, 1000);
-                return;
-            }
-
-            const { error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
-
-            if (error) {
-                setError(error.message);
-                setIsLoading(false);
-                return;
-            }
-
-            // Redirect to social feed on successful login
-            router.push("/social");
-            router.refresh();
+            setIsLoading(true);
+            await onSubmitHandler(values);
         } catch (err) {
-            console.error("Login error:", err);
-            setError("An unexpected error occurred. Please try again.");
+            setError("Invalid credentials or something went wrong.");
+            console.error(err);
+        } finally {
             setIsLoading(false);
         }
-    };
+    }
 
     return (
         <Card className="w-full max-w-md mx-auto">
             <CardHeader>
-                <CardTitle className="text-2xl">Login to AgroHub</CardTitle>
-                <CardDescription>
-                    Enter your credentials to access your account
-                </CardDescription>
+                <CardTitle className="text-2xl">Login</CardTitle>
+                <CardDescription>Welcome back to AgroHub!</CardDescription>
             </CardHeader>
             <CardContent>
                 {error && (
@@ -78,46 +64,61 @@ export function LoginForm() {
                         {error}
                     </div>
                 )}
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            placeholder="john@example.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Email</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="john@example.com" type="email" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
+
+                        <FormField
+                            control={form.control}
+                            name="password"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Password</FormLabel>
+                                    <FormControl>
+                                        <div className="relative">
+                                            <Input type={showPassword ? "text" : "password"} {...field} />
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword((prev) => !prev)}
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                                tabIndex={-1}
+                                            >
+                                                {showPassword ? (
+                                                    <EyeOff className="w-4 h-4" />
+                                                ) : (
+                                                    <Eye className="w-4 h-4" />
+                                                )}
+                                            </button>
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
                         />
-                    </div>
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading ? "Logging in..." : "Login"}
-                    </Button>
-                </form>
+
+                        <Button type="submit" className="w-full" disabled={isLoading}>
+                            {isLoading ? "Logging in..." : "Login"}
+                        </Button>
+                    </form>
+                </Form>
             </CardContent>
-            <CardFooter className="flex flex-col space-y-2">
-                <div className="text-sm text-center">
-                    Don&apos;t have an account?{" "}
+            <CardFooter>
+                <div className="text-sm text-center w-full">
+                    Don’t have an account?{" "}
                     <Link href="/register" className="text-primary hover:underline">
                         Register
-                    </Link>
-                </div>
-                <div className="text-sm text-center">
-                    <Link
-                        href="/forgot-password"
-                        className="text-primary hover:underline"
-                    >
-                        Forgot password?
                     </Link>
                 </div>
             </CardFooter>

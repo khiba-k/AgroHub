@@ -40,6 +40,25 @@ export function Header({
 }: HeaderProps) {
     const router = useRouter();
 
+    const handleLogout = async () => {
+        try {
+
+            const res = await fetch('/api/signout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+
+
+            if (res.ok) {
+                router.push('/welcome')
+            }
+        } catch (error) {
+            console.log("Fetch error:", error);
+        }
+    }
+
     return (
         <header className="sticky top-0 z-40 w-full border-b bg-background">
             <div className="flex h-16 items-center justify-between px-4 md:px-6">
@@ -125,7 +144,10 @@ export function Header({
                                 Settings
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => router.push("/login")}>
+                            <DropdownMenuItem onClick={() => {
+                                console.log("Dropdown item clicked") // Add this
+                                handleLogout()
+                            }}>
                                 Log out
                             </DropdownMenuItem>
                         </DropdownMenuContent>

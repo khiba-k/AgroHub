@@ -154,7 +154,7 @@ export const st = {
     ownerInformation: "Tlhahisoleseding ya Monga",
     investNow: "Etsa Matsete Hona Jwale",
     contactOwner: "Ikopanye le Monga",
-    description: "Tlhaloso",
+    descriptionShort: "Tlhaloso",
     location: "Sebaka",
     investmentDetails: "Dintlha tsa Matsete",
     mapViewPlaceholder: "Pono ya mmapa e tla hlahiswa mona",
@@ -176,7 +176,7 @@ export const st = {
     scheduleVisitDescription:
       "Rera nako ya ho etela mobu ona le ho kopana le monga ona.",
     schedulingPlaceholder: "Tshebetso ya ho rera ketelo e tla kenngwa mona.",
-    title: "Sehlooho",
+    titleLandInvestment: "Sehlooho",
     titlePlaceholder: "Mobu o Nonneng Seterekeng sa Maseru",
     titleDescription: "Sehlooho se hlalosang bakeng sa ngodiso ya mobu wa hao",
     sizeHectares: "Boholo (dihektare)",

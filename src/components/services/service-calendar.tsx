@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
@@ -9,15 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -26,7 +18,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Calendar as CalendarIcon, Wrench } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar as CalendarIcon, Plus, Wrench } from "lucide-react";
+import { useState } from "react";
 import { ServiceForm } from "./service-form";
 
 export function ServiceCalendar() {
@@ -87,15 +87,14 @@ export function ServiceCalendar() {
             <Badge
               key={i}
               variant="outline"
-              className={`${
-                event.type === "equipment"
+              className={`${event.type === "equipment"
                   ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
                   : event.type === "pest-control"
                     ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
                     : event.type === "consulting"
                       ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100"
                       : "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100"
-              }`}
+                }`}
             >
               {event.type === "equipment"
                 ? "E"
@@ -114,8 +113,8 @@ export function ServiceCalendar() {
   // Get events for the selected date
   const selectedDateEvents = date
     ? serviceEvents.filter(
-        (event) => event.date.toDateString() === date.toDateString(),
-      )
+      (event) => event.date.toDateString() === date.toDateString(),
+    )
     : [];
 
   return (
@@ -168,7 +167,7 @@ export function ServiceCalendar() {
             components={{
               Day: ({ day, ...props }) => (
                 <div {...props}>
-                  {day.day}
+                  {day.date.getDate()}
                   {renderDay(day.date)}
                 </div>
               ),
@@ -211,10 +210,10 @@ export function ServiceCalendar() {
           <CardTitle>
             {date
               ? date.toLocaleDateString("en-US", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })
               : "Select a date"}
           </CardTitle>
           <CardDescription>
@@ -230,15 +229,14 @@ export function ServiceCalendar() {
                 <div key={i} className="flex items-start space-x-3">
                   <Badge
                     variant="outline"
-                    className={`${
-                      event.type === "equipment"
+                    className={`${event.type === "equipment"
                         ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
                         : event.type === "pest-control"
                           ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
                           : event.type === "consulting"
                             ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100"
                             : "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100"
-                    }`}
+                      }`}
                   >
                     {event.type === "equipment"
                       ? "Equipment"

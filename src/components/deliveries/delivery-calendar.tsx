@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
@@ -9,15 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -26,7 +18,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Calendar as CalendarIcon, Truck } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar as CalendarIcon, Plus, Truck } from "lucide-react";
+import { useState } from "react";
 import { DeliveryForm } from "./delivery-form";
 
 export function DeliveryCalendar() {
@@ -100,8 +100,8 @@ export function DeliveryCalendar() {
   // Get deliveries for the selected date
   const selectedDateDeliveries = date
     ? deliveries.filter(
-        (delivery) => delivery.date.toDateString() === date.toDateString(),
-      )
+      (delivery) => delivery.date.toDateString() === date.toDateString(),
+    )
     : [];
 
   return (
@@ -152,7 +152,7 @@ export function DeliveryCalendar() {
             components={{
               Day: ({ day, ...props }) => (
                 <div {...props}>
-                  {day.day}
+                  {day.date.getDate()}
                   {renderDay(day.date)}
                 </div>
               ),
@@ -186,10 +186,10 @@ export function DeliveryCalendar() {
           <CardTitle>
             {date
               ? date.toLocaleDateString("en-US", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })
               : "Select a date"}
           </CardTitle>
           <CardDescription>
