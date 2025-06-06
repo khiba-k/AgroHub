@@ -24,7 +24,10 @@ export const OnboardingForm: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-xl mx-auto p-6 bg-black rounded shadow">
+    <form
+  onSubmit={handleSubmit}
+  className="w-full max-w-4xl mx-auto p-10 bg-black rounded-xl shadow-lg"
+>
       <h2 className="text-2xl font-bold mb-4">Farmer Onboarding</h2>
       <InputField label="Full Name" name="fullName" value={formData.fullName} onChange={handleChange} required />
       <InputField label="Email" name="email" value={formData.email} onChange={handleChange} type="email" required />
