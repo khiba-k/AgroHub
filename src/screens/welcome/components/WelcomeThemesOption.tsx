@@ -3,13 +3,13 @@ import React from 'react';
 const WelcomeThemesOption = (
     {
         title,
-        description,
+        // description,
         icon,
         isSelected,
         onClick,
     }: {
         title: string;
-        description: string;
+        // description: string;
         icon: React.ReactNode;
         isSelected: boolean;
         onClick: () => void;
@@ -27,8 +27,8 @@ const WelcomeThemesOption = (
                     {icon}
                 </div>
                 <div>
-                    <h3 className="font-medium">{title}</h3>
-                    <p className="text-sm text-muted-foreground">{description}</p>
+                    <h6 className="font-medium">{title}</h6>
+                    {/* <p className="text-sm text-muted-foreground">{description}</p> */}
                 </div>
             </div>
         </div>
