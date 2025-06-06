@@ -26,29 +26,28 @@ export const OnboardingForm: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form Submitted:', formData);
     setSubmitted(true);
+    console.log('Form Submitted:', formData);
+    // TODO: Send data to API
   };
 
   if (submitted) {
     return (
       <div className="w-screen h-screen flex items-center justify-center bg-black text-white">
-        <h2 className="text-3xl font-semibold animate-fadeInUp">
-          🎉 Thank you for registering! We’ll be in touch soon.
-        </h2>
+        <h2 className="text-3xl font-bold animate-fadeInUp">Thank you! Your information has been submitted.</h2>
       </div>
     );
   }
 
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-center bg-black text-white px-4">
+    <div className="w-screen h-screen flex flex-col items-center justify-center bg-black text-white px-4 overflow-auto">
       <div className="mb-6 text-center animate-fadeInUp">
         <h1 className="text-3xl font-semibold">You're almost there, we just need a few details from you</h1>
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-4xl p-10 bg-black-900 rounded-2xl shadow-2xl overflow-auto"
+        className="w-full max-w-4xl p-10 bg-neutral-900 rounded-2xl shadow-2xl"
       >
         <h2 className="text-2xl font-bold mb-6">Farmer Onboarding</h2>
 
@@ -57,6 +56,7 @@ export const OnboardingForm: React.FC = () => {
         <InputField label="Phone Number" name="phone" value={formData.phone} onChange={handleChange} type="tel" required />
         <InputField label="Farm Name" name="farmName" value={formData.farmName} onChange={handleChange} required />
         <InputField label="Farm Size (in acres)" name="farmSize" value={formData.farmSize} onChange={handleChange} type="number" required />
+
         <SelectField
           label="Services"
           name="cropType"
@@ -65,21 +65,28 @@ export const OnboardingForm: React.FC = () => {
           options={['Poultry Farming', 'Crop Farming', 'Rice', 'Vegetables', 'Fruits']}
           required
         />
-        <InputField label="District" name="district" value={formData.district} onChange={handleChange} placeholder="e.g., Maseru" required />
-        <InputField label="Country" name="country" value={formData.country} onChange={handleChange} placeholder="e.g., Lesotho" required />
 
-        <div className="flex flex-col mb-4">
-          <label htmlFor="description" className="mb-1 font-medium">Farming Description</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InputField label="District" name="district" value={formData.district} onChange={handleChange} placeholder="e.g., Lira" required />
+          <InputField label="Country" name="country" value={formData.country} onChange={handleChange} placeholder="e.g., Uganda" required />
+        </div>
+
+        <div className="flex flex-col mt-4">
+          <label htmlFor="description" className="mb-1 font-medium text-white">Farming Description (max 180 chars)</label>
           <textarea
             id="description"
             name="description"
-            rows={4}
             value={formData.description}
             onChange={handleChange}
-            placeholder="Tell us a bit about your farming practices..."
-            className="p-2 border border-gray-300 rounded-md text-black"
+            maxLength={180}
+            rows={4}
+            placeholder="Briefly describe your farming activities..."
+            className="p-3 border border-gray-600 bg-black text-white rounded-md"
             required
           />
+          <div className="text-sm text-right text-gray-400 mt-1">
+            {formData.description.length}/180
+          </div>
         </div>
 
         <button
