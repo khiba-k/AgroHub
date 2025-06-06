@@ -11,27 +11,20 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import {
-    BarChart,
-    Briefcase,
     ChevronDown,
-    Home,
     Leaf,
     Menu,
-    MessageSquare,
-    Settings,
-    ShoppingCart,
-    Store,
-    Truck,
-    Users,
     X
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { navItems } from "./Utils/NavData";
 
 interface SidebarNavigationProps {
     className?: string;
     userRole?: string;
+    avatar?: string;
 }
 
 interface NavItem {
@@ -46,194 +39,12 @@ interface NavItem {
 export default function SideBar({
     className,
     userRole = "farmer",
+    avatar,
 }: SidebarNavigationProps) {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(true);
     const [mobileOpen, setMobileOpen] = useState(false);
 
-    const navItems: NavItem[] = [
-        {
-            label: "Dashboard",
-            icon: Home,
-            href: "/dashboard",
-            roles: [
-                "farmer",
-                "retailer",
-                "logistics",
-                "distributor",
-                "service",
-                "consumer",
-            ],
-        },
-        /*
-        {
-            label: "Social Feed",
-            icon: Users,
-            href: "/social",
-            roles: [
-                "farmer",
-                "retailer",
-                "logistics",
-                "distributor",
-                "service",
-                "consumer",
-            ],
-            badge: "New",
-            children: [
-                {
-                    label: "My Feed",
-                    icon: Users,
-                    href: "/social",
-                    roles: [
-                        "farmer",
-                        "retailer",
-                        "logistics",
-                        "distributor",
-                        "service",
-                        "consumer",
-                    ],
-                },
-                {
-                    label: "Trending",
-                    icon: Users,
-                    href: "/social/trending",
-                    roles: [
-                        "farmer",
-                        "retailer",
-                        "logistics",
-                        "distributor",
-                        "service",
-                        "consumer",
-                    ],
-                },
-            ],
-        },
-        */
-       /*
-        {
-            label: "Messages",
-            icon: MessageSquare,
-            href: "/messages",
-            roles: [
-                "farmer",
-                "retailer",
-                "logistics",
-                "distributor",
-                "service",
-                "consumer",
-            ],
-            badge: "3",
-        },
-        */
-        {
-            label: "Marketplace",
-            icon: ShoppingCart,
-            href: "/marketplace",
-            roles: [
-                "farmer", "retailer", "logistics", "distributor", "service", "consumer",],
-            /*
-            children: [
-                {
-                    label: "Browse Products",
-                    icon: ShoppingCart,
-                    href: "/marketplace",
-                    roles: [
-                        "farmer",
-                        "retailer",
-                        "logistics",
-                        "distributor",
-                        "service",
-                        "consumer",
-                    ],
-                },
-                
-                {
-                    label: "My Orders",
-                    icon: ShoppingCart,
-                    href: "/marketplace/orders",
-                    roles: ["farmer", "retailer", "consumer"],
-                },
-                
-            ],
-            */
-        },
-        {
-            label: "Auctions",
-            icon: BarChart,
-            href: "/auctions",
-            roles: ["farmer", "retailer", "distributor", "consumer"],
-        },
-        /*
-        {
-            label: "Farm Analytics",
-            icon: BarChart,
-            href: "/analytics",
-            roles: ["farmer"],
-        },
-        */
-        {
-            label: "My Produce",
-            icon: Leaf,
-            href: "/produce",
-            roles: [
-                "farmer"
-            ],
-            children: [
-                {
-                    label: "Listings",
-                    icon: ShoppingCart,
-                    href: "/produce",
-                    roles: [
-                        "farmer",
-                        "retailer",
-                        "logistics",
-                        "distributor",
-                        "service",
-                        "consumer",
-                    ],
-                },
-            
-                {
-                    label: "Orders",
-                    icon: ShoppingCart,
-                    href: "/produce/orders",
-                    roles: ["farmer", "retailer", "consumer"],
-                },
-            
-            ],
-        },
-        {
-            label: "My Store",
-            icon: Store,
-            href: "/store",
-            roles: ["retailer"],
-        },
-        {
-            label: "Deliveries",
-            icon: Truck,
-            href: "/deliveries",
-            roles: ["logistics"],
-        },
-        {
-            label: "Services",
-            icon: Briefcase,
-            href: "/services",
-            roles: ["service"],
-        },
-        {
-            label: "Settings",
-            icon: Settings,
-            href: "/settings",
-            roles: [
-                "farmer",
-                "retailer",
-                "logistics",
-                "distributor",
-                "service",
-                "consumer",
-            ],
-        },
-    ];
 
     const filteredNavItems = navItems.filter((item) =>
         item.roles.includes(userRole),
@@ -242,7 +53,7 @@ export default function SideBar({
     const user = {
         name: "John Farmer",
         role: "Farmer",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=john",
+        avatar: avatar,
     };
 
     return (

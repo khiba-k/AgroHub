@@ -22,6 +22,7 @@ export function AppLayout({
     const [role, setRole] = useState(userRole);
     const [email, setEmail] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(true);
+    const [avatar, setAvatar] = useState<string>("");
     const router = useRouter();
 
     // Update local state when prop changes
@@ -29,13 +30,14 @@ export function AppLayout({
         setRole(userRole);
     }, [userRole]);
 
-    // Fetch user email on component mount
+    // Fetch user email and avatar on component mount
     useEffect(() => {
         const fetchUserEmail = async () => {
             try {
                 const user = await getUserObj();
                 if (user) {
                     setEmail(user.email);
+                    setAvatar(user.metadata?.avatar_url);
                 }
             } catch (error) {
                 console.error("Error fetching user:", error);
@@ -63,23 +65,11 @@ export function AppLayout({
         }
     };
 
-    // Generate avatar seed based on role
-    const getAvatarSeed = () => {
-        const roleMap: Record<string, string> = {
-            farmer: "john",
-            retailer: "sarah",
-            logistics: "michael",
-            distributor: "david",
-            service: "emma",
-            consumer: "lisa",
-        };
-        return roleMap[role] || "john";
-    };
 
     // Generate name based on role
     const getName = () => {
         const nameMap: Record<string, string> = {
-            farmer: "John Farmer",
+            farmer: "Khiba Farmer",
             retailer: "Sarah Retailer",
             logistics: "Michael Logistics",
             distributor: "David Distributor",
@@ -92,7 +82,7 @@ export function AppLayout({
     return (
         <div className="flex h-screen bg-background">
             {/* Sidebar */}
-            <SideBar className="hidden md:block" userRole={role} />
+            <SideBar className="hidden md:block" userRole={role} avatar={avatar} />
 
             {/* Mobile sidebar */}
             {mobileMenuOpen && (
@@ -102,7 +92,7 @@ export function AppLayout({
                         onClick={toggleMobileMenu}
                     ></div>
                     <div className="fixed inset-y-0 left-0 w-[240px] bg-background">
-                        <SideBar userRole={role} />
+                        <SideBar userRole={role} avatar={avatar} />
                     </div>
                 </div>
             )}
@@ -115,7 +105,7 @@ export function AppLayout({
                     user={{
                         name: getName(),
                         email: email,
-                        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${getAvatarSeed()}`,
+                        avatar: avatar,
                         role: role,
                     }}
                 />
