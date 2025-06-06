@@ -43,8 +43,8 @@ export async function updateSession(request: NextRequest) {
     '/auth/email',
     '/auth/callback',
     '/error',
-    '/farmers/register',
-    '/consumers/register',
+    '/farmer/register',
+    '/consumer/register',
   ];
 
   const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path))

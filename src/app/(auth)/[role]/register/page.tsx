@@ -1,9 +1,9 @@
 import Register from "@/screens/auth/register/Register";
 
-export default function RegisterPage() {
+export default function Page({ params }: { params: { role: string } }) {
   return (
     <>
-      <Register />
+      <Register role={params.role} />
     </>
   );
 }

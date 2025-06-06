@@ -35,13 +35,13 @@ const WelcomeContinueBtn = () => {
     const handleContinueForFarmers = () => {
         // Handle continue for farmers
         // This could be a different route or action
-        router.push('/farmers/register');
+        router.push('/farmer/register');
     };
 
     const handleContinueForConsumers = () => {
         // Handle continue for consumers
         // This could be a different route or action
-        router.push('/consumers/register');
+        router.push('/consumer/register');
     };
 
     return (

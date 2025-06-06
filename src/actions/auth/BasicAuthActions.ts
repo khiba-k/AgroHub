@@ -28,25 +28,29 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await createClient();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  }
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+  const role = formData.get('role') as string;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
-  const { error } = await supabase.auth.signUp(data)
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { role },
+      emailRedirectTo: `${siteUrl}/auth/confirm?role=${role}`,
+    },
+  });
 
   if (error) {
-    throw new Error;
+    throw new Error(error.message);
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/auth/email')
+  revalidatePath('/', 'layout');
+  redirect('/auth/email');
 }
-
 export async function getUserObj() {
   const supabase = await createClient()
 

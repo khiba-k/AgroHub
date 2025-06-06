@@ -30,7 +30,7 @@ import Link from "next/link";
 import { useState } from "react";
 import LoginGoogleBtn from "../../login/components/LoginGoogleBtn";
 
-export function RegisterForm() {
+export function RegisterForm({ role }: { role: string }) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false)
@@ -42,6 +42,7 @@ export function RegisterForm() {
             email: "",
             password: "",
             confirmPassword: "",
+            role: role as "farmer" | "consumer" || undefined,
         },
     });
 
