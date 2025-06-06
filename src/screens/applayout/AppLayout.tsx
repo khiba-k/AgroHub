@@ -14,30 +14,27 @@ interface DashboardLayoutProps {
 
 export function AppLayout({
     children,
-    userRole = "farmer",
     onRoleChange,
 }: DashboardLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [role, setRole] = useState(userRole);
+    const [role, setRole] = useState<string>("");
     const [email, setEmail] = useState<string | undefined>(undefined);
     const [loading, setLoading] = useState(true);
     const [avatar, setAvatar] = useState<string>("");
     const router = useRouter();
 
     // Update local state when prop changes
-    useEffect(() => {
-        setRole(userRole);
-    }, [userRole]);
 
     // Fetch user email and avatar on component mount
     useEffect(() => {
-        const fetchUserEmail = async () => {
+        const fetchUserData = async () => {
             try {
                 const user = await getUserObj();
                 if (user) {
                     setEmail(user.email);
                     setAvatar(user.metadata?.avatar_url);
+                    setRole(user.metadata?.role)
                 }
             } catch (error) {
                 console.error("Error fetching user:", error);
@@ -46,7 +43,7 @@ export function AppLayout({
             }
         };
 
-        fetchUserEmail();
+        fetchUserData();
     }, []);
 
     const toggleSidebar = () => {

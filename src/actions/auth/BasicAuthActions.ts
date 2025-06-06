@@ -40,7 +40,7 @@ export async function signup(formData: FormData) {
     password,
     options: {
       data: { role },
-      emailRedirectTo: `${siteUrl}/auth/confirm?role=${role}`,
+     emailRedirectTo: `${siteUrl}/auth/confirm`,
     },
   });
 
@@ -51,6 +51,7 @@ export async function signup(formData: FormData) {
   revalidatePath('/', 'layout');
   redirect('/auth/email');
 }
+
 export async function getUserObj() {
   const supabase = await createClient()
 

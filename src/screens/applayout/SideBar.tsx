@@ -56,6 +56,7 @@ export default function SideBar({
         avatar: avatar,
     };
 
+
     return (
         <>
             {/* Mobile Menu Button */}

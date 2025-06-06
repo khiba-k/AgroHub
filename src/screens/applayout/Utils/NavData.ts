@@ -156,7 +156,6 @@ export const navItems: NavItem[] = [
                     "logistics",
                     "distributor",
                     "service",
-                    "consumer",
                 ],
             },
         
@@ -164,7 +163,7 @@ export const navItems: NavItem[] = [
                 label: "Orders",
                 icon: ShoppingCart,
                 href: "/produce/orders",
-                roles: ["farmer", "retailer", "consumer"],
+                roles: ["farmer", "retailer"],
             },
         
         ],

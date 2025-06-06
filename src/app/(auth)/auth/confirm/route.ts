@@ -8,7 +8,6 @@ export async function GET(request: NextRequest) {
 
   const token_hash = searchParams.get('token_hash')
   const type = searchParams.get('type') as EmailOtpType | null
-  const role = searchParams.get('role') // 'farmers' or 'consumers'
 
   if (token_hash && type) {
     const supabase = await createClient()
@@ -19,9 +18,13 @@ export async function GET(request: NextRequest) {
     })
 
     if (!error) {
+      // Get role from user metadata instead of URL
+      const { data: { user } } = await supabase.auth.getUser()
+      const role = user?.user_metadata?.role
+      
       if (role === 'farmer') {
         redirect('/onboarding/farmer')
-      } else if (role === 'consumers') {
+      } else if (role === 'consumer') {
         redirect('/onboarding/consumer')
       } else {
         redirect('/dashboard')

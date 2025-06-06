@@ -137,7 +137,7 @@ export function Header({
                                         {user.email}
                                     </p>
                                     <p className="text-xs leading-none text-muted-foreground">
-                                        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                                        {/* {user.role.charAt(0).toUpperCase() + user.role.slice(1)} */}
                                     </p>
                                 </div>
                             </DropdownMenuLabel>
