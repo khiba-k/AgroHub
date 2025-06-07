@@ -72,8 +72,8 @@ export function RegisterForm({ role }: { role: string }) {
                         {error}
                     </div>
                 )}
-                <LoginGoogleBtn />
-                 {/* "OR" separator */}
+                <LoginGoogleBtn role={role} />
+                {/* "OR" separator */}
                 <div className="relative flex items-center py-4"> {/* Increased py for spacing */}
                     <div className="flex-grow border-t border-gray-600"></div> {/* Darker border for dark theme */}
                     <span className="flex-shrink mx-4 text-gray-500 text-sm">OR</span> {/* Grayer text for OR */}
@@ -173,7 +173,7 @@ export function RegisterForm({ role }: { role: string }) {
                                     <FormLabel>Confirm Password</FormLabel>
                                     <FormControl>
                                         <div className="relative">
-                                            <Input   className="py-3 text-base " // Added py-3 for height, text-base for font size
+                                            <Input className="py-3 text-base " // Added py-3 for height, text-base for font size
                                                 type={showConfirm ? 'text' : 'password'}
                                                 {...field}
                                             />

@@ -25,7 +25,7 @@ const WelcomeThemesOption = (
             <div
                 className={`
                     p-4 rounded-full
-                    ${  "bg-[#4A4A4A] text-gray-300"}
+                    ${"bg-[#4A4A4A] text-gray-300"}
                 `}
             >
                 {icon}
