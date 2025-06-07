@@ -194,7 +194,7 @@ export function RegisterForm({ role }: { role: string }) {
 
                         <Button
                             type="submit"
-                            className="w-full py-3 text-xl" // Changed text-lg to text-xl
+                            className="w-full py-3 text-lg" // Changed text-lg to text-xl
                             disabled={isLoading}
                         >
                             {isLoading ? "Creating account..." : "Register"}
