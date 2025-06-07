@@ -54,7 +54,7 @@ export function LoginForm() {
         <Card className="w-full max-w-md mx-auto">
             <CardHeader>
                 <CardTitle className="text-2xl">Login</CardTitle>
-                <CardDescription>Welcome back to AgroHub!</CardDescription>
+                <CardDescription className="text-lg">Welcome back to AgroHub!</CardDescription>
             </CardHeader>
             <CardContent>
                 {error && (
@@ -62,7 +62,7 @@ export function LoginForm() {
                         {error}
                     </div>
                 )}
-                <LoginGoogleBtn />
+                <LoginGoogleBtn /><br></br>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
@@ -72,7 +72,8 @@ export function LoginForm() {
                                 <FormItem>
                                     <FormLabel>Email</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="john@example.com" type="email" {...field} />
+                                        <Input
+                                        placeholder="john@example.com" type="email" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -107,14 +108,14 @@ export function LoginForm() {
                             )}
                         />
 
-                        <Button type="submit" className="w-full" disabled={isLoading}>
+                        <Button type="submit" className="w-full text-lg" disabled={isLoading}>
                             {isLoading ? "Logging in..." : "Login"}
                         </Button>
                     </form>
                 </Form>
             </CardContent>
             <CardFooter>
-                <div className="text-sm text-center w-full">
+                <div className="text-m text-center w-full">
                     Don’t have an account?{" "}
                     <Link href="/register" className="text-primary hover:underline">
                         Register
