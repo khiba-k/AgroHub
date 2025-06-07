@@ -67,8 +67,8 @@ export const OnboardingForm: React.FC = () => {
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <InputField label="District" name="district" value={formData.district} onChange={handleChange} placeholder="e.g., Lira" required />
-          <InputField label="Country" name="country" value={formData.country} onChange={handleChange} placeholder="e.g., Uganda" required />
+          <InputField label="District" name="district" value={formData.district} onChange={handleChange} placeholder=" Maseru" required />
+          <InputField label="Country" name="country" value={formData.country} onChange={handleChange} placeholder=" Lesotho" required />
         </div>
 
         <div className="flex flex-col mt-4">
