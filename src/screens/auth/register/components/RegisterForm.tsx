@@ -28,8 +28,9 @@ import { Input } from "@/components/ui/input";
 // import { Leaf, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import LoginGoogleBtn from "../../login/components/LoginGoogleBtn";
 
-export function RegisterForm() {
+export function RegisterForm({ role }: { role: string }) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false)
@@ -41,6 +42,7 @@ export function RegisterForm() {
             email: "",
             password: "",
             confirmPassword: "",
+            role: role as "farmer" | "consumer" || undefined,
         },
     });
 
@@ -70,6 +72,13 @@ export function RegisterForm() {
                         {error}
                     </div>
                 )}
+                <LoginGoogleBtn role={role} />
+                {/* "OR" separator */}
+                <div className="relative flex items-center py-4"> {/* Increased py for spacing */}
+                    <div className="flex-grow border-t border-gray-600"></div> {/* Darker border for dark theme */}
+                    <span className="flex-shrink mx-4 text-gray-500 text-sm">OR</span> {/* Grayer text for OR */}
+                    <div className="flex-grow border-t border-gray-600"></div>
+                </div>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         {/* Full Name (optional, add schema if needed) */}
@@ -94,7 +103,12 @@ export function RegisterForm() {
                                 <FormItem>
                                     <FormLabel>Email</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="john@example.com" type="email" {...field} />
+                                        <Input
+                                            className="py-3 text-base" // Added py-3 for height, text-base for font size
+                                            placeholder="john@example.com"
+                                            type="email"
+                                            {...field}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -131,11 +145,15 @@ export function RegisterForm() {
                                     <FormLabel>Password</FormLabel>
                                     <FormControl>
                                         <div className="relative">
-                                            <Input type={showPassword ? 'text' : 'password'} {...field} />
+                                            <Input
+                                                className="py-3 text-base" // Added py-3 for height, text-base for font size
+                                                type={showPassword ? 'text' : 'password'}
+                                                {...field}
+                                            />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPassword((prev) => !prev)}
-                                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
                                                 tabIndex={-1}
                                             >
                                                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -155,11 +173,14 @@ export function RegisterForm() {
                                     <FormLabel>Confirm Password</FormLabel>
                                     <FormControl>
                                         <div className="relative">
-                                            <Input type={showConfirm ? 'text' : 'password'} {...field} />
+                                            <Input className="py-3 text-base " // Added py-3 for height, text-base for font size
+                                                type={showConfirm ? 'text' : 'password'}
+                                                {...field}
+                                            />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowConfirm((prev) => !prev)}
-                                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
                                                 tabIndex={-1}
                                             >
                                                 {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -171,14 +192,18 @@ export function RegisterForm() {
                             )}
                         />
 
-                        <Button type="submit" className="w-full" disabled={isLoading}>
+                        <Button
+                            type="submit"
+                            className="w-full py-3 text-lg" // Changed text-lg to text-xl
+                            disabled={isLoading}
+                        >
                             {isLoading ? "Creating account..." : "Register"}
                         </Button>
                     </form>
                 </Form>
             </CardContent>
             <CardFooter>
-                <div className="text-sm text-center w-full">
+                <div className="text-m text-center w-full">
                     Already have an account?{" "}
                     <Link href="/login" className="text-primary hover:underline">
                         Login

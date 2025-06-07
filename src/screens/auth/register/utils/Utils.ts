@@ -1,4 +1,4 @@
-import { signup } from "@/actions/auth/LoginActions";
+import { signup } from "@/actions/auth/BasicAuthActions";
 import { RegisterForm, RegisterFormType } from "./RegisterFormValidation";
 
 export async function handleSubmit(values: RegisterFormType) {
@@ -12,11 +12,13 @@ export async function handleSubmit(values: RegisterFormType) {
     }
   
     const validData = result.data;
+    console.log("Utils Valid data:", validData);
   
     // Convert to FormData
     const formData = new FormData();
     formData.append("email", validData.email);
     formData.append("password", validData.password);
+    formData.append("role", validData.role);
   
     // Call the signup action
     try {

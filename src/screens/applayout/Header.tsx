@@ -20,7 +20,7 @@ import { ThemeSwitcher } from "./components/ThemeSwitcher";
 interface HeaderProps {
     user?: {
         name: string;
-        email: string;
+        email?: string;
         avatar: string;
         role: string;
     };
@@ -28,12 +28,17 @@ interface HeaderProps {
     onRoleChange?: (role: string) => void;
 }
 
+
+
+
+
+
 export function Header({
     user = {
-        name: "John Farmer",
-        email: "john@agrohub.com",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=john",
-        role: "farmer",
+        name: "",
+        email: "",
+        avatar: "",
+        role: "",
     },
     onMenuToggle = () => { },
     onRoleChange = () => { },
@@ -132,7 +137,7 @@ export function Header({
                                         {user.email}
                                     </p>
                                     <p className="text-xs leading-none text-muted-foreground">
-                                        {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                                        {/* {user.role.charAt(0).toUpperCase() + user.role.slice(1)} */}
                                     </p>
                                 </div>
                             </DropdownMenuLabel>

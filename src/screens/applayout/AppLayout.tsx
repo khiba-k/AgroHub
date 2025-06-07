@@ -1,5 +1,6 @@
 "use client";
 
+import { getUserObj } from "@/actions/auth/BasicAuthActions";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { Header } from "./Header";
@@ -13,18 +14,37 @@ interface DashboardLayoutProps {
 
 export function AppLayout({
     children,
-    userRole = "farmer",
     onRoleChange,
 }: DashboardLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [role, setRole] = useState(userRole);
+    const [role, setRole] = useState<string>("");
+    const [email, setEmail] = useState<string | undefined>(undefined);
+    const [loading, setLoading] = useState(true);
+    const [avatar, setAvatar] = useState<string>("");
     const router = useRouter();
 
     // Update local state when prop changes
+
+    // Fetch user email and avatar on component mount
     useEffect(() => {
-        setRole(userRole);
-    }, [userRole]);
+        const fetchUserData = async () => {
+            try {
+                const user = await getUserObj();
+                if (user) {
+                    setEmail(user.email);
+                    setAvatar(user.metadata?.avatar_url);
+                    setRole(user.metadata?.role)
+                }
+            } catch (error) {
+                console.error("Error fetching user:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, []);
 
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
@@ -42,23 +62,11 @@ export function AppLayout({
         }
     };
 
-    // Generate avatar seed based on role
-    const getAvatarSeed = () => {
-        const roleMap: Record<string, string> = {
-            farmer: "john",
-            retailer: "sarah",
-            logistics: "michael",
-            distributor: "david",
-            service: "emma",
-            consumer: "lisa",
-        };
-        return roleMap[role] || "john";
-    };
 
     // Generate name based on role
     const getName = () => {
         const nameMap: Record<string, string> = {
-            farmer: "John Farmer",
+            farmer: "Khiba Farmer",
             retailer: "Sarah Retailer",
             logistics: "Michael Logistics",
             distributor: "David Distributor",
@@ -71,7 +79,7 @@ export function AppLayout({
     return (
         <div className="flex h-screen bg-background">
             {/* Sidebar */}
-            <SideBar className="hidden md:block" userRole={role} />
+            <SideBar className="hidden md:block" userRole={role} avatar={avatar} />
 
             {/* Mobile sidebar */}
             {mobileMenuOpen && (
@@ -81,7 +89,7 @@ export function AppLayout({
                         onClick={toggleMobileMenu}
                     ></div>
                     <div className="fixed inset-y-0 left-0 w-[240px] bg-background">
-                        <SideBar userRole={role} />
+                        <SideBar userRole={role} avatar={avatar} />
                     </div>
                 </div>
             )}
@@ -93,8 +101,8 @@ export function AppLayout({
                     onRoleChange={handleRoleChange}
                     user={{
                         name: getName(),
-                        email: `${role}@agrohub.com`,
-                        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${getAvatarSeed()}`,
+                        email: email,
+                        avatar: avatar,
                         role: role,
                     }}
                 />
