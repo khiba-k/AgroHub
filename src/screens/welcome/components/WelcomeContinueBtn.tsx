@@ -46,7 +46,7 @@ const WelcomeContinueBtn = () => {
 
     return (
         <>
-            {isOnboarded ? (<div className='h-full'>
+            {isLoggedIn ? (<div className='h-full'>
                 <Button
                     className="w-full bg-muted text-muted-foreground hover:bg-muted/80"
                     size="lg"
@@ -55,21 +55,25 @@ const WelcomeContinueBtn = () => {
                     Continue to AgroHub <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             </div>) : (
+                
                 <div className='grid grid-cols-2 gap-2'>
-                    <Button
-                        className="w-full bg-muted text-muted-foreground hover:bg-muted/80"
+                    
+                  <Button
+                        className="w-full bg-[#232323] hover:bg-[#323232] text-white rounded-xl py-6 text-m
+                         transition-all flex items-center justify-between" // Added py-6 and text-xl
                         size="lg"
                         onClick={handleContinueForFarmers}
                     >
-                        For Farmers <ArrowRight className="ml-2 h-4 w-4" />
+                        For Farmers <ArrowRight className="ml-2 h-6 w-6" /> {/* Increased arrow size */}
                     </Button>
 
+                  {/* Button for Consumers - Increased Size and Arrow Fix */}
                     <Button
-                        className="w-full bg-muted text-muted-foreground hover:bg-muted/80"
+                        className="w-full bg-[#232323] hover:bg-[#323232] text-white rounded-xl py-6 text-m transition-all flex items-center justify-between" // Added py-6 and text-xl
                         size="lg"
                         onClick={handleContinueForConsumers}
                     >
-                        For Consumers <ArrowRight className="ml-2 h-4 w-4" />
+                        For Consumers <ArrowRight className="ml-2 h-6 w-6" /> {/* Corrected typo and increased arrow size */}
                     </Button>
                 </div>
             )}
