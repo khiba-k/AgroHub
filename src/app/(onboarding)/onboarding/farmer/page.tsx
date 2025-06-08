@@ -1,4 +1,4 @@
-import { OnboardingForm } from '@/screens/onboarding/components/OnboardingForm';
+import { OnboardingForm } from '@/screens/onboarding/components/FarmerOnboardingForm';
 
 export default function Page() {
   return (
