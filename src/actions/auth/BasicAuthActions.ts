@@ -45,7 +45,8 @@ export async function signup(formData: FormData) {
   });
 
   if (error) {
-    throw new Error(error.message);
+    console.error('Full Supabase error object:', JSON.stringify(error, null, 2));
+    throw new Error(`Email confirmation failed: ${error.message}`);
   }
 
   revalidatePath('/', 'layout');
