@@ -1,37 +1,41 @@
 'use client';
-import React, { useState } from 'react';
-import { InputField } from './InputField';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import React from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import { SelectField } from './SelectField';
-import { FaMapMarkerAlt, FaPhoneAlt } from 'react-icons/fa'; // Icons for location and phone
-
 
 export const OnboardingForm: React.FC = () => {
-  const [formData, setFormData] = useState({
-    phone: '',
-    phone2:'',
-    farmName: '',
-    cropType: '',
-    district: '',
-    country: '',
-    description: '',
+  const {
+    register,
+    handleSubmit,
+    control,
+    watch,
+    formState: { errors, isSubmitSuccessful },
+  } = useForm({
+    defaultValues: {
+      phone: '',
+      phone2: '',
+      farmName: '',
+      cropType: '',
+      district: '',
+      country: 'Lesotho',
+      description: '',
+    },
   });
 
-  const [submitted, setSubmitted] = useState(false);
+  const description = watch('description');
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const onSubmit = (data: any) => {
+    console.log('Form Submitted:', data);
+    // TODO: Send to API
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitted(true);
-    console.log('Form Submitted:', formData);
-    // TODO: Send data to API
-  };
-
-  if (submitted) {
+  if (isSubmitSuccessful) {
     return (
       <div className="w-screen h-screen flex items-center justify-center bg-black text-white">
         <h2 className="text-3xl font-bold animate-fadeInUp">Thank you! Your information has been submitted.</h2>
@@ -42,95 +46,100 @@ export const OnboardingForm: React.FC = () => {
   return (
     <div className="w-screen h-screen flex flex-col items-center justify-center bg-black text-white px-4 overflow-auto">
       <div className="mb-6 text-center animate-fadeInUp">
-      <h1 className="text-3xl font-semibold text-white mb-2">You're almost there</h1>
-      <p className="text-gray-400 mb-6">We just need a few details from you</p>
-
+        <h1 className="text-3xl font-semibold mb-2">You're almost there</h1>
+        <p className="text-gray-400 mb-6">We just need a few details from you</p>
       </div>
 
       <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-2xl p-8 bg-black text-white border border-white/10 rounded-xl shadow-lg"
+        onSubmit={handleSubmit(onSubmit)}
+        className="w-full max-w-2xl p-6 bg-black text-white border border-white/10 rounded-xl shadow-lg space-y-6"
       >
-        <h2 className="text-2xl font-bold mb-6">Farmer Onboarding</h2>
+        <h2 className="text-2xl font-bold">Farmer Onboarding</h2>
 
-        <h6 className="text-2xl mb-6">Farm Details</h6>
-        <div className= "grid grid-cols-1 md:grid-cols-2 gap-4">
-        <InputField label="Farm Name" name="farmName" value={formData.farmName} onChange={handleChange} required /><SelectField
-          label="Services"
-          name="cropType"
-          value={formData.cropType}
-          onChange={handleChange}
-          options={['Poultry Farming', 'Crop Farming', 'Rice', 'Vegetables', 'Fruits']}
-          required
-        />
+        {/* Farm Details */}
+        <h6 className="text-xl font-semibold">Farm Details</h6>
+            <Label>Farm Name</Label>
+            <Input {...register('farmName', { required: true })} />
+          
+          {/*<SelectField
+            label="Services"
+            name="cropType"
+            control={control}
+            options={['Poultry Farming', 'Crop Farming', 'Rice', 'Vegetables', 'Fruits']}
+            required
+          />*/}
         </div>
-        <div className="flex flex-col mt-4">
-          <label htmlFor="description" className="mb-1 font-medium text-white">Farming Description (max 180 chars)</label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            maxLength={180}
+
+        <div className="flex flex-col">
+          <Label htmlFor="description">Farming Description (max 180 chars)</Label>
+          <Textarea
+            {...register('description', { required: true, maxLength: 180 })}
             rows={4}
             placeholder="Briefly describe your farming activities..."
-            className="p-3 border border-gray-600 bg-black text-white rounded-md"
-            required
+            className="bg-black text-white border border-gray-600"
           />
-          <div className="text-sm text-right text-gray-400 mt-1">
-            {formData.description.length}/180
+          <div className="text-sm text-right text-gray-400 mt-1">{description?.length || 0}/180</div>
+        </div>
+
+        {/* Location */}
+        <h6 className="text-xl font-semibold">Location</h6>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>District</Label>
+            <Input {...register('district', { required: true })} placeholder="Maseru" />
+          </div>
+          <div>
+            <Label>Country</Label>
+            <Input {...register('country', { required: true })} placeholder="Lesotho" />
           </div>
         </div>
-           
-        <h6 className="text-2xl mb-6">Location</h6>
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-  <InputField
-    label="District"
-    name="district"
-    value={formData.district}
-    onChange={handleChange}
-    placeholder="Maseru"
-    required
-    icon={FaMapMarkerAlt}
-  />
-  <InputField
-    label="Country"
-    name="country"
-    value={formData.country}
-    onChange={handleChange}
-    placeholder="Lesotho"
-    required
-    icon={FaMapMarkerAlt}
-  />
-</div>
 
-<h6 className="text-2xl mb-6">Contact Details</h6>
-<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-  <InputField
-    label="Phone Number 1"
-    name="phone"
-    value={formData.phone}
-    onChange={handleChange}
-    type="tel"
-    required
-    icon={FaPhoneAlt}
-  />
-  <InputField
-    label="Phone Number 2 (optional)"
-    name="phone2"
-    value={formData.phone2}
-    onChange={handleChange}
-    type="tel"
-    icon={FaPhoneAlt}
-  />
-</div>
+        {/* Contact Details */}
+        <h6 className="text-xl font-semibold">Contact Details</h6>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>Phone Number 1</Label>
+            <Controller
+              control={control}
+              name="phone"
+              rules={{ required: true }}
+              render={({ field }) => (
+                <PhoneInput
+                  {...field}
+                  country={'ls'}
+                  enableSearch
+                  containerClass="!bg-black !text-white"
+                  inputClass="!bg-black !text-white !w-full !border !border-gray-600 !rounded-md !p-3"
+                  buttonClass="!bg-black !border-r !border-gray-600"
+                />
+              )}
+            />
+          </div>
+          <div>
+            <Label>Phone Number 2 (optional)</Label>
+            <Controller
+              control={control}
+              name="phone2"
+              render={({ field }) => (
+                <PhoneInput
+                  {...field}
+                  country={'ls'}
+                  enableSearch
+                  containerClass="!bg-black !text-white"
+                  inputClass="!bg-black !text-white !w-full !border !border-gray-600 !rounded-md !p-3"
+                  buttonClass="!bg-black !border-r !border-gray-600"
+                />
+              )}
+            />
+          </div>
+        </div>
 
-<button
-  type="submit"
-  className="mt-6 w-full bg-white text-black font-semibold py-3 px-6 rounded-md hover:bg-gray-300 transition"
->
-  Submit
-</button>
+        <Button
+          type="submit"
+          className="w-full bg-white text-black font-semibold py-3 rounded-md hover:bg-gray-300 transition"
+        >
+          Submit
+        </Button>
       </form>
     </div>
   );
