@@ -1,3 +1,4 @@
+// OAuth callback route for handling authentication responses
 import { createClient } from '@/lib/supabase/server'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
@@ -23,7 +24,7 @@ export async function GET(request: Request) {
   //Determine redirect path based on role
   let next = '/dashboard'
 
-  if (role === 'farmer') next = '/onboarding/farmer'
+  if (role === 'farmer') next = '/onboarding/farm'
   else if (role === 'consumer') next = '/onboarding/consumer'
 
   if (code) {

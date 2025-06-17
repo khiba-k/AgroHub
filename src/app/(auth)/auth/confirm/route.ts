@@ -1,3 +1,4 @@
+// Email OTP confirmation route
 import { createClient } from '@/lib/supabase/server'
 import { type EmailOtpType } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
       const role = user?.user_metadata?.role
       
       if (role === 'farmer') {
-        redirect('/onboarding/farmer')
+        redirect('/onboarding/farm')
       } else if (role === 'consumer') {
         redirect('/onboarding/consumer')
       } else {

@@ -1,13 +1,12 @@
-import { OnboardingFarmerType } from "@/screens/onboarding/utils/onboardingFarmerValidation";
+import { OnboardingFarmType } from "@/screens/onboarding/utils/onboardingFarmValidation";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const createFarmer = async (userId: string, farmData: OnboardingFarmerType) => {
+export const createFarm = async (farmData: OnboardingFarmType) => {
     try {
       const farm = await prisma.farm.create({
         data: {
-          userId,
           name: farmData.name,
           description: farmData.description,
           district: farmData.district,
@@ -22,3 +21,35 @@ export const createFarmer = async (userId: string, farmData: OnboardingFarmerTyp
       throw error;
     }
   };
+
+  export const checkUserFarmExists = async (userId: string) => {
+    try {
+      const farmUser = await prisma.farmUser.findFirst({
+        where: { userId },
+        select: { id: true },
+      });
+  
+      return Boolean(farmUser);
+    } catch (error) {
+      console.error('Error checking user farm existence:', error);
+      throw error;
+    }
+  };
+
+  export const createFarmUser = async (userId: string, farmId: string) => {
+    try {
+      const farmUser = await prisma.farmUser.create({
+        data: {
+          userId,
+          farmId,
+          role: 'ADMIN'
+        },
+      });
+      return farmUser;
+    } catch (error) {
+      console.error('Error creating farm user:', error);
+      throw error;
+    }
+  }
+  
+  
