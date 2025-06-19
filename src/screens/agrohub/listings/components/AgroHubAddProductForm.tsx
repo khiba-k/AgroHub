@@ -4,8 +4,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import React, { useState } from 'react'
-import { ProductFormData } from '../utils/types';
-import { predefinedProductTypes } from '../utils/data';
+import { ProductFormData } from '../../utils/types';
+import { predefinedProductTypes } from '../../utils/data';
 
 interface AgroHubAddProductFormProps {
     showAddProduct: boolean;

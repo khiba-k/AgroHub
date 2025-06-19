@@ -1,5 +1,5 @@
 import React from 'react'
-import { Farmer } from '../utils/types'
+import { Farmer } from '../../utils/types'
 import { Card, CardContent } from '@/components/ui/card'
 
 const AgroHubProductCard = (

@@ -10,10 +10,10 @@ import { Label } from '@/components/ui/label';
 import { User, Plus, ShoppingCart } from 'lucide-react';
 import { OrderBreakdown, ProductFormData } from '../utils/types';
 import { farmers, predefinedProductTypes } from '../utils/data';
-import AgroHubProductFilter from '../components/AgroHubProductFilter';
-import AgroHubProductCard from '../components/AgroHubProductCard';
-import AgroHubOrderSummary from '../components/AgroHubOrderSummary';
-import AgroHubQuantityDialog from '../components/AgroHubQuantityDialog';
+import AgroHubProductFilter from './components/AgroHubProductFilter';
+import AgroHubProductCard from './components/AgroHubProductCard';
+import AgroHubOrderSummary from './components/AgroHubOrderSummary';
+import AgroHubQuantityDialog from './components/AgroHubQuantityDialog';
 
 
 export default function AgroHubListings() {
