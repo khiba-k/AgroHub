@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Plus, User } from 'lucide-react'
 import React, { useState } from 'react'
 import { ProductFormData } from '../utils/types';
-import AgroHubAddProductForm from '../components/AgroHubAddProductForm';
+import AgroHubAddProductForm from '../listings/components/AgroHubAddProductForm';
 
 const AgroHubHeader = () => {
     const [showAddProduct, setShowAddProduct] = useState(false);
