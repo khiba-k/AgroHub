@@ -15,8 +15,8 @@ interface AgroHubAddProductFormProps {
 const AgroHubAddProductForm = ({showAddProduct, setShowAddProduct}: AgroHubAddProductFormProps) => {
     const [productForm, setProductForm] = useState<ProductFormData>({
         category: '',
-        productType: '',
         productName: '',
+        productType: '',
         pricePerUnit: 0,
         unitType: ''
     });
@@ -35,8 +35,8 @@ const AgroHubAddProductForm = ({showAddProduct, setShowAddProduct}: AgroHubAddPr
         // Reset form
         setProductForm({
             category: '',
-            productType: '',
             productName: '',
+            productType: '',
             pricePerUnit: 0,
             unitType: ''
         });
@@ -66,6 +66,16 @@ const AgroHubAddProductForm = ({showAddProduct, setShowAddProduct}: AgroHubAddPr
                                 </SelectContent>
                             </Select>
                         </div>
+                        <div>
+                            <Label className="text-sm font-medium">Product Name</Label>
+                            <Input
+                                placeholder="Enter Product Name"
+                                value={productForm.productName}
+                                onChange={(e) => setProductForm(prev => ({ ...prev, productName: e.target.value }))}
+                                className="mt-1 bg-white border-gray-300 text-black"
+                            />
+                        </div>
+
 
                         <div>
                             <Label className="text-sm font-medium">Product Type</Label>
@@ -90,15 +100,7 @@ const AgroHubAddProductForm = ({showAddProduct, setShowAddProduct}: AgroHubAddPr
                             </div>
                         </div>
 
-                        <div>
-                            <Label className="text-sm font-medium">Product Name</Label>
-                            <Input
-                                placeholder="Enter Product Name"
-                                value={productForm.productName}
-                                onChange={(e) => setProductForm(prev => ({ ...prev, productName: e.target.value }))}
-                                className="mt-1 bg-white border-gray-300 text-black"
-                            />
-                        </div>
+                    
 
                         <div>
                             <Label className="text-sm font-medium">Price per Unit</Label>
