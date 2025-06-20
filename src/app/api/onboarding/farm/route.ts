@@ -29,6 +29,8 @@ export async function POST(request: Request) {
 
         // Check if user already has a farm
         const farmExists = await checkUserFarmExists(userId);
+        console.log('Farm exists:', farmExists);
+
 
         if (farmExists) {
             return conflict(
