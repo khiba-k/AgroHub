@@ -29,12 +29,9 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname
 
-  // Allow API routes to pass through without redirect logic
-  if (pathname.startsWith('/api/')) {
-    return supabaseResponse
-  }
+  // Allow API routes
+  if (pathname.startsWith('/api/')) return supabaseResponse
 
-  // Public paths (always accessible regardless of auth status)
   const PUBLIC_PATHS = [
     '/welcome',
     '/login',
@@ -45,37 +42,61 @@ export async function updateSession(request: NextRequest) {
     '/error',
     '/farmer/register',
     '/consumer/register',
-  ];
-
+  ]
   const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path))
 
-  // Handle root path differently
+  // Redirect root to appropriate page
   if (pathname === '/') {
     const url = request.nextUrl.clone()
-    if (user) {
-      url.pathname = '/dashboard'
-    } else {
-      url.pathname = '/welcome'
-    }
+    url.pathname = user ? '/dashboard' : '/welcome'
     return NextResponse.redirect(url)
   }
 
-  // For non-authenticated users
+  // If not logged in
   if (!user) {
     if (!isPublicPath) {
       const url = request.nextUrl.clone()
       url.pathname = '/welcome'
       return NextResponse.redirect(url)
     }
-  } else {
-    // For authenticated users - only redirect if they're on auth pages (but NOT /welcome)
-    const authPages = ['/login', '/register']
-    if (authPages.some(path => pathname.startsWith(path))) {
-      const url = request.nextUrl.clone()
-      url.pathname = '/dashboard'
-      return NextResponse.redirect(url)
-    }
+    return supabaseResponse
   }
+
+  // If logged in
+  const { isOnboarded, role } = user.user_metadata || {}
+  const authPages = ['/login', '/register']
+  const onboardingPaths = [
+    '/onboarding/farm',
+    '/onboarding/agrohub',
+    '/onboarding/consumer',
+  ]
+  const isOnboardingPage = onboardingPaths.some(path => pathname.startsWith(path))
+
+  // ✅ If onboarded and accessing onboarding -> redirect to dashboard
+  if (isOnboarded && isOnboardingPage) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/dashboard'
+    return NextResponse.redirect(url)
+  }
+
+  //If NOT onboarded and accessing non-public, non-onboarding page -> redirect based on role
+  if (!isOnboarded && !isPublicPath && !isOnboardingPage) {
+    const url = request.nextUrl.clone()
+
+    if (role === 'farmer') url.pathname = '/onboarding/farm'
+    else if (role === 'agrohub') url.pathname = '/onboarding/agrohub'
+    else if (role === 'consumer') url.pathname = '/onboarding/consumer'
+    else url.pathname = '/welcome' // fallback for unknown role
+
+    return NextResponse.redirect(url)
+  }
+
+  // // ✅ Prevent access to /login and /register if already logged in
+  // if (authPages.some(path => pathname.startsWith(path))) {
+  //   const url = request.nextUrl.clone()
+  //   url.pathname = '/dashboard'
+  //   return NextResponse.redirect(url)
+  // }
 
   return supabaseResponse
 }

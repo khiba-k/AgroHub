@@ -1,27 +1,20 @@
-// utils/submitFarmData.ts (or define it in same file)
+import axios from 'axios';
+
 export const submitFarmData = async (data: any) => {
     try {
-        const res = await fetch('/api/onboarding/farm', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        });
+        await axios.post('/api/onboarding/farm', data);
+        return true;
 
-        const result = await res.json();
-        if (result.success === false) {
-            if (result.status === 500) {
-                return "server_error";
+    } catch (error: any) {
+        if (axios.isAxiosError(error)) {
+            if (error.response?.status === 500) {
+                return 'server_error';
             }
-            if (result.status === 409) {
-                return "conflict_error";
+            if (error.response?.status === 409) {
+                return 'conflict_error';
             }
         }
 
-        return true;
-
-    } catch (error) {
         console.error('Error submitting farm data:', error);
         throw error;
     }
