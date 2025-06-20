@@ -39,3 +39,27 @@ export const predefinedProductTypes = [
     'Carrots',
     'Lettuce'
   ];
+
+export const predefinedCartItems = [
+{
+  id: '1',
+  name: 'Apples',
+  category: 'Fruit',
+  price: 59.99,
+  quantity: 1
+},
+{
+  id: '2',
+  name: 'Bananas',
+  category: 'Fruit',
+  price: 39.49,
+  quantity: 2
+},
+{
+  id: '3',
+  name: 'Carrots',
+  category: 'Vegetable',
+  price: 29.99,
+  quantity: 3
+}
+];
