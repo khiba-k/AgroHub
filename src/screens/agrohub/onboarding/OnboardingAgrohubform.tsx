@@ -16,6 +16,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { onboardingAgrohubSchema } from '../utils/onboardingAgrohubValidation'
+import { submitAgrohubData } from '../utils/onboardingAgrohubSubmitHandler'
 
 
 
@@ -30,12 +31,16 @@ export default function OnboardingAgrohubForm() {
     },
     })
 
-    const onSubmit = (values: z.infer<typeof onboardingAgrohubSchema>) => {
+    const onSubmit = async(values: z.infer<typeof onboardingAgrohubSchema>) => {
     setIsLoading(true)
-    setTimeout(() => {
-        console.log('Form submitted:', values)
-        setIsLoading(false)
-    }, 2000)
+    const response = await submitAgrohubData(values);
+    
+    if (response === true) {
+        console.log('Data submitted successfully');
+        // Handle successful submission, e.g., redirect or show success message}
+    }
+
+
     }
 
     return (
