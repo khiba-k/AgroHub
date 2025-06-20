@@ -62,7 +62,7 @@ export function LoginForm() {
                         {error}
                     </div>
                 )}
-                <LoginGoogleBtn /><br></br>
+                <LoginGoogleBtn role="farmer" /><br></br>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
