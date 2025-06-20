@@ -61,3 +61,16 @@ model AgroHubUser{
   @@map("agrohub_users")
   @@schema("public")
 }
+
+model PasswordResetToken {
+  id         String   @id @default(uuid())
+  tokenHash  String
+  email      String
+  expiresAt  DateTime
+  used       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@map("password_reset_tokens")
+  @@schema("public")
+}
+
