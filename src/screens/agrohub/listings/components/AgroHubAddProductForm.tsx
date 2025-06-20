@@ -59,32 +59,22 @@ const AgroHubAddProductForm = ({showAddProduct, setShowAddProduct}: AgroHubAddPr
                                 <SelectTrigger className="mt-1 bg-white border-gray-300 text-black">
                                     <SelectValue placeholder="Select Category" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-white border-gray-200">
+                                <SelectContent className="bg-black border-black-200">
                                     <SelectItem value="fruits">Fruits</SelectItem>
                                     <SelectItem value="vegetables">Vegetables</SelectItem>
                                     <SelectItem value="grains">Grains</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
+                        
                         <div>
                             <Label className="text-sm font-medium">Product Name</Label>
-                            <Input
-                                placeholder="Enter Product Name"
-                                value={productForm.productName}
-                                onChange={(e) => setProductForm(prev => ({ ...prev, productName: e.target.value }))}
-                                className="mt-1 bg-white border-gray-300 text-black"
-                            />
-                        </div>
-
-
-                        <div>
-                            <Label className="text-sm font-medium">Product Type</Label>
                             <div className="space-y-2">
                                 <Select onValueChange={handleProductTypeChange}>
                                     <SelectTrigger className="mt-1 bg-white border-gray-300 text-black">
-                                        <SelectValue placeholder="Select or enter custom type" />
+                                        <SelectValue placeholder="Select or enter product name" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-white border-gray-200">
+                                    <SelectContent className="bg-black border-white-200">
                                         {predefinedProductTypes.map((type) => (
                                             <SelectItem key={type} value={type}>{type}</SelectItem>
                                         ))}
@@ -92,12 +82,21 @@ const AgroHubAddProductForm = ({showAddProduct, setShowAddProduct}: AgroHubAddPr
                                     </SelectContent>
                                 </Select>
                                 <Input
-                                    placeholder="Enter custom product type"
+                                    placeholder="Enter new product name"
                                     value={productForm.productType}
                                     onChange={(e) => setProductForm(prev => ({ ...prev, productType: e.target.value }))}
                                     className="bg-white border-gray-300 text-black"
                                 />
                             </div>
+                        </div>
+                         <div>
+                            <Label className="text-sm font-medium">Product Type</Label>
+                            <Input
+                                placeholder="Enter product type"
+                                value={productForm.productName}
+                                onChange={(e) => setProductForm(prev => ({ ...prev, productName: e.target.value }))}
+                                className="mt-1 bg-white border-gray-300 text-black"
+                            />
                         </div>
 
                     
@@ -122,7 +121,7 @@ const AgroHubAddProductForm = ({showAddProduct, setShowAddProduct}: AgroHubAddPr
                                 <SelectTrigger className="mt-1 bg-white border-gray-300 text-black">
                                     <SelectValue placeholder="Select Unit Type" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-white border-gray-200">
+                                <SelectContent className="bg-black border-white-200">
                                     <SelectItem value="kg">Kilogram (kg)</SelectItem>
                                     <SelectItem value="g">Gram (g)</SelectItem>
                                     <SelectItem value="ton">Ton</SelectItem>

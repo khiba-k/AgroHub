@@ -20,7 +20,7 @@ const AgroHubOrderSummary = (
   return (
     <div>
         <div className="lg:col-span-1">
-            <div className="bg-white border border-gray-200 rounded-lg p-6 sticky top-8">
+            <div  className="bg-white border border-gray-200 rounded-lg p-6 sticky top-8">
               <h3 className="text-xl font-bold text-black mb-4 flex items-center">
                 <ShoppingCart className="w-5 h-5 mr-2" />
                 Order Summary
@@ -42,7 +42,7 @@ const AgroHubOrderSummary = (
                   <div className="space-y-3">
                     <h4 className="font-semibold text-black">Order Breakdown:</h4>
                     {orderBreakdown.map((order, index) => (
-                      <div key={index} className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                      <div key={index} className="bg-black-50 p-3 rounded-lg border border-gray-200">
                         <p className="text-sm font-medium text-black">{order.farmerName}</p>
                         <p className="text-xs text-gray-600">{order.quantity}kg × M{(order.price / order.quantity).toFixed(2)}</p>
                         <p className="text-sm font-bold text-black">M{order.price.toFixed(2)}</p>

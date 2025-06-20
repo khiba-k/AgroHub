@@ -13,7 +13,7 @@ const CartOrderSummary = ({
 }) => {
   return (
     <div>
-        <Card className="sticky top-8">
+        <Card className="sticky top-8 bg-white border border-gray-200">
               <CardContent className="p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
                 
