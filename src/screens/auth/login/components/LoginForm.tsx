@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useState } from "react";
 import LoginGoogleBtn from "./LoginGoogleBtn";
+import ForgotPasswordLink from "../../forgotPass/components/ForgotPasswordLink";
 
 export function LoginForm() {
     const [isLoading, setIsLoading] = useState(false);
@@ -120,6 +121,9 @@ export function LoginForm() {
                     <Link href="/register" className="text-primary hover:underline">
                         Register
                     </Link>
+                </div>
+                <div className="text-m text-center w-full">
+                   <ForgotPasswordLink/>
                 </div>
             </CardFooter>
         </Card>
