@@ -29,6 +29,7 @@ model Farm {
   updatedAt      DateTime @updatedAt
 
   farmUsers FarmUser[]
+  produceListings  ProduceListing[]
 
   @@map("farms")
   @@schema("public")
@@ -63,7 +64,7 @@ model AgroHubUser{
 }
 
 model PasswordResetToken {
-  id         String   @id @default(uuid())
+  id         String   @id @default(uuid()) @db.Uuid
   tokenHash  String
   email      String
   expiresAt  DateTime
@@ -71,6 +72,64 @@ model PasswordResetToken {
   createdAt  DateTime @default(now())
 
   @@map("password_reset_tokens")
+  @@schema("public")
+}
+
+model Produce {
+  id           String @id @default(uuid()) @db.Uuid
+  category     String
+  name         String
+  type         String
+  unitType     String
+  pricePerUnit String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listings ProduceListing[]
+
+  @@map("produce")
+  @@schema("public")
+}
+
+model ListingImg {
+  id        String    @id @default(uuid()) @db.Uuid
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listingId String    @db.Uuid
+  listing   ProduceListing @relation(fields: [listingId], references: [id])
+
+  @@map("listing_imgs")
+  @@schema("public")
+
+}
+
+enum ListingStatus {
+  active
+  harvest
+  draft
+
+  @@schema("public")
+}
+
+model ProduceListing {
+  id          String    @id @default(uuid()) @db.Uuid
+  location    String
+  description String
+  quantity    Int
+  status      ListingStatus 
+  harvestDate DateTime?
+
+  produceId   String    @db.Uuid
+  produce     Produce   @relation(fields: [produceId], references: [id])
+
+  farmId      String @db.Uuid
+  farm        Farm      @relation(fields: [farmId], references: [id])
+
+  images      ListingImg[]
+
+  @@map("produce_listings")
   @@schema("public")
 }
 
