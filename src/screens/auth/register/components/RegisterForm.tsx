@@ -81,20 +81,7 @@ export function RegisterForm({ role }: { role: string }) {
                 </div>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        {/* Full Name (optional, add schema if needed) */}
-                        {/* <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="John Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
+
 
                         <FormField
                             control={form.control}
@@ -115,27 +102,6 @@ export function RegisterForm({ role }: { role: string }) {
                             )}
                         />
 
-                        {/* Role selection — currently commented out */}
-                        {/*
-            <FormItem>
-              <FormLabel>Your Role</FormLabel>
-              <Select value={role} onValueChange={setRole}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your role" />
-                </SelectTrigger>
-                <SelectContent>
-                  {roles.map((r) => (
-                    <SelectItem key={r.id} value={r.id}>
-                      <div className="flex items-center gap-2">
-                        <r.icon className="h-4 w-4" />
-                        <span>{r.label}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormItem>
-            */}
 
                         <FormField
                             control={form.control}

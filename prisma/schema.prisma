@@ -75,6 +75,19 @@ model PasswordResetToken {
   @@schema("public")
 }
 
+model InviteToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  tokenHash String
+  email     String
+  senderId  String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("invite_tokens")
+  @@schema("public")
+}
+
 model Produce {
   id           String @id @default(uuid()) @db.Uuid
   category     String

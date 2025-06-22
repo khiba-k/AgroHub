@@ -28,9 +28,12 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const pathname = request.nextUrl.pathname
+  const searchParams = request.nextUrl.searchParams
 
-  // Allow API routes
-  if (pathname.startsWith('/api/')) return supabaseResponse
+  // Allow API routes and invite routes
+  if (pathname.startsWith('/api/') || pathname.startsWith('/invite/')) {
+    return supabaseResponse
+  }
 
   const PUBLIC_PATHS = [
     '/welcome',
@@ -42,8 +45,21 @@ export async function updateSession(request: NextRequest) {
     '/error',
     '/farmer/register',
     '/consumer/register',
+    '/onboarding/agrohub',
+    '/onboarding/farm',
+    '/onboarding/consumer',
   ]
+
   const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path))
+  
+  // Special case: if user has an invite token and is accessing onboarding, always allow
+  const hasInviteToken = searchParams.has('token')
+  const isOnboardingPath = pathname.startsWith('/onboarding/')
+  
+  if (hasInviteToken && isOnboardingPath) {
+    console.log("🎫 User has invite token accessing onboarding - allowing access")
+    return supabaseResponse
+  }
 
   // Redirect root to appropriate page
   if (pathname === '/') {
@@ -72,14 +88,14 @@ export async function updateSession(request: NextRequest) {
   ]
   const isOnboardingPage = onboardingPaths.some(path => pathname.startsWith(path))
 
-  // ✅ If onboarded and accessing onboarding -> redirect to dashboard
+
   if (isOnboarded && isOnboardingPage) {
+    console.log("Already onboarded but visiting onboarding — redirecting to dashboard")
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
   }
 
-  //If NOT onboarded and accessing non-public, non-onboarding page -> redirect based on role
   if (!isOnboarded && !isPublicPath && !isOnboardingPage) {
     const url = request.nextUrl.clone()
 
@@ -90,13 +106,6 @@ export async function updateSession(request: NextRequest) {
 
     return NextResponse.redirect(url)
   }
-
-  // // ✅ Prevent access to /login and /register if already logged in
-  // if (authPages.some(path => pathname.startsWith(path))) {
-  //   const url = request.nextUrl.clone()
-  //   url.pathname = '/dashboard'
-  //   return NextResponse.redirect(url)
-  // }
 
   return supabaseResponse
 }

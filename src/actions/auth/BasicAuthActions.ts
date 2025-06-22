@@ -165,3 +165,15 @@ export const markTokenAsUsed = async (token: string) => {
   });
 }
 
+// Create Agrohub user
+export const createAgroHubUser = async (firstName: string, lastName: string, userId: string) => {
+  return await prisma.agroHubUser.create({
+    data: {
+      
+      firstname: firstName,
+      lastname: lastName,
+      userId,
+    },
+  });
+}
+

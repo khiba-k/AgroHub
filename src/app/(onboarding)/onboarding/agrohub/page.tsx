@@ -1,12 +1,10 @@
+import OnboardingAgrohub from '@/screens/onboarding/agrohub/InviteAgroHubAccept'
+import InviteAgroHubAccept from '@/screens/onboarding/agrohub/InviteAgroHubAccept'
 import React from 'react'
-import OnboardingAgrohubForm from '@/screens/agrohub/onboarding/OnboardingAgrohubform'
 
 const page = () => {
   return (
-    <div>
-      <OnboardingAgrohubForm />
-
-    </div>
+    <div><OnboardingAgrohub/></div>
   )
 }
 
