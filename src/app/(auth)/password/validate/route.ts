@@ -3,26 +3,21 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma/prisma";
 import { compare } from "bcryptjs";
+import { getUnusedTokens } from "@/actions/auth/BasicAuthActions";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const token = searchParams.get("token");
 
-  // If token is missing, redirect to invalid page
   if (!token) {
     return NextResponse.redirect(new URL("/password/invalid", request.url));
   }
 
-  // Only fetch unexpired + unused tokens
-  const tokens = await prisma.passwordResetToken.findMany({
-    where: {
-      used: false,
-      expiresAt: { gt: new Date() },
-    },
-  });
+  // Fetch ALL tokens (even expired ones)
+  const tokens = await getUnusedTokens();
 
-  // Try to match the provided token with hashed entries
   let matchedToken = null;
+
   for (const t of tokens) {
     const isMatch = await compare(token, t.tokenHash);
     if (isMatch) {
@@ -31,14 +26,19 @@ export async function GET(request: Request) {
     }
   }
 
-  // No match found = invalid or expired token
   if (!matchedToken) {
-    return NextResponse.redirect(new URL("/password/invalid", request.url));
+    // Not found at all — invalid
+    return NextResponse.redirect(new URL("/password/forgot/invalid", request.url));
   }
 
-  // Valid token — continue to password reset screen
+  if (matchedToken.expiresAt < new Date()) {
+    // Expired
+    return NextResponse.redirect(new URL("/password/forgot/expired", request.url));
+  }
+
+  // Valid and not expired
   const redirectUrl = new URL("/password/reset", request.url);
-  redirectUrl.searchParams.set("token", token); // keep the original token
+  redirectUrl.searchParams.set("token", token);
 
   return NextResponse.redirect(redirectUrl);
 }

@@ -28,7 +28,7 @@ import { request } from "http";
 import { requestResetEmail } from "./utils/SendEmailSubmit";
 import { useRouter } from "next/navigation";
 
-const ForgotPasswordSchema = z.object({
+export const ForgotPasswordSchema = z.object({
   email: z.string().email("Enter a valid email address"),
 });
 
@@ -46,25 +46,21 @@ const ForgotPassword = () => {
     },
   });
 
+
+  const router = useRouter();
+
   async function onSubmit(values: ForgotPasswordSchemaType) {
     setIsLoading(true);
     setErrorMsg(null);
     setSuccessMsg(null);
-    const router = useRouter();
 
     try {
       const res = await requestResetEmail(values.email);
-
-      if (!res.ok) {
-        console.error("Error sending reset email:", res);
-      }
-
-      // Redirect to a success page or show a success message
-      console.log("Reset email sent successfully");
     } catch (error: any) {
       setErrorMsg(error.message);
     } finally {
       setIsLoading(false);
+      router.push("/password/forgot/email");
     }
   }
 
