@@ -48,6 +48,10 @@ export async function updateSession(request: NextRequest) {
     '/onboarding/agrohub',
     '/onboarding/farm',
     '/onboarding/consumer',
+    '/admin',
+    'password/reset',
+    '/password/forgot',
+    'password/validate'
   ]
 
   const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path))
@@ -57,7 +61,6 @@ export async function updateSession(request: NextRequest) {
   const isOnboardingPath = pathname.startsWith('/onboarding/')
   
   if (hasInviteToken && isOnboardingPath) {
-    console.log("🎫 User has invite token accessing onboarding - allowing access")
     return supabaseResponse
   }
 
@@ -88,6 +91,14 @@ export async function updateSession(request: NextRequest) {
   ]
   const isOnboardingPage = onboardingPaths.some(path => pathname.startsWith(path))
 
+  // Admin route protection
+  if (pathname.startsWith('/admin/agrohub/')) {
+    if (role !== 'agrohub') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/dashboard' // or '/unauthorized' if you have an error page
+      return NextResponse.redirect(url)
+    }
+  }
 
   if (isOnboarded && isOnboardingPage) {
     console.log("Already onboarded but visiting onboarding — redirecting to dashboard")

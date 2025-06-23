@@ -1,7 +1,7 @@
 import { Leaf } from "lucide-react";
 import { LoginForm } from "./components/LoginForm";
 
-const Login = () => {
+const Login = ({role = "user"}: {role:string}) => {
     return (
         <div className="flex min-h-screen items-center justify-center bg-background p-4">
             <div className="w-full max-w-md">
@@ -19,7 +19,7 @@ const Login = () => {
                         Agricultural Social Network for Africa
                     </p>
                 </div>
-                <LoginForm />
+                <LoginForm role={role}/>
             </div>
         </div>
     )

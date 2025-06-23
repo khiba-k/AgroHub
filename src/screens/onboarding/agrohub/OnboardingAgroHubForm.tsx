@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff } from "lucide-react";
@@ -32,13 +32,13 @@ export default function OnboardingAgroHubForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const role = searchParams.get("role") || "agrohub";
+  const router = useRouter();
 
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [emailLoaded, setEmailLoaded] = useState(false);
 
   const form = useForm<InviteAcceptType>({
     resolver: zodResolver(InviteAcceptSchema),
@@ -50,26 +50,6 @@ export default function OnboardingAgroHubForm() {
     },
   });
 
-  // Fetch email based on token
-  // useEffect(() => {
-  //   if (!token) return;
-
-  //   (async () => {
-  //     try {
-  //       const foundEmail = await fetchInviteEmailByToken(token);
-  //       if (foundEmail) {
-  //         form.setValue("email", foundEmail);
-  //         form.trigger("email"); // Force validation/re-render
-  //         setEmailLoaded(true);
-  //       } else {
-  //         setError("Invalid or expired invite link.");
-  //       }
-  //     } catch (err) {
-  //       setError("Failed to load invite information.");
-  //     }
-  //   })();
-  // }, [token, form]);
-
   async function onSubmit(values: InviteAcceptType) {
     setIsLoading(true);
     setError(null);
@@ -78,7 +58,7 @@ export default function OnboardingAgroHubForm() {
     const response = await submitInviteAcceptance({ ...values, token: token || "", role });
 
     if (response.success) {
-      setSuccess(response.message);
+      router.push("/login/admin");
     } else {
       setError(response.message);
     }
@@ -194,7 +174,7 @@ export default function OnboardingAgroHubForm() {
       <CardFooter>
         <p className="text-sm text-center w-full">
           Already have an account?{" "}
-          <Link href="/login" className="text-primary hover:underline">
+          <Link href="/login/admin" className="text-primary hover:underline">
             Login
           </Link>
         </p>

@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { LoginSchema, LoginSchemaType } from "../utils/LoginFormValidation";
 import { handleLoginSubmit as onSubmitHandler } from "../utils/Utils";
@@ -29,7 +29,7 @@ import { useState } from "react";
 import LoginGoogleBtn from "./LoginGoogleBtn";
 import ForgotPasswordLink from "../../forgotPass/components/ForgotPasswordLink";
 
-export function LoginForm() {
+export function LoginForm({role = "user"}: {role:string}) {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
@@ -44,7 +44,7 @@ export function LoginForm() {
 
     async function onSubmit(values: LoginSchemaType) {
         setIsLoading(true);
-        const result = await onSubmitHandler(values);
+        const result = await onSubmitHandler(values, role);
         if (result?.error) {
             setError(result.error);
         }
@@ -63,7 +63,9 @@ export function LoginForm() {
                         {error}
                     </div>
                 )}
-                <LoginGoogleBtn role="farmer" /><br></br>
+                {role === "user" ? 
+                <><LoginGoogleBtn role="farmer" /><br></br> </> :
+                null}
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
@@ -110,7 +112,7 @@ export function LoginForm() {
                         />
 
                         <Button type="submit" className="w-full text-lg" disabled={isLoading}>
-                            {isLoading ? "Logging in..." : "Login"}
+                            {isLoading ? <Loader2/> : "Login"}
                         </Button>
                     </form>
                 </Form>

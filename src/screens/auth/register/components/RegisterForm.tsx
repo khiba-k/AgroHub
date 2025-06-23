@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader, Loader2 } from 'lucide-react';
 import { useForm } from "react-hook-form";
 import { RegisterFormType, RegisterForm as registerSchema } from "../utils/RegisterFormValidation";
 import { handleSubmit as onSubmitHandler } from "../utils/Utils";
@@ -163,7 +163,7 @@ export function RegisterForm({ role }: { role: string }) {
                             className="w-full py-3 text-lg" // Changed text-lg to text-xl
                             disabled={isLoading}
                         >
-                            {isLoading ? "Creating account..." : "Register"}
+                            {isLoading ? <Loader2/> : "Register"}
                         </Button>
                     </form>
                 </Form>
