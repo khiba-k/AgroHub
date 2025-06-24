@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
+import axios from "../lib/utils/axios";
 
 const inter = Inter({ subsets: ["latin"] });
 

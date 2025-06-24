@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { Header } from "./Header";
 import SideBar from "./SideBar";
+import { getFarmerInfoRequest } from "./Utils/Requests";
+import { useUserStore, useFarmStore } from "@/lib/store/userStores";
 
 interface DashboardLayoutProps {
     children: ReactNode;
@@ -14,72 +16,77 @@ interface DashboardLayoutProps {
 
 export function AppLayout({
     children,
-    onRoleChange,
 }: DashboardLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [role, setRole] = useState<string>("");
-    const [email, setEmail] = useState<string | undefined>(undefined);
-    const [loading, setLoading] = useState(true);
-    const [avatar, setAvatar] = useState<string>("");
     const router = useRouter();
 
-    // Update local state when prop changes
+    // Zustand stores
+    const { setUser, setLoading: setUserLoading } = useUserStore();
+    const { setFarm, setLoading: setFarmLoading } = useFarmStore();
 
-    // Fetch user email and avatar on component mount
+    // Fetch user and farm data on component mount
     useEffect(() => {
         const fetchUserData = async () => {
             try {
+                setUserLoading(true);
+                setFarmLoading(true);
+
                 const user = await getUserObj();
                 if (user) {
-                    setEmail(user.email);
-                    setAvatar(user.metadata?.avatar_url);
-                    setRole(user.metadata?.role)
+                    // Store user data in Zustand
+                    setUser({
+                        userId: user.id,
+                        email: user.email,
+                        avatar: user.metadata?.avatar_url || "",
+                        role: user.metadata?.role || "",
+                    });
+
+                    // Fetch and store farmer-specific info
+                    const farmerDetails = await getFarmerInfoRequest();
+                    if (farmerDetails) {
+                        setFarm({
+                            farmId: farmerDetails.farmId,
+                            farmName: farmerDetails.farmName,
+                            farmDetails: farmerDetails,
+                        });
+                    } else {
+                        console.log("No farmer details found.");
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching user:", error);
             } finally {
-                setLoading(false);
+                setUserLoading(false);
+                setFarmLoading(false);
             }
         };
 
         fetchUserData();
-    }, []);
-
-    const toggleSidebar = () => {
-        setSidebarOpen(!sidebarOpen);
-    };
+    }, [setUser, setFarm, setUserLoading, setFarmLoading]);
+    // const toggleSidebar = () => {
+    //     setSidebarOpen(!sidebarOpen);
+    // };
 
     const toggleMobileMenu = () => {
         setMobileMenuOpen(!mobileMenuOpen);
     };
 
-    const handleRoleChange = (newRole: string) => {
-        setRole(newRole);
-        // Call parent handler if provided
-        if (onRoleChange) {
-            onRoleChange(newRole);
-        }
-    };
+    // const handleRoleChange = (newRole: string) => {
+    //     setRole(newRole);
+    //     // Call parent handler if provided
+    //     if (onRoleChange) {
+    //         onRoleChange(newRole);
+    //     }
+    // };
 
-
-    // Generate name based on role
-    const getName = () => {
-        const nameMap: Record<string, string> = {
-            farmer: "Khiba Farmer",
-            retailer: "Sarah Retailer",
-            logistics: "Michael Logistics",
-            distributor: "David Distributor",
-            service: "Emma Provider",
-            consumer: "Lisa Consumer",
-        };
-        return nameMap[role] || "John Farmer";
-    };
 
     return (
         <div className="flex h-screen bg-background">
             {/* Sidebar */}
-            <SideBar className="hidden md:block" userRole={role} avatar={avatar} />
+            <SideBar className="hidden md:block"
+                
+            />
 
             {/* Mobile sidebar */}
             {mobileMenuOpen && (
@@ -89,7 +96,6 @@ export function AppLayout({
                         onClick={toggleMobileMenu}
                     ></div>
                     <div className="fixed inset-y-0 left-0 w-[240px] bg-background">
-                        <SideBar userRole={role} avatar={avatar} />
                     </div>
                 </div>
             )}
@@ -98,13 +104,7 @@ export function AppLayout({
             <div className="flex flex-col flex-1 overflow-hidden">
                 <Header
                     onMenuToggle={toggleMobileMenu}
-                    onRoleChange={handleRoleChange}
-                    user={{
-                        name: getName(),
-                        email: email,
-                        avatar: avatar,
-                        role: role,
-                    }}
+                    // onRoleChange={handleRoleChange}
                 />
                 <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
                     <div className="container mx-auto max-w-7xl">{children}</div>

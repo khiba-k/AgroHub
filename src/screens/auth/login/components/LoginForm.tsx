@@ -118,13 +118,14 @@ export function LoginForm({role = "user"}: {role:string}) {
                 </Form>
             </CardContent>
             <CardFooter>
+            {role === "agrohub" ? null :
                 <div className="text-m text-center w-full">
                     Don’t have an account?{" "}
-                    <Link href="/register" className="text-primary hover:underline">
+                    <Link href="/farmer/register" className="text-primary hover:underline">
                         Register
                     </Link>
-                </div>
-                <div className="text-m text-center w-full">
+                </div>}
+                 <div className="text-m text-center w-full">
                    <ForgotPasswordLink/>
                 </div>
             </CardFooter>
