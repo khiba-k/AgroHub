@@ -13,20 +13,20 @@ const CartOrderSummary = ({
 }) => {
   return (
     <div>
-        <Card className="sticky top-8 bg-white border border-gray-200">
+        <Card className="sticky top-8  border border-gray-200">
               <CardContent className="p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
+                <h2 className="text-xl font-bold mb-4">Order Summary</h2>
                 
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Items ({totalItems})</span>
-                    <span className="font-medium text-black">LSL {totalPrice.toFixed(2)}</span>
+                    <span>Items ({totalItems})</span>
+                    <span className="font-medium ">LSL {totalPrice.toFixed(2)}</span>
                   </div>
                   
                   <div className="border-t pt-3">
                     <div className="flex justify-between">
-                      <span className="text-lg font-bold text-gray-900">Total</span>
-                      <span className="text-lg font-bold text-black">
+                      <span className="text-lg font-bold ">Total</span>
+                      <span className="text-lg font-bold ">
                         LSL {totalPrice.toFixed(2)}
                       </span>
                     </div>
@@ -34,7 +34,7 @@ const CartOrderSummary = ({
                 </div>
 
                 <Button 
-                  className="w-full bg-black hover:bg-gray-800 text-white"
+                  className="w-full  hover:bg-gray-800 "
                   size="lg"
                   disabled={cartItems.length === 0}
                 >

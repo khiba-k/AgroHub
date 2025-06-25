@@ -75,7 +75,7 @@ export default function AgroHubListings() {
 
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen ">
       {/* Header */}
 
       <div className="max-w-7xl mx-auto px-6 py-8">
@@ -83,7 +83,7 @@ export default function AgroHubListings() {
           {/* Left Side - Filters and Products */}
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-black">Produce Listing</h2>
+              <h2 className="text-3xl font-bold ">Produce Listing</h2>
             </div>
 
             {/* Filters */}

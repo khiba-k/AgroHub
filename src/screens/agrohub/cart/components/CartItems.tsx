@@ -22,10 +22,10 @@ const CartItems = (
   return (
     <div>
         
-            <div className="bg-white rounded-lg border border-gray-200">
+            <div className=" rounded-lg border border-gray-200">
               <div className="p-6 border-b">
-                <h1 className="text-2xl font-bold text-gray-900">Your Cart</h1>
-                <p className="text-sm text-gray-600 mt-1">
+                <h1 className="text-2xl font-bold ">Your Cart</h1>
+                <p className="text-sm  mt-1">
                   {searchQuery ? (
                     <>
                       {filteredCartItems.length} of {totalItems} {totalItems === 1 ? 'item' : 'items'} 
@@ -42,11 +42,11 @@ const CartItems = (
               <div className="divide-y">
                 {filteredCartItems.length === 0 ? (
                   <div className="p-8 text-center">
-                    <ShoppingCart className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <ShoppingCart className="w-12 h-12  mx-auto mb-4" />
                     {searchQuery ? (
                       <>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">No items found</h3>
-                        <p className="text-gray-500">Try searching for a different product name or category</p>
+                        <h3 className="text-lg font-medium  mb-2">No items found</h3>
+                        <p>Try searching for a different product name or category</p>
                       </>
                     ) : (
                       <>
@@ -57,17 +57,17 @@ const CartItems = (
                   </div>
                 ) : (
                   filteredCartItems.map((item) => (
-                    <div key={item.id} className="p-6 hover:bg-gray-50 transition-colors">
+                    <div key={item.id} className="p-6 hover: transition-colors">
                       <div className="flex items-center justify-between">
                         {/* Product Details */}
                         <div className="flex-1">
-                          <h3 className="text-lg font-medium text-gray-900">
+                          <h3 className="text-lg font-medium ">
                             {item.name}
                           </h3>
-                          <p className="text-sm text-gray-500 capitalize mt-1">
+                          <p className="text-sm capitalize mt-1">
                             {item.category}
                           </p>
-                          <p className="text-lg font-semibold text-black mt-2">
+                          <p className="text-lg font-semibold  mt-2">
                             LSL {item.price.toFixed(2)}
                           </p>
                         </div>
@@ -75,7 +75,7 @@ const CartItems = (
                         {/* Quantity Input */}
                         <div className="flex items-center space-x-4">
                           <div className="flex items-center space-x-2">
-                            <label htmlFor={`quantity-${item.id}`} className="text-sm font-medium text-gray-700">
+                            <label htmlFor={`quantity-${item.id}`} className="text-sm font-medium ">
                               Quantity:
                             </label>
                             <Input

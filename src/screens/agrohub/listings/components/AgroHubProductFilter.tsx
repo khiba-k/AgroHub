@@ -22,10 +22,10 @@ const AgroHubProductFilter = (
     <div>
         <div className="flex flex-wrap gap-4 mb-8">
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-48 bg-white border-gray-300 text-black">
+                <SelectTrigger className="w-48 border-gray-300 ">
                   <SelectValue placeholder="Choose Category" />
                 </SelectTrigger>
-                <SelectContent className="bg-white border-gray-300">
+                <SelectContent className=" border-gray-300">
                   <SelectItem value="fruits">Fruits</SelectItem>
                   <SelectItem value="vegetables">Vegetables</SelectItem>
                   <SelectItem value="grains">Grains</SelectItem>
@@ -33,10 +33,10 @@ const AgroHubProductFilter = (
               </Select>
 
               <Select value={selectedProduce} onValueChange={setSelectedProduce}>
-                <SelectTrigger className="w-48 bg-white border-gray-300 text-black">
+                <SelectTrigger className="w-48  border-gray-300 ">
                   <SelectValue placeholder="Choose Produce" />
                 </SelectTrigger>
-                <SelectContent className="bg-white border-gray-300">
+                <SelectContent className=" border-gray-300">
                   <SelectItem value="apples">Apples</SelectItem>
                   <SelectItem value="bananas">Bananas</SelectItem>
                   <SelectItem value="oranges">Oranges</SelectItem>
@@ -44,10 +44,10 @@ const AgroHubProductFilter = (
               </Select>
 
               <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger className="w-48 bg-white border-gray-300 text-black">
+                <SelectTrigger className="w-48 border-gray-300">
                   <SelectValue placeholder="Choose Type" />
                 </SelectTrigger>
-                <SelectContent className="bg-white border-gray-300">
+                <SelectContent className=" border-gray-300">
                   <SelectItem value="fuji">Fuji</SelectItem>
                   <SelectItem value="gala">Gala</SelectItem>
                   <SelectItem value="red-delicious">Red Delicious</SelectItem>

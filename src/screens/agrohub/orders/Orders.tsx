@@ -19,7 +19,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Eye, Filter, Package, Search, ShoppingCart } from "lucide-react";
 
-export default function Page() {
+export default function Orders() {
     // Mock orders data
     const orders = [
         {
