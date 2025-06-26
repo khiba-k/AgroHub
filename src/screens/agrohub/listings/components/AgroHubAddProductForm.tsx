@@ -15,8 +15,8 @@ interface AgroHubAddProductFormProps {
 const AgroHubAddProductForm = ({showAddProduct, setShowAddProduct}: AgroHubAddProductFormProps) => {
     const [productForm, setProductForm] = useState<ProductFormData>({
         category: '',
-        productType: '',
         productName: '',
+        productType: '',
         pricePerUnit: 0,
         unitType: ''
     });
@@ -35,8 +35,8 @@ const AgroHubAddProductForm = ({showAddProduct, setShowAddProduct}: AgroHubAddPr
         // Reset form
         setProductForm({
             category: '',
-            productType: '',
             productName: '',
+            productType: '',
             pricePerUnit: 0,
             unitType: ''
         });
@@ -44,7 +44,7 @@ const AgroHubAddProductForm = ({showAddProduct, setShowAddProduct}: AgroHubAddPr
     return (
         <div>
             <Dialog open={showAddProduct} onOpenChange={setShowAddProduct}>
-                <DialogContent className="bg-white border-gray-200 text-black max-w-lg">
+                <DialogContent className=" border-gray-200  max-w-lg">
                     <DialogHeader>
                         <DialogTitle className="text-2xl font-bold">Add New Produce</DialogTitle>
                     </DialogHeader>
@@ -56,25 +56,25 @@ const AgroHubAddProductForm = ({showAddProduct, setShowAddProduct}: AgroHubAddPr
                                 value={productForm.category}
                                 onValueChange={(value) => setProductForm(prev => ({ ...prev, category: value }))}
                             >
-                                <SelectTrigger className="mt-1 bg-white border-gray-300 text-black">
+                                <SelectTrigger className="mt-1  border-gray-300">
                                     <SelectValue placeholder="Select Category" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-white border-gray-200">
+                                <SelectContent className=" border-black-200">
                                     <SelectItem value="fruits">Fruits</SelectItem>
                                     <SelectItem value="vegetables">Vegetables</SelectItem>
                                     <SelectItem value="grains">Grains</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
-
+                        
                         <div>
-                            <Label className="text-sm font-medium">Product Type</Label>
+                            <Label className="text-sm font-medium">Product Name</Label>
                             <div className="space-y-2">
                                 <Select onValueChange={handleProductTypeChange}>
-                                    <SelectTrigger className="mt-1 bg-white border-gray-300 text-black">
-                                        <SelectValue placeholder="Select or enter custom type" />
+                                    <SelectTrigger className="mt-1 border-gray-300 ">
+                                        <SelectValue placeholder="Select or enter product name" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-white border-gray-200">
+                                    <SelectContent className=" border-white-200">
                                         {predefinedProductTypes.map((type) => (
                                             <SelectItem key={type} value={type}>{type}</SelectItem>
                                         ))}
@@ -82,23 +82,24 @@ const AgroHubAddProductForm = ({showAddProduct, setShowAddProduct}: AgroHubAddPr
                                     </SelectContent>
                                 </Select>
                                 <Input
-                                    placeholder="Enter custom product type"
+                                    placeholder="Enter new product name"
                                     value={productForm.productType}
                                     onChange={(e) => setProductForm(prev => ({ ...prev, productType: e.target.value }))}
-                                    className="bg-white border-gray-300 text-black"
+                                    className=" border-gray-300 "
                                 />
                             </div>
                         </div>
-
-                        <div>
-                            <Label className="text-sm font-medium">Product Name</Label>
+                         <div>
+                            <Label className="text-sm font-medium">Product Type</Label>
                             <Input
-                                placeholder="Enter Product Name"
+                                placeholder="Enter product type"
                                 value={productForm.productName}
                                 onChange={(e) => setProductForm(prev => ({ ...prev, productName: e.target.value }))}
-                                className="mt-1 bg-white border-gray-300 text-black"
+                                className="mt-1 border-gray-300 "
                             />
                         </div>
+
+                    
 
                         <div>
                             <Label className="text-sm font-medium">Price per Unit</Label>
@@ -107,7 +108,7 @@ const AgroHubAddProductForm = ({showAddProduct, setShowAddProduct}: AgroHubAddPr
                                 placeholder="Enter Price per Unit"
                                 value={productForm.pricePerUnit || ''}
                                 onChange={(e) => setProductForm(prev => ({ ...prev, pricePerUnit: Number(e.target.value) }))}
-                                className="mt-1 bg-white border-gray-300 text-black"
+                                className="mt-1 border-gray-300 "
                             />
                         </div>
 
@@ -117,10 +118,10 @@ const AgroHubAddProductForm = ({showAddProduct, setShowAddProduct}: AgroHubAddPr
                                 value={productForm.unitType}
                                 onValueChange={(value) => setProductForm(prev => ({ ...prev, unitType: value }))}
                             >
-                                <SelectTrigger className="mt-1 bg-white border-gray-300 text-black">
+                                <SelectTrigger className="mt-1  border-gray-300">
                                     <SelectValue placeholder="Select Unit Type" />
                                 </SelectTrigger>
-                                <SelectContent className="bg-white border-gray-200">
+                                <SelectContent className=" border-white-200">
                                     <SelectItem value="kg">Kilogram (kg)</SelectItem>
                                     <SelectItem value="g">Gram (g)</SelectItem>
                                     <SelectItem value="ton">Ton</SelectItem>
@@ -132,7 +133,7 @@ const AgroHubAddProductForm = ({showAddProduct, setShowAddProduct}: AgroHubAddPr
 
                         <Button
                             onClick={handleSaveProduct}
-                            className="w-full bg-black hover:bg-gray-800 text-white font-semibold py-3"
+                            className="w-full hover:bg-gray-800  font-semibold py-3"
                         >
                             Save Product
                         </Button>
