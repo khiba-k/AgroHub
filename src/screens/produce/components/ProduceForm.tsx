@@ -16,20 +16,52 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Upload } from "lucide-react";
-import { useState } from "react";
+import { CalendarIcon, Upload } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface ProduceFormProps {
     initialData?: any;
 }
 
 export function ProduceForm({ initialData }: ProduceFormProps) {
-    const [date, setDate] = useState<Date | undefined>(
+    const [harvestDate, setHarvestDate] = useState<Date | undefined>(
         initialData?.harvestDate ? new Date(initialData.harvestDate) : undefined,
     );
+    const [status, setStatus] = useState(initialData?.status || "active");
+    const [quantity, setQuantity] = useState(initialData?.quantity || "");
+    const [pricePerUnit] = useState(2.50); // This would come from system/admin
+    const [estimatedIncome, setEstimatedIncome] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Categories with common options
+    const categories = [
+        "Vegetables", "Fruits", "Grains", "Legumes", "Dairy", "Poultry", "Livestock", "Herbs & Spices", "Nuts & Seeds", "Other"
+    ];
+
+    // Common produce names by category (simplified list)
+    const produceNames = [
+        "Tomatoes", "Potatoes", "Onions", "Carrots", "Cabbage", "Spinach", "Lettuce", "Peppers",
+        "Apples", "Bananas", "Oranges", "Mangoes", "Avocados", "Berries", "Grapes",
+        "Maize", "Rice", "Wheat", "Barley", "Beans", "Peas", "Lentils", "Chickpeas",
+        "Milk", "Eggs", "Cheese", "Chicken", "Beef", "Pork", "Goat", "Lamb"
+    ];
+
+    // Produce types (varieties/specifications)
+    const produceTypes = [
+        "Organic", "Conventional", "Heirloom", "Hybrid", "Fresh", "Dried", "Processed",
+        "Grade A", "Grade B", "Premium", "Standard", "Free Range", "Grass Fed"
+    ];
+
+    const units = [
+        "Kilograms (kg)", "Grams (g)", "Tons", "Liters (L)", "Dozen", "Pieces", "Crates", "Bags", "Bunches"
+    ];
+
+    // Calculate estimated income when quantity changes
+    useEffect(() => {
+        const numQuantity = parseFloat(quantity) || 0;
+        setEstimatedIncome(numQuantity * pricePerUnit);
+    }, [quantity, pricePerUnit]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -42,178 +74,209 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
         }, 1000);
     };
 
+    const ComboboxSelect = ({ items, placeholder, defaultValue, name }: {
+        items: string[];
+        placeholder: string;
+        defaultValue?: string;
+        name: string;
+    }) => {
+        const [open, setOpen] = useState(false);
+        const [value, setValue] = useState(defaultValue || "");
+        
+        return (
+            <div className="relative">
+                <Input
+                    name={name}
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                    placeholder={placeholder}
+                    className="pr-10"
+                    list={`${name}-list`}
+                />
+                <datalist id={`${name}-list`}>
+                    {items.map((item) => (
+                        <option key={item} value={item} />
+                    ))}
+                </datalist>
+            </div>
+        );
+    };
+
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="max-w-2xl mx-auto p-6">
+            <div className="mb-6">
+                <h1 className="text-2xl font-bold text-gray-900">Add New Produce</h1>
+                <p className="text-gray-600 mt-1">Fill in the details to list your produce</p>
+            </div>
+
+            <div className="space-y-6">
+                <div className="space-y-4">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="space-y-2">
+                            <Label htmlFor="category">Category</Label>
+                            <ComboboxSelect
+                                items={categories}
+                                placeholder="Select or type category"
+                                defaultValue={initialData?.category}
+                                name="category"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="produce-name">Produce Name</Label>
+                            <ComboboxSelect
+                                items={produceNames}
+                                placeholder="Select or type produce name"
+                                defaultValue={initialData?.produceName}
+                                name="produce-name"
+                            />
+                        </div>
+                    </div>
+
                     <div className="space-y-2">
-                        <Label htmlFor="name">Produce Name</Label>
-                        <Input
-                            id="name"
-                            placeholder="e.g. Organic Tomatoes"
-                            defaultValue={initialData?.name}
-                            required
+                        <Label htmlFor="produce-type">Produce Type</Label>
+                        <ComboboxSelect
+                            items={produceTypes}
+                            placeholder="Select or type produce type (e.g., Organic, Grade A)"
+                            defaultValue={initialData?.produceType}
+                            name="produce-type"
                         />
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="category">Category</Label>
-                        <Select defaultValue={initialData?.category || "vegetables"}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="vegetables">Vegetables</SelectItem>
-                                <SelectItem value="fruits">Fruits</SelectItem>
-                                <SelectItem value="grains">Grains</SelectItem>
-                                <SelectItem value="dairy">Dairy</SelectItem>
-                                <SelectItem value="poultry">Poultry</SelectItem>
-                                <SelectItem value="livestock">Livestock</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                        <Label htmlFor="quantity">Quantity</Label>
-                        <Input
-                            id="quantity"
-                            placeholder="e.g. 500"
-                            defaultValue={initialData?.quantity?.split(" ")[0]}
-                            required
-                        />
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div className="space-y-2">
+                            <Label htmlFor="unit">Unit</Label>
+                            <Select defaultValue={initialData?.unit || "kg"}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select unit" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {units.map((unit) => (
+                                        <SelectItem key={unit} value={unit.split(" ")[0].toLowerCase()}>
+                                            {unit}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="quantity">Quantity</Label>
+                            <Input
+                                id="quantity"
+                                placeholder="e.g. 500"
+                                value={quantity}
+                                onChange={(e) => setQuantity(e.target.value)}
+                                required
+                            />
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="unit">Unit</Label>
-                        <Select defaultValue={initialData?.quantity?.split(" ")[1] || "kg"}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select unit" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="kg">Kilograms (kg)</SelectItem>
-                                <SelectItem value="g">Grams (g)</SelectItem>
-                                <SelectItem value="ton">Tons</SelectItem>
-                                <SelectItem value="l">Liters (L)</SelectItem>
-                                <SelectItem value="dozen">Dozen</SelectItem>
-                                <SelectItem value="pieces">Pieces</SelectItem>
-                                <SelectItem value="crates">Crates</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                        <Label htmlFor="price">Price per Unit</Label>
-                        <Input
-                            id="price"
-                            placeholder="e.g. 2.99"
-                            defaultValue={initialData?.price?.replace(/[^0-9.]/g, "")}
-                            required
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="currency">Currency</Label>
-                        <Select defaultValue="usd">
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select currency" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="usd">USD ($)</SelectItem>
-                                <SelectItem value="kes">KES (KSh)</SelectItem>
-                                <SelectItem value="eur">EUR (€)</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="space-y-2">
-                        <Label htmlFor="harvest-date">Harvest Date</Label>
-                        <Popover>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    className="w-full justify-start text-left font-normal"
-                                >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {date ? format(date, "PPP") : <span>Pick a date</span>}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
-                                <Calendar
-                                    mode="single"
-                                    selected={date}
-                                    onSelect={setDate}
-                                    initialFocus
-                                />
-                            </PopoverContent>
-                        </Popover>
-                    </div>
                     <div className="space-y-2">
                         <Label htmlFor="location">Farm Location</Label>
                         <Input
                             id="location"
-                            placeholder="e.g. Eastern Region Farm"
+                            placeholder="e.g. Eastern Region Farm, Nairobi"
                             defaultValue={initialData?.location}
                             required
                         />
                     </div>
-                </div>
 
-                <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                        id="description"
-                        placeholder="Describe your produce, including quality, growing methods, etc."
-                        className="min-h-[100px]"
-                        defaultValue={initialData?.description}
-                    />
-                </div>
+                    <div className="space-y-2">
+                        <Label>Images</Label>
+                        <div className="border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center">
+                            <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                            <p className="text-sm text-muted-foreground mb-1">
+                                Drag & drop images here or click to browse
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                PNG, JPG or WEBP, up to 5 images (max 5MB each)
+                            </p>
+                            <Button type="button" variant="outline" size="sm" className="mt-4">
+                                Upload Images
+                            </Button>
+                        </div>
+                    </div>
 
-                <div className="space-y-2">
-                    <Label>Images</Label>
-                    <div className="border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center">
-                        <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                        <p className="text-sm text-muted-foreground mb-1">
-                            Drag & drop images here or click to browse
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                            PNG, JPG or WEBP, up to 5 images (max 5MB each)
-                        </p>
-                        <Button type="button" variant="outline" size="sm" className="mt-4">
-                            Upload Images
-                        </Button>
+                    <div className="space-y-2">
+                        <Label htmlFor="status">Select Status</Label>
+                        <Select value={status} onValueChange={setStatus}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="draft">Draft</SelectItem>
+                                <SelectItem value="future-harvest">Future Harvest</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {status === "future-harvest" && (
+                        <div className="space-y-2">
+                            <Label htmlFor="harvest-date">Harvest Date</Label>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        className="w-full justify-start text-left font-normal"
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {harvestDate ? format(harvestDate, "PPP") : <span>Pick harvest date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                        mode="single"
+                                        selected={harvestDate}
+                                        onSelect={setHarvestDate}
+                                        initialFocus
+                                        disabled={(date) => date < new Date()}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                    )}
+
+                    <div className="bg-gray-50 p-4 rounded-lg border">
+                        <div className="space-y-2">
+                            <div className="text-sm text-gray-600">
+                                <strong>Pricing Information:</strong>
+                            </div>
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 text-sm">
+                                <div>
+                                    <span className="text-gray-600">Price per unit:</span>
+                                    <div className="font-semibold">${pricePerUnit.toFixed(2)}</div>
+                                </div>
+                                <div>
+                                    <span className="text-gray-600">Quantity:</span>
+                                    <div className="font-semibold">{quantity || "0"}</div>
+                                </div>
+                                <div>
+                                    <span className="text-gray-600">Estimated Income:</span>
+                                    <div className="font-bold text-green-600 text-lg">
+                                        ${estimatedIncome.toFixed(2)}
+                                    </div>
+                                </div>
+                            </div>
+                            <p className="text-xs text-gray-500 mt-2">
+                                * Price per unit is set by the system and may vary based on market conditions
+                            </p>
+                        </div>
                     </div>
                 </div>
 
-                <div className="space-y-2">
-                    <Label htmlFor="status">Listing Status</Label>
-                    <Select defaultValue={initialData?.status || "draft"}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="draft">Draft</SelectItem>
-                            <SelectItem value="active">Active (Public)</SelectItem>
-                        </SelectContent>
-                    </Select>
+                <div className="flex justify-end space-x-2 pt-4 border-t">
+                    <Button type="button" variant="outline">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleSubmit} disabled={isSubmitting}>
+                        {isSubmitting
+                            ? "Saving..."
+                            : initialData
+                                ? "Update Listing"
+                                : "Create Listing"}
+                    </Button>
                 </div>
             </div>
-
-            <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline">
-                    Cancel
-                </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting
-                        ? "Saving..."
-                        : initialData
-                            ? "Update Listing"
-                            : "Create Listing"}
-                </Button>
-            </div>
-        </form>
+        </div>
     );
 }
