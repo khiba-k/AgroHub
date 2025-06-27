@@ -19,6 +19,7 @@ import {
 import { format } from "date-fns";
 import { CalendarIcon, Upload } from "lucide-react";
 import { useState, useEffect } from "react";
+import ProduceFormListingUpload from "./ProduceListingUpload";
 
 interface ProduceFormProps {
     initialData?: any;
@@ -181,19 +182,8 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
                     </div>
 
                     <div className="space-y-2">
-                        <Label>Images</Label>
-                        <div className="border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center">
-                            <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                            <p className="text-sm text-muted-foreground mb-1">
-                                Drag & drop images here or click to browse
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                                PNG, JPG or WEBP, up to 5 images (max 5MB each)
-                            </p>
-                            <Button type="button" variant="outline" size="sm" className="mt-4">
-                                Upload Images
-                            </Button>
-                        </div>
+                            <ProduceFormListingUpload />
+                        
                     </div>
 
                     <div className="space-y-2">
