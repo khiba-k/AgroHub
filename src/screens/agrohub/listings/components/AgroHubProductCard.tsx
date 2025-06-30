@@ -4,10 +4,13 @@ import { Card, CardContent } from '@/components/ui/card'
 
 const AgroHubProductCard = (
     {
-        farmer,
-        handleCardClick
+      type = undefined,
+      produce,  
+      farmer,
+        
     }: {
-        handleCardClick: (farmer: Farmer) => void, 
+        type: string | undefined,
+        produce: string | undefined,
         farmer: Farmer | null
     }
 ) => {
@@ -18,13 +21,13 @@ const AgroHubProductCard = (
                 <Card
                   key={farmer?.id}
                   className="border-gray-200 hover:border-black transition-all duration-300 cursor-pointer transform hover:scale-105 hover:shadow-xl"
-                  onClick={() => farmer && handleCardClick(farmer)}
+                  onClick={() => farmer}
                 >
                   <CardContent className="p-0">
                     <div className="relative">
                       <img
                         src={farmer?.image}
-                        alt="Fuji Apples"
+                        alt="Produce Image"
                         className="w-full h-48 object-cover rounded-t-lg"
                       />
                       <div className="absolute top-3 left-3">
@@ -34,7 +37,7 @@ const AgroHubProductCard = (
                       </div>
                     </div>
                     <div className="p-4">
-                      <h3 className="text-xl font-bold  mb-2">Fuji Apples</h3>
+                      <h3 className="text-xl font-bold  mb-2">{type} {produce}</h3>
                       <div className="space-y-1 text-sm">
                         <p className="text-gray-600">
                           <span className="font-medium">Farmer:</span> {farmer?.name}

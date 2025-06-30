@@ -35,12 +35,12 @@ const unitTypes = [
     { value: 'box', label: 'Box' }
 ]
 
-const capitalize = (str: string) =>
-    str
-        .toLowerCase()
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
+const capitalize = (str: string | null | undefined) =>
+    (str ?? '')
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
 
 const AgroHubAddProductForm = ({ showAddProduct, setShowAddProduct }: AgroHubAddProductFormProps) => {
     const [categoryOpen, setCategoryOpen] = useState(false)

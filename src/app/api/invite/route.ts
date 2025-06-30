@@ -16,6 +16,7 @@ export const inviteSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    console.log("Received invite request Body: ", body);
     const parse = inviteSchema.safeParse(body);
 
     if (!parse.success) return badRequest("Invalid invite format");
@@ -23,6 +24,7 @@ export async function POST(req: NextRequest) {
     const { email, role } = parse.data;
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
+    console.log("Current user: ", user);
 
     if (!user) return serverError("Unauthorized");
     if (user.email === email) return badRequest("Cannot invite yourself");

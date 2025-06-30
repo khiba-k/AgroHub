@@ -5,6 +5,7 @@ import type { ProduceFormData } from './produceFromValidation'
 export const submitProduce = async (data: ProduceFormData) => {
   try {
     const response = await axios.post('/api/produce/add', data)
+    console.log("Data: ", data)
     return response.data
   } catch (error: any) {
     // Log and rethrow for UI to handle if needed

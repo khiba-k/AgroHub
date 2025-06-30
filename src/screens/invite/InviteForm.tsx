@@ -32,17 +32,18 @@ export type InviteFormType = z.infer<typeof InviteFormSchema>;
 
 const InviteForm = () => {
   const [status, setStatus] = useState<string | null>(null);
-const [senderId, setSenderId] = useState<string | null>(null);
-    // Get the current user object to access senderId
-    useEffect(() => {
-      const fetchSenderId = async () => {
-        const user = await getUserObj();
-        if (user) {
-          setSenderId(user.id); // Ensure senderId is set from the current user
-        }
-      };
-      fetchSenderId();
-    }, []);
+  const [senderId, setSenderId] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  // Get the current user object to access senderId
+  useEffect(() => {
+    const fetchSenderId = async () => {
+      const user = await getUserObj();
+      if (user) {
+        setSenderId(user.id); // Ensure senderId is set from the current user
+      }
+    };
+    fetchSenderId();
+  }, []);
 
   const form = useForm<InviteFormType>({
     resolver: zodResolver(InviteFormSchema),
@@ -52,12 +53,14 @@ const [senderId, setSenderId] = useState<string | null>(null);
   });
 
   async function onSubmit(values: InviteFormType) {
+    setLoading(true);
     if (values.email === senderId) {
       setStatus("You cannot invite yourself.");
       return;
     }
 
     const res = await sendInvite(values.email);
+    setLoading(false);
     setStatus(res.message);
   }
 
@@ -86,9 +89,13 @@ const [senderId, setSenderId] = useState<string | null>(null);
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full">
-              Send Invite
-            </Button>
+            {loading ?
+              <Button type="button" className="w-full" disabled>
+                Sending...
+              </Button>
+              : (<Button type="submit" className="w-full">
+                Send Invite
+              </Button>)}
           </form>
         </Form>
       </CardContent>

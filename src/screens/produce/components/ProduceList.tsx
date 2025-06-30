@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -20,90 +21,103 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
+import { useProduceListingStore } from "@/lib/store/useProduceListingStore";
+import { fetchProduceListings } from "@/lib/requests/produceListingsRequests";
 import { ProduceForm } from "./ProduceForm";
 
 interface ProduceListProps {
-    status: "active" | "draft" | "sold";
+    status: "active" | "draft" | "harvest" | "sold";
 }
 
 export function ProduceList({ status }: ProduceListProps) {
-    // Mock produce data
-    const produceItems = [
-        {
-            id: "1",
-            name: "Organic Tomatoes",
-            category: "Vegetables",
-            quantity: "500 kg",
-            price: "$2.99/kg",
-            image:
-                "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800&q=80",
-            status: "active",
-            harvestDate: "2023-10-15",
-            location: "Eastern Region Farm",
-        },
-        {
-            id: "2",
-            name: "Fresh Maize",
-            category: "Grains",
-            quantity: "1,200 kg",
-            price: "$1.49/kg",
-            image:
-                "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=800&q=80",
-            status: "active",
-            harvestDate: "2023-10-10",
-            location: "Central Region Farm",
-        },
-        {
-            id: "3",
-            name: "Organic Kale",
-            category: "Vegetables",
-            quantity: "300 kg",
-            price: "$3.29/kg",
-            image:
-                "https://images.unsplash.com/photo-1524179091875-bf99a9a6af57?w=800&q=80",
-            status: "draft",
-            harvestDate: "2023-10-20",
-            location: "Western Region Farm",
-        },
-        {
-            id: "4",
-            name: "Free-Range Eggs",
-            category: "Poultry",
-            quantity: "200 dozen",
-            price: "$4.99/dozen",
-            image:
-                "https://images.unsplash.com/photo-1598965675045-45c5e72c7d05?w=800&q=80",
-            status: "sold",
-            harvestDate: "2023-10-05",
-            location: "Eastern Region Farm",
-        },
-    ];
+    const farmId = "be6684f7-02de-4f7a-bd56-e1785f618de5";
 
-    const filteredItems = produceItems.filter((item) => item.status === status);
+    const {
+        listings,
+        page,
+        hasMore,
+        setListings,
+        addListings,
+        incrementPage,
+        reset,
+    } = useProduceListingStore();
+
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        reset();
+        loadListings(1);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [status]);
+
+    const loadListings = async (pageToLoad: number) => {
+        setLoading(true);
+        try {
+            const data = await fetchProduceListings({
+                farmId,
+                status,
+                page: pageToLoad,
+            });
+
+            if (pageToLoad === 1) {
+                setListings(data.listings, data.total, data.hasMore);
+            } else {
+                addListings(data.listings, data.total, data.hasMore);
+            }
+        } catch (error) {
+            console.error("[LOAD_LISTINGS_ERROR]", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadMore = () => {
+        const nextPage = page + 1;
+        loadListings(nextPage);
+        incrementPage();
+    };
+
+    if (loading && listings.length === 0) {
+        return (
+            <div className="col-span-full text-center py-10">
+                <p className="text-muted-foreground">Loading listings...</p>
+            </div>
+        );
+    }
+
+    if (!loading && listings.length === 0) {
+        return (
+            <div className="col-span-full text-center py-10">
+                <p className="text-muted-foreground">
+                    No {status} produce listings found.
+                </p>
+            </div>
+        );
+    }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredItems.length === 0 ? (
-                <div className="col-span-full text-center py-10">
-                    <p className="text-muted-foreground">
-                        No {status} produce listings found.
-                    </p>
-                </div>
-            ) : (
-                filteredItems.map((item) => (
+        <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {listings.map((item) => (
                     <Card key={item.id} className="overflow-hidden">
                         <div className="aspect-video relative overflow-hidden">
-                            <img
-                                src={item.image}
-                                alt={item.name}
-                                className="w-full h-full object-cover transition-transform hover:scale-105"
-                            />
-                            <Badge className="absolute top-2 right-2">{item.category}</Badge>
+                            {item.images[0] && (
+                                <img
+                                    src={item.images[0].url}
+                                    alt={item.produce.name}
+                                    className="w-full h-full object-cover transition-transform hover:scale-105"
+                                />
+                            )}
+                            <Badge className="absolute top-2 right-2">
+                                {item.produce.category}
+                            </Badge>
                         </div>
                         <CardContent className="p-4">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <h3 className="font-semibold text-lg">{item.name}</h3>
+                                    <h3 className="font-semibold text-lg">
+                                        {item.produce.name}
+                                    </h3>
                                     <p className="text-sm text-muted-foreground">
                                         {item.location}
                                     </p>
@@ -145,16 +159,28 @@ export function ProduceList({ status }: ProduceListProps) {
                             <div className="mt-4 space-y-2">
                                 <div className="flex justify-between">
                                     <span className="text-sm">Quantity:</span>
-                                    <span className="font-medium">{item.quantity}</span>
+                                    <span className="font-medium">{item.quantity} kg</span>
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-sm">Price:</span>
-                                    <span className="font-medium">{item.price}</span>
+                                    <span className="font-medium">
+                                        ${item.produce.pricePerUnit}/{item.produce.unitType}
+                                    </span>
                                 </div>
-                                <div className="flex justify-between">
-                                    <span className="text-sm">Harvest Date:</span>
-                                    <span className="font-medium">{item.harvestDate}</span>
-                                </div>
+                                {status === "harvest" && (
+                                    <div className="flex justify-between">
+                                        <span className="text-sm">Harvest Date:</span>
+                                        <span className="font-medium">
+                                            {item.harvestDate
+                                                ? new Date(item.harvestDate).toLocaleDateString("en-US", {
+                                                    year: "numeric",
+                                                    month: "long",
+                                                    day: "numeric",
+                                                })
+                                                : "N/A"}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
                         </CardContent>
                         <CardFooter className="p-4 pt-0 flex justify-between">
@@ -179,8 +205,15 @@ export function ProduceList({ status }: ProduceListProps) {
                             </Dialog>
                         </CardFooter>
                     </Card>
-                ))
+                ))}
+            </div>
+            {hasMore && (
+                <div className="flex justify-center mt-6">
+                    <Button onClick={loadMore} variant="outline">
+                        {loading ? "Loading..." : "Load More"}
+                    </Button>
+                </div>
             )}
-        </div>
+        </>
     );
 }

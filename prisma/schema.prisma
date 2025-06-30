@@ -95,12 +95,38 @@ model Produce {
   type         String?
   unitType     String
   pricePerUnit String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   listings ProduceListing[]
 
   @@map("produce")
+  @@schema("public")
+}
+
+// Master listing record - persists through all states
+model ProduceListing {
+  id          String   @id @default(uuid()) @db.Uuid
+  location    String
+  description String
+  quantity    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  produceId String  @db.Uuid
+  produce   Produce @relation(fields: [produceId], references: [id])
+
+  farmId String @db.Uuid
+  farm   Farm   @relation(fields: [farmId], references: [id])
+
+  // Status-specific relations
+  activeDraftListing ActiveDraftListing? // One-to-One: Can only be in one active/draft state
+  harvestListings    HarvestListing[]    // One-to-Many: Multiple harvest batches
+  soldListings       SoldListing[]       // One-to-Many: Partial sales to different buyers
+
+  images ListingImg[]
+
+  @@map("produce_listings")
   @@schema("public")
 }
 
@@ -118,31 +144,60 @@ model ListingImg {
 
 }
 
-enum ListingStatus {
+enum ActiveDraftStatus {
   active
-  harvest
   draft
 
   @@schema("public")
 }
 
-model ProduceListing {
-  id          String    @id @default(uuid()) @db.Uuid
-  location    String
-  description String
-  quantity    Int
-  status      ListingStatus 
-  harvestDate DateTime?
+// Active/Draft status details
+model ActiveDraftListing {
+  id     String            @id @default(uuid()) @db.Uuid
+  status ActiveDraftStatus
+  
+  // Any active/draft specific fields
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  produceId   String    @db.Uuid
-  produce     Produce   @relation(fields: [produceId], references: [id])
+  listingId String         @unique @db.Uuid
+  listing   ProduceListing @relation(fields: [listingId], references: [id])
 
-  farmId      String @db.Uuid
-  farm        Farm      @relation(fields: [farmId], references: [id])
+  @@map("active_draft_listings")
+  @@schema("public")
+}
 
-  images      ListingImg[]
+// Harvest status details
+model HarvestListing {
+  id          String   @id @default(uuid()) @db.Uuid
+  harvestDate DateTime // Expected harvest date
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@map("produce_listings")
+  listingId String         @db.Uuid
+  listing   ProduceListing @relation(fields: [listingId], references: [id])
+
+  @@map("harvest_listings")
+  @@schema("public")
+}
+
+// Sold status details
+model SoldListing {
+  id        String   @id @default(uuid()) @db.Uuid
+  soldDate  DateTime @default(now())
+  soldPrice String   // Final price it was sold for
+  buyerInfo String?  // Optional buyer information
+  
+  // Any sold-specific fields
+  deliveryDate DateTime?
+  soldNotes    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  listingId String         @db.Uuid
+  listing   ProduceListing @relation(fields: [listingId], references: [id])
+
+  @@map("sold_listings")
   @@schema("public")
 }
 
