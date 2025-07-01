@@ -92,7 +92,8 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
     const [produceType, setProduceType] = useState(initialData?.produce?.type || initialData?.type || "");
     const [location, setLocation] = useState(initialData?.location || "");
     const [description, setDescription] = useState(initialData?.description || "");
-    
+    const [imageUrls, setImageUrls] = useState<string[]>([])
+
     const getQuantityAndUnit = (data: any): [string, string] => {
         if (!data?.quantity) return ["", "kg"];
         if (typeof data.quantity === "number") {
@@ -119,11 +120,11 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
             setLocation(initialData?.location || "");
             setDescription(initialData?.description || "");
             setStatus(initialData?.status || "draft");
-            
+
             const [qty, unit] = getQuantityAndUnit(initialData);
             setQuantity(qty);
             setUnit(unit);
-            
+
             if (initialData?.harvestDate) {
                 setDate(new Date(initialData.harvestDate));
             }
@@ -471,14 +472,14 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
                         <Label htmlFor="unit">Unit *</Label>
                         {isActiveListing ? (
                             <Input
-                                value={unit === 'kg' ? 'Kilograms (kg)' : 
-                                       unit === 'g' ? 'Grams (g)' :
-                                       unit === 'ton' ? 'Tons' :
-                                       unit === 'l' ? 'Liters (L)' :
-                                       unit === 'dozen' ? 'Dozen' :
-                                       unit === 'pieces' ? 'Pieces' :
-                                       unit === 'crates' ? 'Crates' :
-                                       unit === 'bags' ? 'Bags' : unit}
+                                value={unit === 'kg' ? 'Kilograms (kg)' :
+                                    unit === 'g' ? 'Grams (g)' :
+                                        unit === 'ton' ? 'Tons' :
+                                            unit === 'l' ? 'Liters (L)' :
+                                                unit === 'dozen' ? 'Dozen' :
+                                                    unit === 'pieces' ? 'Pieces' :
+                                                        unit === 'crates' ? 'Crates' :
+                                                            unit === 'bags' ? 'Bags' : unit}
                                 disabled
                                 className="bg-gray-50 text-gray-500"
                             />
@@ -509,7 +510,7 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
                             <SelectContent>
                                 <SelectItem value="draft">Draft</SelectItem>
                                 <SelectItem value="active">Available Now</SelectItem>
-                                {isActiveListing ? null : (<SelectItem value="to_be_harvested">To Be Harvested</SelectItem>) }
+                                {isActiveListing ? null : (<SelectItem value="to_be_harvested">To Be Harvested</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>
@@ -567,7 +568,7 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
                         </Button>
                     </div>
                 </div> */}
-                <ProduceFormListingUpload/>
+                <ProduceFormListingUpload imageUrls={imageUrls} setImageUrls={setImageUrls} />
             </div>
 
             {/* Form Actions */}

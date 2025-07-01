@@ -2,9 +2,14 @@ import { Label } from '@/components/ui/label'
 import { Upload } from 'lucide-react'
 import React, { ChangeEvent, useState } from 'react'
 
-const ProduceFormListingUpload = () => {
+const ProduceFormListingUpload = (
+  {imageUrls, setImageUrls}: {
+  imageUrls: string[]
+  setImageUrls: React.Dispatch<React.SetStateAction<string[]>>
+} 
+) => {
   const imageInputRef = React.useRef<HTMLInputElement>(null)
-  const [imageUrls, setImageUrls] = useState<string[]>([])
+  
   const [isPending, setIsPending] = useState(false)
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
