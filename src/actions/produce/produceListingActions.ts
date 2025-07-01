@@ -1,6 +1,8 @@
 // lib/actions/getProduceListings.ts
 
+import { CreateProduceListingInput, createProduceListingSchema } from '@/lib/utils/farmer/FarmListingUtils';
 import { ActiveDraftStatus, PrismaClient } from '@prisma/client';
+import z from 'zod';
 
 const prisma = new PrismaClient();
 
@@ -242,5 +244,104 @@ export const getActiveListings = async ({
   } catch (error) {
     console.error("[GET_ACTIVE_LISTINGS_ERROR]", error);
     throw error;
+  }
+};
+
+export const createProduceListing = async (input: CreateProduceListingInput) => {
+  try {
+    // Validate input based on status
+    const validatedData = createProduceListingSchema.parse(input);
+
+    // Use a transaction to ensure data consistency
+    const result = await prisma.$transaction(async (tx) => {
+      // Create the produce listing with nullable fields
+      const produceListing = await tx.produceListing.create({
+        data: {
+          location: validatedData.location || null,
+          description: validatedData.description || null,
+          quantity: validatedData.quantity || null,
+          produceId: validatedData.produceId,
+          farmId: validatedData.farmId,
+        },
+      });
+
+      // Handle status-specific logic
+      if (validatedData.status === 'draft') {
+        // Create draft status
+        await tx.activeDraftListing.create({
+          data: {
+            listingId: produceListing.id,
+            status: ActiveDraftStatus.draft,
+          },
+        });
+      } else if (validatedData.status === 'active') {
+        // Create active status
+        await tx.activeDraftListing.create({
+          data: {
+            listingId: produceListing.id,
+            status: ActiveDraftStatus.active,
+          },
+        });
+      } else if (validatedData.status === 'harvest') {
+        // Create active status (harvest listings are active)
+        await tx.activeDraftListing.create({
+          data: {
+            listingId: produceListing.id,
+            status: ActiveDraftStatus.active,
+          },
+        });
+
+        // Create harvest listing
+        await tx.harvestListing.create({
+          data: {
+            listingId: produceListing.id,
+            harvestDate: validatedData.harvestDate!,
+          },
+        });
+      }
+
+      // Create images if provided
+      if (validatedData.images && validatedData.images.length > 0) {
+        await tx.listingImg.createMany({
+          data: validatedData.images.map(url => ({
+            listingId: produceListing.id,
+            url,
+          })),
+        });
+      }
+
+      // Return the created listing with all relations
+      return await tx.produceListing.findUnique({
+        where: { id: produceListing.id },
+        include: {
+          produce: true,
+          farm: true,
+          images: true,
+          activeDraftListing: true,
+          harvestListings: true,
+        },
+      });
+    });
+
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    console.error('[CREATE_PRODUCE_LISTING_ERROR]', error);
+    
+    // Handle Zod validation errors
+    if (error instanceof z.ZodError) {
+      return {
+        success: false,
+        error: 'Validation failed',
+        details: error.errors,
+      };
+    }
+
+    return {
+      success: false,
+      error: 'Failed to create produce listing',
+    };
   }
 };
