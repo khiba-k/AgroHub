@@ -18,6 +18,7 @@ interface AgroHubOrderSummaryProps {
   handleQuantityChange: (quantity: number) => void
   orderBreakdown: OrderBreakdown[]
   totalPrice: number
+  onAddToCart: () => void
 }
 
 const AgroHubOrderSummary = ({
@@ -25,6 +26,7 @@ const AgroHubOrderSummary = ({
   handleQuantityChange,
   orderBreakdown,
   totalPrice,
+  onAddToCart,
 }: AgroHubOrderSummaryProps) => {
   return (
     <div className="lg:col-span-1">
@@ -68,7 +70,10 @@ const AgroHubOrderSummary = ({
             </div>
           </div>
 
-          <Button className="w-full hover:bg-gray-800 font-semibold py-3">
+          <Button
+            className="w-full hover:bg-gray-800 font-semibold py-3"
+            onClick={onAddToCart}
+          >
             Add to Cart
           </Button>
         </div>

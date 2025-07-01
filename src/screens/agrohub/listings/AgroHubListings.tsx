@@ -5,15 +5,18 @@ import AgroHubProductFilter from "./components/AgroHubProductFilter"
 import AgroHubProductCard from "./components/AgroHubProductCard"
 import AgroHubOrderSummary from "./components/AgroHubOrderSummary"
 import AgroHubQuantityDialog from "./components/AgroHubQuantityDialog"
+import { AgroHubBlockSwitchDialog } from "./components/AgroHubBlockSwitchDialog"
 
 import { useFilterListingsStore } from "@/lib/store/useFilterListingStore"
-import { filterProduceListings } from "@/lib/requests/produceListingsRequests"
-import { useProduceStore } from "@/lib/store/useProductStore"
 import { useCartStore } from "@/lib/store/useCartStore"
-import { AgroHubBlockSwitchDialog } from "./components/AgroHubBlockSwitchDialog"
 import { loadListings } from "@/lib/utils/AgroHubListingsUtils"
-import { set } from "date-fns"
-import { handleBlockSwitchAddToCart, handleBlockSwitchCancel, handleBlockSwitchDiscard, handleQuantityChange } from "@/lib/utils/AgroHubCartUtils"
+import {
+  // handleBlockSwitchAddToCart,
+  // handleBlockSwitchCancel,
+  // handleBlockSwitchDiscard,
+  handleQuantityChange,
+} from "@/lib/utils/AgroHubCartUtils"
+import { useProduceStore } from "@/lib/store/useProductStore"
 
 export default function AgroHubListings() {
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined)
@@ -25,6 +28,7 @@ export default function AgroHubListings() {
 
   const [isBlockSwitchOpen, setIsBlockSwitchOpen] = useState(false)
   const [pendingProduceId, setPendingProduceId] = useState<string | null>(null)
+  const [pendingProduceName, setPendingProduceName] = useState<string | null>(null)
 
   const { selectedQuantity, orderBreakdown, totalPrice, setQuantity, addToCart, reset, isInCart, loadFromCart, cartItems } = useCartStore()
   const { getSuggestions } = useProduceStore()
@@ -32,30 +36,56 @@ export default function AgroHubListings() {
 
   useEffect(() => {
     console.log("Cart Items: ", cartItems)
+    console.log("Selected Produce: ", selectedProduce)
     loadListings(setIsLoading, setListings, selectedCategory, selectedProduce, selectedType, getSuggestions)
   }, [selectedCategory, selectedProduce, selectedType])
 
-  // const handleCardClick = () => {
-  //   setIsOrderDialogOpen(true)
-  // }
-
-  // Entered quantity change updates
   const quantityChange = (quantity: number) => {
     handleQuantityChange(quantity, listings, setQuantity)
   }
 
+  const handleProduceSwitch = (newProduceName: string | undefined) => {
+    const { reset, loadFromCart, isInCart } = useCartStore.getState()
 
-  // Add to cart before switching to different produce
-  const handleProduceSwitch = (newProduceId: string | undefined) => {
-    if (selectedQuantity > 0 && newProduceId && !isInCart(newProduceId)) {
-      setPendingProduceId(newProduceId)
+    if (!selectedProduceId) {
+      console.warn("No selectedProduceId to match switch logic.")
+      reset()
+      setSelectedProduce(newProduceName)
+      setSelectedType(undefined) // Clear type on fresh start
+      return
+    }
+
+    // If current produce has unsaved quantity, show block switch dialog
+    if (selectedQuantity > 0 && !isInCart(selectedProduceId)) {
+      setPendingProduceId(selectedProduceId)
+      setPendingProduceName(newProduceName || null)
       setIsBlockSwitchOpen(true)
       return
     }
 
-    setSelectedProduce(newProduceId)
-    if (newProduceId) {
-      loadFromCart(newProduceId)
+    // Normal switch flow — reset draft and load saved if exists
+    reset()
+    setSelectedProduce(newProduceName)
+
+    const loaded = loadFromCart(selectedProduceId)
+    if (loaded) {
+      // Set produce name and type from loaded cart item if present
+      setSelectedProduce(loaded.produceName)
+      if (loaded.produceType) {
+        setSelectedType(loaded.produceType)
+      } else {
+        setSelectedType(undefined) // no produceType available, clear it
+      }
+    } else {
+      setSelectedType(undefined)
+    }
+  }
+
+
+  const handleAddToCartFromSummary = () => {
+    if (selectedProduceId && selectedProduce) {
+      addToCart(selectedProduceId, selectedProduce)
+      reset()
     }
   }
 
@@ -104,7 +134,6 @@ export default function AgroHubListings() {
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Filters + Product Cards */}
           <div className="lg:col-span-2">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-3xl font-bold">Produce Listing</h2>
@@ -113,8 +142,9 @@ export default function AgroHubListings() {
             <AgroHubProductFilter
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}
+              setSelectedProduceId={setSelectedProduceId}
               selectedProduce={selectedProduce}
-              setSelectedProduce={(newProduceId) => handleProduceSwitch(newProduceId)}
+              setSelectedProduce={handleProduceSwitch}
               selectedType={selectedType}
               setSelectedType={setSelectedType}
             />
@@ -122,12 +152,12 @@ export default function AgroHubListings() {
             {renderContent()}
           </div>
 
-          {/* Order Summary */}
           <AgroHubOrderSummary
             selectedQuantity={selectedQuantity}
             handleQuantityChange={quantityChange}
             orderBreakdown={orderBreakdown}
             totalPrice={totalPrice}
+            onAddToCart={handleAddToCartFromSummary}
           />
         </div>
       </div>
@@ -144,33 +174,64 @@ export default function AgroHubListings() {
 
       <AgroHubBlockSwitchDialog
         open={isBlockSwitchOpen}
-        onAddToCart={() =>
-          handleBlockSwitchAddToCart(
-            pendingProduceId,
-            selectedProduce,
-            addToCart,
-            loadFromCart,
-            setIsBlockSwitchOpen,
-            setSelectedProduce,
-            setPendingProduceId
-          )
-        }
-        onDiscard={() =>
-          handleBlockSwitchDiscard(
-            pendingProduceId,
-            reset,
-            setIsBlockSwitchOpen,
-            setSelectedProduce,
-            loadFromCart,
-            setPendingProduceId
-          )
-        }
-        onCancel={() =>
-          handleBlockSwitchCancel(
-            setIsBlockSwitchOpen,
-            setPendingProduceId
-          )
-        }
+        onAddToCart={() => {
+          if (pendingProduceId && pendingProduceName) {
+            // Add current produce to cart first
+            addToCart(selectedProduceId!, selectedProduce!, selectedType) // pass produceType too
+
+            reset()
+            setIsBlockSwitchOpen(false)
+
+            // Switch to pending produce (the one user wants to switch to)
+            setSelectedProduce(pendingProduceName)
+
+            // Load saved cart draft for pending produce, including produceType
+            const loaded = loadFromCart(pendingProduceId)
+            if (loaded) {
+              setSelectedProduce(loaded.produceName)
+              if (loaded.produceType) {
+                setSelectedType(loaded.produceType)
+              } else {
+                setSelectedType(undefined)
+              }
+            } else {
+              setSelectedType(undefined)
+            }
+
+            setPendingProduceId(null)
+            setPendingProduceName(null)
+          }
+        }}
+        onDiscard={() => {
+          reset()
+          setIsBlockSwitchOpen(false)
+
+          if (pendingProduceName && pendingProduceId) {
+            setSelectedProduce(pendingProduceName)
+
+            const loaded = loadFromCart(pendingProduceId)
+            if (loaded) {
+              setSelectedProduce(loaded.produceName)
+              if (loaded.produceType) {
+                setSelectedType(loaded.produceType)
+              } else {
+                setSelectedType(undefined)
+              }
+            } else {
+              setSelectedType(undefined)
+            }
+          } else {
+            setSelectedType(undefined)
+          }
+
+          setPendingProduceId(null)
+          setPendingProduceName(null)
+        }}
+        onCancel={() => {
+          setIsBlockSwitchOpen(false)
+          setPendingProduceId(null)
+          setPendingProduceName(null)
+        }}
       />
     </div>
   )

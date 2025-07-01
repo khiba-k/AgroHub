@@ -1,4 +1,4 @@
-// stores/useCartStore.ts
+// lib/store/useCartStore.ts
 
 import { create } from 'zustand'
 import { FilteredListing } from './useFilterListingStore'
@@ -13,6 +13,7 @@ interface OrderBreakdown {
 interface CartItem {
   produceId: string
   produceName: string
+  produceType?: string // ✅ optional
   unitType: string
   selectedQuantity: number
   orderBreakdown: OrderBreakdown[]
@@ -20,21 +21,18 @@ interface CartItem {
 }
 
 interface CartStore {
-  // Current draft order
   selectedQuantity: number
   orderBreakdown: OrderBreakdown[]
   totalPrice: number
   unitType: string
 
-  // Multiple produce in cart
   cartItems: CartItem[]
 
-  // Actions
   setQuantity: (quantity: number, listings: FilteredListing[]) => void
   calculateBreakdown: (quantity: number, listings: FilteredListing[]) => void
-  addToCart: (produceId: string, produceName: string) => void
+  addToCart: (produceId: string, produceName: string, produceType?: string) => void
   removeFromCart: (produceId: string) => void
-  loadFromCart: (produceId: string) => void
+  loadFromCart: (produceId: string) => CartItem | undefined
   isInCart: (produceId: string) => boolean
   reset: () => void
 }
@@ -79,68 +77,56 @@ export const useCartStore = create<CartStore>((set, get) => ({
     })
   },
 
-  addToCart: (produceId, produceName) => {
+  addToCart: (produceId, produceName, produceType) => {
     const { selectedQuantity, orderBreakdown, totalPrice, unitType, cartItems } = get()
 
     if (selectedQuantity <= 0 || orderBreakdown.length === 0) {
-      console.warn('Nothing to add — quantity is zero or no breakdown.')
+      console.warn('Nothing to add.')
       return
     }
 
     const existingIndex = cartItems.findIndex(item => item.produceId === produceId)
 
-    if (existingIndex >= 0) {
-      // Overwrite if it already exists
-      const updatedItems = [...cartItems]
-      updatedItems[existingIndex] = {
-        produceId,
-        produceName,
-        unitType,
-        selectedQuantity,
-        orderBreakdown,
-        totalPrice,
-      }
-      set({ cartItems: updatedItems })
-    } else {
-      // Add new
-      set({
-        cartItems: [
-          ...cartItems,
-          {
-            produceId,
-            produceName,
-            unitType,
-            selectedQuantity,
-            orderBreakdown,
-            totalPrice,
-          },
-        ],
-      })
+    const newItem: CartItem = {
+      produceId,
+      produceName,
+      produceType,
+      unitType,
+      selectedQuantity,
+      orderBreakdown,
+      totalPrice,
     }
 
-    // Clear current draft after adding
+    if (existingIndex >= 0) {
+      const updated = [...cartItems]
+      updated[existingIndex] = newItem
+      set({ cartItems: updated })
+    } else {
+      set({ cartItems: [...cartItems, newItem] })
+    }
+
     get().reset()
   },
 
   removeFromCart: (produceId) => {
-    const { cartItems } = get()
     set({
-      cartItems: cartItems.filter(item => item.produceId !== produceId),
+      cartItems: get().cartItems.filter(item => item.produceId !== produceId),
     })
   },
 
   loadFromCart: (produceId) => {
-    const item = get().cartItems.find(item => item.produceId === produceId)
-    if (item) {
+    const found = get().cartItems.find(item => item.produceId === produceId)
+    if (found) {
       set({
-        selectedQuantity: item.selectedQuantity,
-        orderBreakdown: item.orderBreakdown,
-        totalPrice: item.totalPrice,
-        unitType: item.unitType,
+        selectedQuantity: found.selectedQuantity,
+        orderBreakdown: found.orderBreakdown,
+        totalPrice: found.totalPrice,
+        unitType: found.unitType,
       })
     } else {
-      console.warn('No saved item for this produceId.')
+      get().reset()
     }
+    return found
   },
 
   isInCart: (produceId) => {

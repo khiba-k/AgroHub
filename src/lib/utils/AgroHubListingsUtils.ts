@@ -10,6 +10,12 @@ export const loadListings = async (setIsLoading: (loading: boolean) => void,
     getSuggestions: (category?: string, produce?: string) => string[],
 
 ) => {
+
+    console.log("Loading listings with filters:", {
+        selectedCategory,
+        selectedProduce,
+        selectedType,
+    })
     try {
       setIsLoading(true)
 

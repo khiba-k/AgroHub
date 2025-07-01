@@ -20,6 +20,7 @@ const capitalize = (str: string) =>
 const AgroHubProductFilter = ({
   selectedCategory,
   setSelectedCategory,
+  setSelectedProduceId,
   selectedProduce,
   setSelectedProduce,
   selectedType,
@@ -27,56 +28,58 @@ const AgroHubProductFilter = ({
 }: {
   selectedCategory: string | undefined
   setSelectedCategory: (value: string | undefined) => void
+  setSelectedProduceId: (value: string | undefined) => void
   selectedProduce: string | undefined
   setSelectedProduce: (value: string | undefined) => void
-  selectedType: string | undefined,
+  selectedType: string | undefined
   setSelectedType: (value: string | undefined) => void
 }) => {
-  const { getSuggestions } = useProduceStore()
+  const { getSuggestions, produceMap } = useProduceStore()
 
   const categories = getSuggestions()
-  const produceNames = selectedCategory
-    ? getSuggestions(selectedCategory)
-    : []
+  const produceNames = selectedCategory ? getSuggestions(selectedCategory) : []
   const types = selectedCategory && selectedProduce
     ? getSuggestions(selectedCategory, selectedProduce)
     : []
-  
-  // Filter out any empty strings to prevent the error
+
   const filteredCategories = categories.filter(cat => cat && cat.trim() !== '')
   const filteredProduceNames = produceNames.filter(name => name && name.trim() !== '')
   const filteredTypes = types.filter(type => type && type.trim() !== '')
 
-  // Auto-select first category if none selected
   useEffect(() => {
     if (!selectedCategory && filteredCategories.length > 0) {
       setSelectedCategory(filteredCategories[0])
     }
   }, [filteredCategories, selectedCategory, setSelectedCategory])
 
-  // Auto-select first produce if none selected
   useEffect(() => {
     if (selectedCategory && !selectedProduce && filteredProduceNames.length > 0) {
       setSelectedProduce(filteredProduceNames[0])
     }
   }, [selectedCategory, filteredProduceNames, selectedProduce, setSelectedProduce])
 
-  // Auto-select first type if none selected
   useEffect(() => {
     if (selectedCategory && selectedProduce && !selectedType && filteredTypes.length > 0) {
       setSelectedType(filteredTypes[0])
     }
   }, [selectedCategory, selectedProduce, filteredTypes, selectedType, setSelectedType])
 
+  useEffect(() => {
+    const id = selectedCategory && selectedProduce && selectedType
+      ? produceMap?.[capitalize(selectedCategory)]?.[capitalize(selectedProduce)]?.[capitalize(selectedType)]?.id
+      : undefined
+
+    setSelectedProduceId(id)
+  }, [selectedCategory, selectedProduce, selectedType, produceMap, setSelectedProduceId])
+
   return (
     <div>
       <div className="flex flex-wrap gap-4 mb-8">
-        {/* Category Select */}
         <Select
           value={selectedCategory || undefined}
           onValueChange={(value) => {
             setSelectedCategory(value)
-            setSelectedProduce(undefined) // Changed from empty string to undefined
+            setSelectedProduce(undefined)
             setSelectedType(undefined)
           }}
         >
@@ -92,7 +95,6 @@ const AgroHubProductFilter = ({
           </SelectContent>
         </Select>
 
-        {/* Produce Name Select */}
         <Select
           value={selectedProduce || undefined}
           onValueChange={(value) => {
@@ -112,7 +114,6 @@ const AgroHubProductFilter = ({
           </SelectContent>
         </Select>
 
-        {/* Type Select */}
         {filteredTypes.length > 0 && (
           <Select
             value={selectedType}

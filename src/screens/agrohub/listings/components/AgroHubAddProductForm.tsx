@@ -75,6 +75,7 @@ const AgroHubAddProductForm = ({ showAddProduct, setShowAddProduct }: AgroHubAdd
     useEffect(() => {
         const refreshProduce = async () => {
             try {
+                console. log('Refreshing produce data...')
                 resetProduce()
 
                 const produceData = await fetchProduce()
@@ -96,6 +97,8 @@ const AgroHubAddProductForm = ({ showAddProduct, setShowAddProduct }: AgroHubAdd
                         unitType: item.unitType,
                     }
                 })
+
+                console.log('Saving structured produce data:', structuredData)
 
                 setProduceMap(structuredData)
             } catch (error) {
