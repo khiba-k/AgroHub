@@ -97,6 +97,8 @@ export const useCartStore = create<CartStore>((set, get) => ({
       totalPrice,
     }
 
+    console.log('Adding to cart:', newItem)
+
     if (existingIndex >= 0) {
       const updated = [...cartItems]
       updated[existingIndex] = newItem

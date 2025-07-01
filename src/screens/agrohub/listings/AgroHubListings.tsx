@@ -35,7 +35,6 @@ export default function AgroHubListings() {
   const { listings, setListings } = useFilterListingsStore()
 
   useEffect(() => {
-    console.log("Cart Items: ", cartItems)
     console.log("Selected Produce: ", selectedProduce)
     loadListings(setIsLoading, setListings, selectedCategory, selectedProduce, selectedType, getSuggestions)
   }, [selectedCategory, selectedProduce, selectedType])
@@ -84,6 +83,7 @@ export default function AgroHubListings() {
 
   const handleAddToCartFromSummary = () => {
     if (selectedProduceId && selectedProduce) {
+      console.log("Adding to cart from Summary")
       addToCart(selectedProduceId, selectedProduce)
       reset()
     }
