@@ -551,7 +551,7 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
             <div className="space-y-1">
                 <h3 className="text-lg font-semibold border-b pb-2">Images</h3>
 
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8">
+                {/* <div className="border-2 border-dashed border-gray-300 rounded-lg p-8">
                     <div className="text-center">
                         <Upload className="mx-auto h-10 w-10 text-gray-400" />
                         <div className="mt-4">
@@ -566,7 +566,8 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
                             Choose Files
                         </Button>
                     </div>
-                </div>
+                </div> */}
+                <ProduceFormListingUpload/>
             </div>
 
             {/* Form Actions */}
