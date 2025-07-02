@@ -1,7 +1,7 @@
 import { login } from "@/actions/auth/BasicAuthActions";
 import { LoginSchema, LoginSchemaType } from "./LoginFormValidation";
 
-export async function handleLoginSubmit(values: LoginSchemaType) {
+export async function handleLoginSubmit(values: LoginSchemaType, role: string) {
   // First validate the input
   const result = LoginSchema.safeParse(values);
 
@@ -20,7 +20,7 @@ export async function handleLoginSubmit(values: LoginSchemaType) {
 
   // Call the login action
   try {
-    const response = await login(formData);
+    const response = await login(formData, role);
 
     if(response?.error) {
       return({error: response.error});

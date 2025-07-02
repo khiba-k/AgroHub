@@ -64,9 +64,9 @@ const WelcomeContinueBtn = () => {
                     </p>
 
                {/* Button for Farmers - Reverted to hardcoded dark button colors */}
-               <div className='grid grid-cols-2 gap-2 w-full'>
+               <div className='w-full'>
                     <Button
-                         className="w-full bg-[#232323] hover:bg-[#323232] text-white rounded-xl py-6 text-sm transition-all flex items-center justify-between"
+                         className="w-full bg-[#232323] hover:bg-[#323232] text-white rounded-xl py-6 text-sm transition-all flex items-center justify-center"
                          size="lg"
                          onClick={handleContinueForFarmers}
                     >
@@ -74,13 +74,13 @@ const WelcomeContinueBtn = () => {
                     </Button>
 
                    {/* Button for Consumers - Reverted to hardcoded dark button colors */}
-                    <Button
+                    {/* <Button
                         className="w-full bg-[#232323] hover:bg-[#323232] text-white rounded-xl py-6 text-sm transition-all flex items-center justify-between"
                         size="lg"
                         onClick={handleContinueForConsumers}
                     >
                         <span>For Consumers</span> <ArrowRight className="ml-2 h-6 w-6" />
-                    </Button>
+                    </Button> */}
                 </div>
                </div> 
             )}

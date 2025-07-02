@@ -2,10 +2,13 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-
+import { randomBytes } from "crypto";
+import { hash } from "bcryptjs";
 import { createClient } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/supabaseAdmin'
+import prisma from '@/lib/prisma/prisma'
 
-export async function login(formData: FormData) {
+export async function login(formData: FormData, role: string) {
   const supabase = await createClient()
 
   const data = {
@@ -24,7 +27,12 @@ export async function login(formData: FormData) {
   }
 
   revalidatePath('/', 'layout')
-  redirect('/dashboard')
+
+  if (role === 'agrohub') {
+    redirect('/admin/agrohub/listings');
+  }
+
+redirect('/dashboard')
 }
 
 export async function signup(formData: FormData) {
@@ -40,7 +48,7 @@ export async function signup(formData: FormData) {
     password,
     options: {
       data: { role },
-     emailRedirectTo: `${siteUrl}/auth/confirm`,
+      emailRedirectTo: `${siteUrl}/auth/confirm`,
     },
   });
 
@@ -72,3 +80,119 @@ export async function getUserObj() {
     all: user,
   }
 }
+
+// For checking if a user exists by email in Supabase
+// Mainly for Signup and Forgot Password flows
+export async function getUserByEmail(email: string) {
+  let page = 1;
+  const perPage = 1000;
+
+  while (true) {
+    const { data: users, error } = await supabaseAdmin.auth.admin.listUsers({
+      page,
+      perPage
+    });
+
+    if (error) {
+      throw new Error(`Supabase error: ${error.message}`);
+    }
+
+    // Look for user in current page
+    const user = users.users.find(u => u.email === email);
+    if (user) {
+      return { data: user, error: null };
+    }
+
+    // If we got fewer users than perPage, we've reached the end
+    if (users.users.length < perPage) {
+      return { data: null, error: null }; // User not found
+    }
+
+    page++;
+  }
+}
+
+// Delete any old password reset tokens for the given email
+export const deletePreviousTokens = async (email: string) => {
+
+  await prisma.passwordResetToken.deleteMany({
+    where: {
+      email,
+      used: false,
+      expiresAt: {
+        gt: new Date(),
+      },
+    },
+  });
+}
+
+// Create and hash token
+export const createResetToken = async (email: string) => {
+  const rawToken = randomBytes(32).toString('hex');
+  const tokenHash = await hash(rawToken, 10);
+
+  await prisma.passwordResetToken.create({
+    data: {
+      email,
+      tokenHash,
+      expiresAt: new Date(Date.now() + 1000 * 60 * 60), // 1 hour
+    },
+  });
+
+  return rawToken;
+}
+
+// Get all unused tokens
+export const getUnusedTokens = async () => {
+  return await prisma.passwordResetToken.findMany({
+    where: {
+      used: false,
+      expiresAt: {
+        gt: new Date(),
+      },
+    },
+  });
+}
+
+// Mark a token as used
+export const markTokenAsUsed = async (token: string) => {
+  await prisma.passwordResetToken.updateMany({
+    where: {
+      tokenHash: token,
+      used: false,
+      expiresAt: {
+        gt: new Date(),
+      },
+    },
+    data: {
+      used: true,
+    },
+  });
+}
+
+// Create Agrohub user
+export const createAgroHubUser = async (firstName: string, lastName: string, userId: string) => {
+  // Create user record in Prisma
+  const user = await prisma.agroHubUser.create({
+    data: {
+      firstname: firstName,
+      lastname: lastName,
+      userId,
+    },
+  });
+
+  // Update user metadata to set isOnboarded to true
+  const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+    user_metadata: {
+      isOnboarded: true
+    }
+  });
+
+  if (error) {
+    console.error("Failed to update user metadata:", error);
+    // You might want to handle this error differently based on your needs
+  }
+
+  return user;
+};
+

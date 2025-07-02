@@ -14,55 +14,44 @@ import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/ui/logo";
 import { Bell, Menu, MessageSquare, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { RoleSwitcher } from "./components/RoleSwitcher";
 import { ThemeSwitcher } from "./components/ThemeSwitcher";
+import { useUserStore, useFarmStore } from "@/lib/store/userStores";
 
 interface HeaderProps {
-    user?: {
-        name: string;
-        email?: string;
-        avatar: string;
-        role: string;
-    };
     onMenuToggle?: () => void;
-    onRoleChange?: (role: string) => void;
 }
 
-
-
-
-
-
 export function Header({
-    user = {
-        name: "",
-        email: "",
-        avatar: "",
-        role: "",
-    },
     onMenuToggle = () => { },
-    onRoleChange = () => { },
 }: HeaderProps) {
     const router = useRouter();
+    
+    // Get user data from Zustand store
+    const { email, avatar, role, clearUser } = useUserStore();
+    const { farmName, clearFarm } = useFarmStore();
 
     const handleLogout = async () => {
         try {
-
             const res = await fetch('/api/signout', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 }
-            })
-
+            });
 
             if (res.ok) {
-                router.push('/welcome')
+                // Clear both stores on logout
+                clearUser();
+                clearFarm();
+                router.push('/welcome');
             }
         } catch (error) {
             console.log("Fetch error:", error);
         }
     }
+
+    // Get user name from email (first part before @)
+    const userName = email ? email.split('@')[0] : '';
 
     return (
         <header className="sticky top-0 z-40 w-full border-b bg-background">
@@ -92,10 +81,6 @@ export function Header({
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <div className="hidden md:block">
-                        <RoleSwitcher currentRole={user.role} onRoleChange={onRoleChange} />
-                    </div>
-
                     <Button variant="ghost" size="icon" className="text-muted-foreground">
                         <Search className="h-5 w-5 md:hidden" />
                         <span className="sr-only">Search</span>
@@ -122,8 +107,8 @@ export function Header({
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                                 <Avatar className="h-8 w-8">
-                                    <AvatarImage src={user.avatar} alt={user.name} />
-                                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                    <AvatarImage src={avatar} alt={userName} />
+                                    <AvatarFallback>{userName?.charAt(0)?.toUpperCase()}</AvatarFallback>
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
@@ -131,13 +116,18 @@ export function Header({
                             <DropdownMenuLabel className="font-normal">
                                 <div className="flex flex-col space-y-1">
                                     <p className="text-sm font-medium leading-none">
-                                        {user.name}
+                                        {userName}
                                     </p>
                                     <p className="text-xs leading-none text-muted-foreground">
-                                        {user.email}
+                                        {email}
                                     </p>
+                                    {farmName && (
+                                        <p className="text-xs leading-none text-muted-foreground">
+                                            Farm: {farmName}
+                                        </p>
+                                    )}
                                     <p className="text-xs leading-none text-muted-foreground">
-                                        {/* {user.role.charAt(0).toUpperCase() + user.role.slice(1)} */}
+                                        {role && role.charAt(0).toUpperCase() + role.slice(1)}
                                     </p>
                                 </div>
                             </DropdownMenuLabel>
@@ -150,8 +140,8 @@ export function Header({
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => {
-                                console.log("Dropdown item clicked") // Add this
-                                handleLogout()
+                                console.log("Dropdown item clicked");
+                                handleLogout();
                             }}>
                                 Log out
                             </DropdownMenuItem>
