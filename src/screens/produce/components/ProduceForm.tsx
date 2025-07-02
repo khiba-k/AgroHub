@@ -31,6 +31,9 @@ import { format } from "date-fns";
 import { Calendar as CalendarIcon, Upload } from "lucide-react";
 import { useState, useEffect } from "react";
 import ProduceFormListingUpload from "./ProduceListingUpload";
+import { createProduceListingSchema } from "@/lib/utils/farmer/FarmListingUtils";
+import { postProduceListing } from "@/lib/requests/produceListingsRequests";
+import { z } from "zod";
 
 interface ProduceFormProps {
     initialData?: any;
@@ -255,17 +258,42 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
         submitForm();
     };
 
-    const submitForm = () => {
-        setIsSubmitting(true);
+    const submitForm = async () => {
+    setIsSubmitting(true);
 
-        // Simulate form submission
-        setTimeout(() => {
-            setIsSubmitting(false);
-            setShowHarvestDialog(false);
-            // Close dialog or redirect
-            console.log('Form submitted successfully!');
-        }, 1000);
+    try {
+    const payload = {
+        location,
+        description,
+        quantity: Number(quantity),
+        produceId: getProduceDetails(category, produceName, produceType)?.id,
+      farmId: initialData?.farmId || "yourFarmIdHere", // Replace this with actual farmId from context or props
+        images: imageUrls,
+        status: status === "to_be_harvested" ? "harvest" : status,
+        harvestDate: (status === "to_be_harvested" || status === "harvest") ? harvestDate : undefined,
     };
+
+    // Validate based on schema
+    const validatedData = createProduceListingSchema.parse(payload);
+
+    // Send to server
+    const response = await postProduceListing(validatedData);
+
+    console.log("Listing created:", response);
+
+    // Reset or redirect
+    setShowHarvestDialog(false);
+    } catch (err: any) {
+    console.error("Error submitting form:", err);
+    if (err instanceof z.ZodError) {
+        alert("Validation failed: " + err.errors.map(e => e.message).join(", "));
+    } else {
+        alert("Something went wrong. Please try again.");
+    }
+    } finally {
+    setIsSubmitting(false);
+    }
+};
 
     const handleHarvestDateSubmit = () => {
         if (!harvestDate) {

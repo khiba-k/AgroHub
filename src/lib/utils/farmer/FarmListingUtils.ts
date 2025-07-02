@@ -1,3 +1,4 @@
+import { uploadImage } from '@/lib/supabase/uploadimage';
 import { ActiveDraftStatus, PrismaClient } from '@prisma/client';
 import { z } from 'zod';
 
@@ -44,5 +45,45 @@ export const createProduceListingSchema = z.discriminatedUnion('status', [
     activeListingSchema,
     harvestListingSchema,
 ]);
+export async function convertBlobUrlToFile(bloburl: string){
+    const response = await fetch(bloburl);
+    const blob = await response.blob();
+    const filename = Math.random().toString(36).slice(2, 9);
+    const mimeType = blob.type || 'application/octet-stream';
+    const file = new File([blob], `${filename}.${mimeType.split('/')[1]}`,
+    {type: mimeType, 
+        });
+    return file;
+
+}
+
+export const uploadListingImages = async (
+    blobUrls: string[],
+    bucket: string = "agrohubpics",
+    folder: string = "listings"
+): Promise<{ urls: string[]; errors: string[] }> => {
+    const uploadedUrls: string[] = [];
+    const errors: string[] = [];
+
+    for (const blobUrl of blobUrls) {
+    try {
+        const file = await convertBlobUrlToFile(blobUrl);
+        const { imageUrl, error } = await uploadImage({ file, bucket: bucket, folder });
+
+        if (error || !imageUrl) {
+        console.error("Upload error:", error);
+        errors.push(error || "Unknown upload error");
+        continue;
+        }
+
+        uploadedUrls.push(imageUrl);
+    } catch (err: any) {
+        console.error("Conversion/upload failed:", err);
+        errors.push(err.message || "Unknown error");
+    }
+    }
+
+    return { urls: uploadedUrls, errors };
+};
 
 export type CreateProduceListingInput = z.infer<typeof createProduceListingSchema>;
