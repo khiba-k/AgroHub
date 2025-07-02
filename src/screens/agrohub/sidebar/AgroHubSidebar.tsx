@@ -10,9 +10,7 @@ import {
 } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { agroHubNavItems } from "@/screens/applayout/utils/agroHubNavItems";
-
-
+import { navItems } from "@/screens/applayout/utils/AgroHubNavData";
 import {
     ChevronDown,
     Leaf,
@@ -38,7 +36,7 @@ interface NavItem {
     children?: NavItem[];
 }
 
-export default function AgroHubSideBar({
+export default function SideBar({
     className,
     userRole = "farmer",
     avatar,
@@ -48,7 +46,7 @@ export default function AgroHubSideBar({
     const [mobileOpen, setMobileOpen] = useState(false);
 
 
-    const filteredNavItems = agroHubNavItems.filter((item) =>
+    const filteredNavItems = navItems.filter((item) =>
         item.roles.includes(userRole),
     );
 
