@@ -80,6 +80,8 @@ export const useCartStore = create<CartStore>((set, get) => ({
   addToCart: (produceId, produceName, produceType) => {
     const { selectedQuantity, orderBreakdown, totalPrice, unitType, cartItems } = get()
 
+    console.log("Selected Quantity & Order Breakdown:", selectedQuantity, orderBreakdown)
+    
     if (selectedQuantity <= 0 || orderBreakdown.length === 0) {
       console.warn('Nothing to add.')
       return
@@ -98,6 +100,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
     }
 
     console.log('Adding to cart:', newItem)
+    console.log("Current state before add:", cartItems)
 
     if (existingIndex >= 0) {
       const updated = [...cartItems]

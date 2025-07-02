@@ -44,6 +44,7 @@ export default function AgroHubListings() {
   }
 
   const handleProduceSwitch = (newProduceName: string | undefined) => {
+    console.log("Trying to switch");
     const { reset, loadFromCart, isInCart } = useCartStore.getState()
 
     if (!selectedProduceId) {
@@ -54,19 +55,31 @@ export default function AgroHubListings() {
       return
     }
 
+    console.log("Selected Produce ID:", selectedProduceId)
+
     // If current produce has unsaved quantity, show block switch dialog
     if (selectedQuantity > 0 && !isInCart(selectedProduceId)) {
+      console.log("Something is unsaved, ");
       setPendingProduceId(selectedProduceId)
       setPendingProduceName(newProduceName || null)
       setIsBlockSwitchOpen(true)
       return
     }
 
+    console.log("Is Saved in cart")
+
     // Normal switch flow — reset draft and load saved if exists
     reset()
-    setSelectedProduce(newProduceName)
+
+    setTimeout(() => {
+      console.log("Switching produce to:", newProduceName)
+      setSelectedProduce(newProduceName)
+    }
+    , 5000)
+    
 
     const loaded = loadFromCart(selectedProduceId)
+    console.log("Loaded from cart:", loaded)
     if (loaded) {
       // Set produce name and type from loaded cart item if present
       setSelectedProduce(loaded.produceName)

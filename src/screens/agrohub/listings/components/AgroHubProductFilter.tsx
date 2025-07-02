@@ -9,6 +9,7 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { useProduceStore } from '@/lib/store/useProductStore'
+import { useCartStore } from '@/lib/store/useCartStore'
 
 const capitalize = (str: string) =>
   str
@@ -35,6 +36,7 @@ const AgroHubProductFilter = ({
   setSelectedType: (value: string | undefined) => void
 }) => {
   const { getSuggestions, produceMap } = useProduceStore()
+  const { reset } = useCartStore()
 
   const categories = getSuggestions()
   const produceNames = selectedCategory ? getSuggestions(selectedCategory) : []
@@ -65,10 +67,39 @@ const AgroHubProductFilter = ({
   }, [selectedCategory, selectedProduce, filteredTypes, selectedType, setSelectedType])
 
   useEffect(() => {
-    const id = selectedCategory && selectedProduce && selectedType
-      ? produceMap?.[capitalize(selectedCategory)]?.[capitalize(selectedProduce)]?.[capitalize(selectedType)]?.id
-      : undefined
+    let id: string | undefined
 
+    if (selectedCategory && selectedProduce) {
+      const cat = capitalize(selectedCategory)
+      const prod = capitalize(selectedProduce)
+
+      if (selectedType) {
+        const type = capitalize(selectedType)
+        id = produceMap?.[cat]?.[prod]?.[type]?.id
+      } else {
+        const produceEntry = produceMap?.[cat]?.[prod]
+
+        if (produceEntry) {
+          if ('id' in produceEntry) {
+            id = typeof produceEntry.id === 'string' ? produceEntry.id : undefined
+          } else {
+            const firstKey = Object.keys(produceEntry)[0]
+            id = produceEntry?.[firstKey]?.id
+          }
+        }
+      }
+    }
+
+    if (!id) {
+      console.warn(
+        "⚠️ No ID found for:",
+        selectedCategory,
+        selectedProduce,
+        selectedType
+      )
+    }
+
+    console.log("Setting selected produce ID:", id)
     setSelectedProduceId(id)
   }, [selectedCategory, selectedProduce, selectedType, produceMap, setSelectedProduceId])
 
@@ -76,8 +107,9 @@ const AgroHubProductFilter = ({
     <div>
       <div className="flex flex-wrap gap-4 mb-8">
         <Select
-          value={selectedCategory || undefined}
+          value={selectedCategory || ""}
           onValueChange={(value) => {
+            reset()
             setSelectedCategory(value)
             setSelectedProduce(undefined)
             setSelectedType(undefined)
@@ -96,8 +128,9 @@ const AgroHubProductFilter = ({
         </Select>
 
         <Select
-          value={selectedProduce || undefined}
+          value={selectedProduce || ""}
           onValueChange={(value) => {
+            reset()
             setSelectedProduce(value)
             setSelectedType(undefined)
           }}
@@ -116,7 +149,7 @@ const AgroHubProductFilter = ({
 
         {filteredTypes.length > 0 && (
           <Select
-            value={selectedType}
+            value={selectedType || ""}
             onValueChange={setSelectedType}
           >
             <SelectTrigger className="w-48 border-gray-300">
