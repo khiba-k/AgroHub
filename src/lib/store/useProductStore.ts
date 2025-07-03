@@ -3,7 +3,7 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 
 export interface ProduceItem {
-  id: string
+  id: string | undefined
   unitType: string
   pricePerUnit: string
 }

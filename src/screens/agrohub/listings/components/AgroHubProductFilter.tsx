@@ -65,10 +65,49 @@ const AgroHubProductFilter = ({
   }, [selectedCategory, selectedProduce, filteredTypes, selectedType, setSelectedType])
 
   useEffect(() => {
-    const id = selectedCategory && selectedProduce && selectedType
-      ? produceMap?.[capitalize(selectedCategory)]?.[capitalize(selectedProduce)]?.[capitalize(selectedType)]?.id
-      : undefined
+    let id: string | undefined
 
+    if (selectedCategory && selectedProduce) {
+      const cat = capitalize(selectedCategory)
+      const prod = capitalize(selectedProduce)
+
+      const produceEntry = produceMap?.[cat]?.[prod]
+
+      if (produceEntry) {
+        if (selectedType) {
+          const type = capitalize(selectedType)
+          id = produceEntry?.[type]?.id
+        }
+
+        // fallback if ID is still undefined
+        if (!id) {
+          // if the whole entry IS an item (has id)
+          if ('id' in produceEntry && typeof produceEntry.id === 'string') {
+            id = produceEntry.id
+          }
+          // OR if there's an empty-string key for no-type produce
+          else if (produceEntry?.['']?.id) {
+            id = produceEntry[''].id
+          }
+          // OR pick first type if any left
+          else {
+            const firstKey = Object.keys(produceEntry)[0]
+            id = produceEntry[firstKey]?.id
+          }
+        }
+      }
+    }
+
+    if (!id) {
+      console.warn(
+        "⚠️ No ID found for:",
+        selectedCategory,
+        selectedProduce,
+        selectedType
+      )
+    }
+
+    console.log("Setting selected produce ID:", id)
     setSelectedProduceId(id)
   }, [selectedCategory, selectedProduce, selectedType, produceMap, setSelectedProduceId])
 
@@ -76,8 +115,9 @@ const AgroHubProductFilter = ({
     <div>
       <div className="flex flex-wrap gap-4 mb-8">
         <Select
-          value={selectedCategory || undefined}
+          value={selectedCategory || ""}
           onValueChange={(value) => {
+            // reset()
             setSelectedCategory(value)
             setSelectedProduce(undefined)
             setSelectedType(undefined)
@@ -96,8 +136,9 @@ const AgroHubProductFilter = ({
         </Select>
 
         <Select
-          value={selectedProduce || undefined}
+          value={selectedProduce || ""}
           onValueChange={(value) => {
+            // reset()
             setSelectedProduce(value)
             setSelectedType(undefined)
           }}
@@ -116,7 +157,7 @@ const AgroHubProductFilter = ({
 
         {filteredTypes.length > 0 && (
           <Select
-            value={selectedType}
+            value={selectedType || ""}
             onValueChange={setSelectedType}
           >
             <SelectTrigger className="w-48 border-gray-300">

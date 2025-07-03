@@ -7,88 +7,202 @@ import AgroHubOrderSummary from "./components/AgroHubOrderSummary"
 import AgroHubQuantityDialog from "./components/AgroHubQuantityDialog"
 import { AgroHubBlockSwitchDialog } from "./components/AgroHubBlockSwitchDialog"
 
-import { useFilterListingsStore } from "@/lib/store/useFilterListingStore"
-import { useCartStore } from "@/lib/store/useCartStore"
 import { loadListings } from "@/lib/utils/AgroHubListingsUtils"
-import {
-  // handleBlockSwitchAddToCart,
-  // handleBlockSwitchCancel,
-  // handleBlockSwitchDiscard,
-  handleQuantityChange,
-} from "@/lib/utils/AgroHubCartUtils"
 import { useProduceStore } from "@/lib/store/useProductStore"
 
+// ✅ Local types
+interface OrderBreakdown {
+  farmerId: string
+  farmerName: string
+  quantity: number
+  price: number
+}
+
+interface CartItem {
+  produceId: string
+  produceName: string
+  produceType?: string
+  unitType: string
+  selectedQuantity: number
+  orderBreakdown: OrderBreakdown[]
+  totalPrice: number
+}
+
 export default function AgroHubListings() {
+  // ✅ Filter states
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined)
   const [selectedProduceId, setSelectedProduceId] = useState<string | undefined>(undefined)
   const [selectedProduce, setSelectedProduce] = useState<string | undefined>(undefined)
   const [selectedType, setSelectedType] = useState<string | undefined>(undefined)
-  const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
+
   const [isLoading, setIsLoading] = useState(false)
 
+  // ✅ Cart states
+  const [selectedQuantity, setSelectedQuantity] = useState(0)
+  const [orderBreakdown, setOrderBreakdown] = useState<OrderBreakdown[]>([])
+  const [totalPrice, setTotalPrice] = useState(0)
+  const [unitType, setUnitType] = useState('')
+  const [cartItems, setCartItems] = useState<CartItem[]>([])
+
+  const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
+
+  // ✅ Block switch states
   const [isBlockSwitchOpen, setIsBlockSwitchOpen] = useState(false)
   const [pendingProduceId, setPendingProduceId] = useState<string | null>(null)
   const [pendingProduceName, setPendingProduceName] = useState<string | null>(null)
 
-  const { selectedQuantity, orderBreakdown, totalPrice, setQuantity, addToCart, reset, isInCart, loadFromCart, cartItems } = useCartStore()
-  const { getSuggestions } = useProduceStore()
-  const { listings, setListings } = useFilterListingsStore()
+  // ✅ Listings states
+  const [listings, setListings] = useState<any[]>([])
+  const [total, setTotal] = useState(0)
+  const [hasMore, setHasMore] = useState(true)
 
+  const { getSuggestions, produceMap } = useProduceStore()
+
+  // ✅ Load cart from session on page load
   useEffect(() => {
-    console.log("Selected Produce: ", selectedProduce)
-    loadListings(setIsLoading, setListings, selectedCategory, selectedProduce, selectedType, getSuggestions)
-  }, [selectedCategory, selectedProduce, selectedType])
+    const stored = sessionStorage.getItem('cart-items')
+    if (stored) {
+      setCartItems(JSON.parse(stored))
+    }
+  }, [])
 
-  const quantityChange = (quantity: number) => {
-    handleQuantityChange(quantity, listings, setQuantity)
+  // ✅ Save cart to session when changed
+  useEffect(() => {
+    sessionStorage.setItem('cart-items', JSON.stringify(cartItems))
+  }, [cartItems])
+
+  // ✅ Load listings when filters change
+  useEffect(() => {
+    loadListings(
+      setIsLoading,
+      (newListings, newTotal, newHasMore) => {
+        setListings(newListings)
+        setTotal(newTotal)
+        setHasMore(newHasMore)
+      },
+      selectedCategory,
+      selectedProduce,
+      selectedType,
+      getSuggestions
+    )
+  }, [selectedCategory, selectedProduce, selectedType, produceMap])
+
+  // ✅ When selectedProduceId changes: restore cart item if saved, else reset
+  useEffect(() => {
+    if (!selectedProduceId) {
+      reset()
+      return
+    }
+    const found = loadFromCart(selectedProduceId)
+    if (!found) {
+      reset()
+    }
+  }, [selectedProduceId])
+
+  // ✅ Cart helpers
+  const setQuantity = (quantity: number) => {
+    setSelectedQuantity(quantity)
+    calculateBreakdown(quantity)
   }
 
-  const handleProduceSwitch = (newProduceName: string | undefined) => {
-    const { reset, loadFromCart, isInCart } = useCartStore.getState()
+  const calculateBreakdown = (quantity: number) => {
+    let remaining = quantity
+    const breakdown: OrderBreakdown[] = []
 
-    if (!selectedProduceId) {
-      console.warn("No selectedProduceId to match switch logic.")
-      reset()
-      setSelectedProduce(newProduceName)
-      setSelectedType(undefined) // Clear type on fresh start
+    for (const listing of listings) {
+      if (remaining <= 0) break
+
+      const chunk = Math.min(remaining, listing.quantity)
+      if (chunk > 0) {
+        breakdown.push({
+          farmerId: listing.id,
+          farmerName: listing.farm.name,
+          quantity: chunk,
+          price: chunk * Number(listing.produce.pricePerUnit),
+        })
+        remaining -= chunk
+      }
+    }
+
+    const newTotalPrice = breakdown.reduce((sum, b) => sum + b.price, 0)
+
+    setOrderBreakdown(breakdown)
+    setTotalPrice(newTotalPrice)
+    setUnitType(listings[0]?.produce.unitType || '')
+  }
+
+  const addToCart = (produceId: string, produceName: string, produceType?: string) => {
+    if (selectedQuantity <= 0 || orderBreakdown.length === 0) {
+      console.warn('Nothing to add.')
       return
     }
 
-    // If current produce has unsaved quantity, show block switch dialog
-    if (selectedQuantity > 0 && !isInCart(selectedProduceId)) {
-      setPendingProduceId(selectedProduceId)
-      setPendingProduceName(newProduceName || null)
-      setIsBlockSwitchOpen(true)
-      return
+    const existingIndex = cartItems.findIndex(item => item.produceId === produceId)
+    const newItem: CartItem = {
+      produceId,
+      produceName,
+      produceType,
+      unitType,
+      selectedQuantity,
+      orderBreakdown,
+      totalPrice,
     }
 
-    // Normal switch flow — reset draft and load saved if exists
+    if (existingIndex >= 0) {
+      const updated = [...cartItems]
+      updated[existingIndex] = newItem
+      setCartItems(updated)
+    } else {
+      setCartItems([...cartItems, newItem])
+    }
+
     reset()
+  }
+
+  const removeFromCart = (produceId: string) => {
+    setCartItems(cartItems.filter(item => item.produceId !== produceId))
+  }
+
+  const loadFromCart = (produceId: string) => {
+    const found = cartItems.find(item => item.produceId === produceId)
+    if (found) {
+      setSelectedQuantity(found.selectedQuantity)
+      setOrderBreakdown(found.orderBreakdown)
+      setTotalPrice(found.totalPrice)
+      setUnitType(found.unitType)
+    }
+    return found
+  }
+
+  const isInCart = (produceId: string) => {
+    return cartItems.some(item => item.produceId === produceId)
+  }
+
+  const reset = () => {
+    setSelectedQuantity(0)
+    setOrderBreakdown([])
+    setTotalPrice(0)
+    setUnitType('')
+  }
+
+  const clearCart = () => {
+    setCartItems([])
+    reset()
+  }
+
+  // ✅ Produce switch with ID + Name
+  const handleProduceSwitch = (newProduceId: string, newProduceName: string | undefined) => {
+    reset()
+    setSelectedProduceId(newProduceId)
     setSelectedProduce(newProduceName)
 
-    const loaded = loadFromCart(selectedProduceId)
-    if (loaded) {
-      // Set produce name and type from loaded cart item if present
-      setSelectedProduce(loaded.produceName)
-      if (loaded.produceType) {
-        setSelectedType(loaded.produceType)
-      } else {
-        setSelectedType(undefined) // no produceType available, clear it
-      }
-    } else {
+    const suggestions = getSuggestions(selectedCategory, newProduceName)
+    if (!suggestions.some(t => t.trim() !== "")) {
       setSelectedType(undefined)
     }
   }
 
-
-  const handleAddToCartFromSummary = () => {
-    if (selectedProduceId && selectedProduce) {
-      console.log("Adding to cart from Summary")
-      addToCart(selectedProduceId, selectedProduce)
-      reset()
-    }
-  }
-
+  // ✅ UI
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -135,16 +249,14 @@ export default function AgroHubListings() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold">Produce Listing</h2>
-            </div>
+            <h2 className="text-3xl font-bold mb-8">Produce Listing</h2>
 
             <AgroHubProductFilter
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}
               setSelectedProduceId={setSelectedProduceId}
               selectedProduce={selectedProduce}
-              setSelectedProduce={handleProduceSwitch}
+              setSelectedProduce={setSelectedProduce} // ✅ One arg only
               selectedType={selectedType}
               setSelectedType={setSelectedType}
             />
@@ -154,10 +266,14 @@ export default function AgroHubListings() {
 
           <AgroHubOrderSummary
             selectedQuantity={selectedQuantity}
-            handleQuantityChange={quantityChange}
+            handleQuantityChange={setQuantity}
             orderBreakdown={orderBreakdown}
             totalPrice={totalPrice}
-            onAddToCart={handleAddToCartFromSummary}
+            onAddToCart={() => {
+              if (selectedProduceId && selectedProduce) {
+                addToCart(selectedProduceId, selectedProduce, selectedType)
+              }
+            }}
           />
         </div>
       </div>
@@ -166,38 +282,20 @@ export default function AgroHubListings() {
         isOrderDialogOpen={isOrderDialogOpen}
         setIsOrderDialogOpen={setIsOrderDialogOpen}
         selectedQuantity={selectedQuantity}
-        setSelectedQuantity={(q) => setQuantity(q, listings)}
+        setSelectedQuantity={setQuantity}
         orderBreakdown={orderBreakdown}
         totalPrice={totalPrice}
-        handleQuantityChange={quantityChange}
+        handleQuantityChange={setQuantity}
       />
 
       <AgroHubBlockSwitchDialog
         open={isBlockSwitchOpen}
         onAddToCart={() => {
           if (pendingProduceId && pendingProduceName) {
-            // Add current produce to cart first
-            addToCart(selectedProduceId!, selectedProduce!, selectedType) // pass produceType too
-
+            addToCart(selectedProduceId!, selectedProduce!, selectedType)
             reset()
             setIsBlockSwitchOpen(false)
-
-            // Switch to pending produce (the one user wants to switch to)
-            setSelectedProduce(pendingProduceName)
-
-            // Load saved cart draft for pending produce, including produceType
-            const loaded = loadFromCart(pendingProduceId)
-            if (loaded) {
-              setSelectedProduce(loaded.produceName)
-              if (loaded.produceType) {
-                setSelectedType(loaded.produceType)
-              } else {
-                setSelectedType(undefined)
-              }
-            } else {
-              setSelectedType(undefined)
-            }
-
+            handleProduceSwitch(pendingProduceId, pendingProduceName)
             setPendingProduceId(null)
             setPendingProduceName(null)
           }
@@ -205,25 +303,9 @@ export default function AgroHubListings() {
         onDiscard={() => {
           reset()
           setIsBlockSwitchOpen(false)
-
-          if (pendingProduceName && pendingProduceId) {
-            setSelectedProduce(pendingProduceName)
-
-            const loaded = loadFromCart(pendingProduceId)
-            if (loaded) {
-              setSelectedProduce(loaded.produceName)
-              if (loaded.produceType) {
-                setSelectedType(loaded.produceType)
-              } else {
-                setSelectedType(undefined)
-              }
-            } else {
-              setSelectedType(undefined)
-            }
-          } else {
-            setSelectedType(undefined)
+          if (pendingProduceId && pendingProduceName) {
+            handleProduceSwitch(pendingProduceId, pendingProduceName)
           }
-
           setPendingProduceId(null)
           setPendingProduceName(null)
         }}
