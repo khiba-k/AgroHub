@@ -34,6 +34,7 @@ import ProduceFormListingUpload from "./ProduceListingUpload";
 import { createProduceListingSchema } from "@/lib/utils/farmer/FarmListingUtils";
 import { postProduceListing } from "@/lib/requests/produceListingsRequests";
 import { z } from "zod";
+import { useFarmStore } from "@/lib/store/userStores";
 
 interface ProduceFormProps {
     initialData?: any;
@@ -78,6 +79,7 @@ const getTypeExamples = (produceName: string): string => {
 };
 
 export function ProduceForm({ initialData }: ProduceFormProps) {
+    const farmId = useFarmStore((state) => state.farmId);
     const [date, setDate] = useState<Date | undefined>(
         initialData?.harvestDate ? new Date(initialData.harvestDate) : undefined,
     );
@@ -267,11 +269,13 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
         description,
         quantity: Number(quantity),
         produceId: getProduceDetails(category, produceName, produceType)?.id,
-      farmId: initialData?.farmId || "yourFarmIdHere", // Replace this with actual farmId from context or props
+        farmId: initialData?.farmId || farmId, // Replace this with actual farmId from context or props
         images: imageUrls,
         status: status === "to_be_harvested" ? "harvest" : status,
         harvestDate: (status === "to_be_harvested" || status === "harvest") ? harvestDate : undefined,
     };
+
+    console.log("Submitting form with payload:", payload);
 
     // Validate based on schema
     const validatedData = createProduceListingSchema.parse(payload);

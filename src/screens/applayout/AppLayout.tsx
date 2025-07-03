@@ -50,6 +50,7 @@ export function AppLayout({
                             farmName: farmerDetails.farmName,
                             farmDetails: farmerDetails,
                         });
+                        console.log("Farmer details fetched and stored:", farmerDetails);   
                     } else {
                         console.log("No farmer details found.");
                     }
