@@ -13,7 +13,6 @@ export const baseProduceListingSchema = z.object({
     quantity: z.number().int().min(0).optional(),
     produceId: z.string().uuid(),
     farmId: z.string().uuid(),
-    images: z.array(z.string().url()).optional().default([]),
     harvestDate: z.date().optional(),
 });
 
@@ -45,6 +44,8 @@ export const createProduceListingSchema = z.discriminatedUnion('status', [
     activeListingSchema,
     harvestListingSchema,
 ]);
+
+
 export async function convertBlobUrlToFile(bloburl: string){
     const response = await fetch(bloburl);
     const blob = await response.blob();
