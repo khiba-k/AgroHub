@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { Header } from "./Header";
 import SideBar from "./SideBar";
-import { getFarmerInfoRequest } from "./Utils/Requests";
 import { useUserStore, useFarmStore } from "@/lib/store/userStores";
+import { getFarmerInfoRequest } from "./utils/Requests";
 
 interface DashboardLayoutProps {
     children: ReactNode;
