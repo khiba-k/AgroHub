@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { navItems } from "@/screens/applayout/utils/AgroHubNavData";
 import {
     ChevronDown,
     Leaf,
@@ -19,11 +20,11 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { navItems } from "./utils/NavData";
-import { useUserStore, useFarmStore } from "@/lib/store/userStores";
 
 interface SidebarNavigationProps {
     className?: string;
+    userRole?: string;
+    avatar?: string;
 }
 
 interface NavItem {
@@ -37,21 +38,24 @@ interface NavItem {
 
 export default function SideBar({
     className,
+    userRole = "farmer",
+    avatar,
 }: SidebarNavigationProps) {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(true);
     const [mobileOpen, setMobileOpen] = useState(false);
 
-    // Get user and farm data from Zustand stores
-    const { email, avatar, role } = useUserStore();
-    const { farmName } = useFarmStore();
-
-    // Get user name from email (first part before @)
-    const userName = email ? email.split('@')[0] : '';
 
     const filteredNavItems = navItems.filter((item) =>
-        item.roles.includes(role),
+        item.roles.includes(userRole),
     );
+
+    const user = {
+        name: "John Farmer",
+        role: "Farmer",
+        avatar: avatar,
+    };
+
 
     return (
         <>
@@ -96,19 +100,12 @@ export default function SideBar({
                     <div className="p-4 border-b">
                         <div className="flex items-center space-x-3">
                             <Avatar>
-                                <AvatarImage src={avatar} alt={userName} />
-                                <AvatarFallback>{userName?.charAt(0)?.toUpperCase()}</AvatarFallback>
+                                <AvatarImage src={user.avatar} alt={user.name} />
+                                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div>
-                                <p className="font-medium">{userName}</p>
-                                {farmName && (
-                                    <p className="text-xs text-muted-foreground">
-                                        {farmName}
-                                    </p>
-                                )}
-                                <p className="text-sm text-muted-foreground">
-                                    {role && role.charAt(0).toUpperCase() + role.slice(1)}
-                                </p>
+                                <p className="font-medium">{user.name}</p>
+                                <p className="text-sm text-muted-foreground">{user.role}</p>
                             </div>
                         </div>
                     </div>
@@ -228,19 +225,12 @@ export default function SideBar({
                     <div className="p-4 border-b">
                         <div className="flex items-center space-x-3">
                             <Avatar>
-                                <AvatarImage src={avatar} alt={userName} />
-                                <AvatarFallback>{userName?.charAt(0)?.toUpperCase()}</AvatarFallback>
+                                <AvatarImage src={user.avatar} alt={user.name} />
+                                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div>
-                                <p className="font-medium">{userName}</p>
-                                {farmName && (
-                                    <p className="text-xs text-muted-foreground">
-                                        {farmName}
-                                    </p>
-                                )}
-                                <p className="text-sm text-muted-foreground">
-                                    {role && role.charAt(0).toUpperCase() + role.slice(1)}
-                                </p>
+                                <p className="font-medium">{user.name}</p>
+                                <p className="text-sm text-muted-foreground">{user.role}</p>
                             </div>
                         </div>
                     </div>

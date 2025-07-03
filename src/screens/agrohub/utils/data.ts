@@ -19,7 +19,7 @@ export const farmers: Farmer[] = [
     },
     {
       id: '3',
-      name: 'Langa Matross',
+      name: 'Mohale Malebanye',
       location: 'Maseru',
       quantityAvailable: 200,
       pricePerKg: 27,

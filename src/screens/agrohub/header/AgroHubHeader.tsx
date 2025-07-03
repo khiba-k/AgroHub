@@ -9,9 +9,9 @@ const AgroHubHeader = () => {
     const [showAddProduct, setShowAddProduct] = useState(false);
   return (
     <div>
-        <header className="border-b border-gray-200 bg-white">
-    <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-      <h1 className="text-2xl font-bold text-black">AgroHub</h1>
+        <header className="border-b border-gray-200 ">
+    <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+      <h1 className="text-2xl font-bold ">AgroHub</h1>
       <div className="flex items-center space-x-4">
         <Button
           onClick={() => setShowAddProduct(true)}
