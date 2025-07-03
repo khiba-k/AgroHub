@@ -9,7 +9,6 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { useProduceStore } from '@/lib/store/useProductStore'
-import { useCartStore } from '@/lib/store/useCartStore'
 
 const capitalize = (str: string) =>
   str
@@ -36,7 +35,6 @@ const AgroHubProductFilter = ({
   setSelectedType: (value: string | undefined) => void
 }) => {
   const { getSuggestions, produceMap } = useProduceStore()
-  const { reset } = useCartStore()
 
   const categories = getSuggestions()
   const produceNames = selectedCategory ? getSuggestions(selectedCategory) : []
@@ -73,18 +71,28 @@ const AgroHubProductFilter = ({
       const cat = capitalize(selectedCategory)
       const prod = capitalize(selectedProduce)
 
-      if (selectedType) {
-        const type = capitalize(selectedType)
-        id = produceMap?.[cat]?.[prod]?.[type]?.id
-      } else {
-        const produceEntry = produceMap?.[cat]?.[prod]
+      const produceEntry = produceMap?.[cat]?.[prod]
 
-        if (produceEntry) {
-          if ('id' in produceEntry) {
-            id = typeof produceEntry.id === 'string' ? produceEntry.id : undefined
-          } else {
+      if (produceEntry) {
+        if (selectedType) {
+          const type = capitalize(selectedType)
+          id = produceEntry?.[type]?.id
+        }
+
+        // fallback if ID is still undefined
+        if (!id) {
+          // if the whole entry IS an item (has id)
+          if ('id' in produceEntry && typeof produceEntry.id === 'string') {
+            id = produceEntry.id
+          }
+          // OR if there's an empty-string key for no-type produce
+          else if (produceEntry?.['']?.id) {
+            id = produceEntry[''].id
+          }
+          // OR pick first type if any left
+          else {
             const firstKey = Object.keys(produceEntry)[0]
-            id = produceEntry?.[firstKey]?.id
+            id = produceEntry[firstKey]?.id
           }
         }
       }
@@ -109,7 +117,7 @@ const AgroHubProductFilter = ({
         <Select
           value={selectedCategory || ""}
           onValueChange={(value) => {
-            reset()
+            // reset()
             setSelectedCategory(value)
             setSelectedProduce(undefined)
             setSelectedType(undefined)
@@ -130,7 +138,7 @@ const AgroHubProductFilter = ({
         <Select
           value={selectedProduce || ""}
           onValueChange={(value) => {
-            reset()
+            // reset()
             setSelectedProduce(value)
             setSelectedType(undefined)
           }}
