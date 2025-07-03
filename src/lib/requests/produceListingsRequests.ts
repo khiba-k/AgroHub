@@ -1,5 +1,11 @@
 // lib/api/fetchProduceListings.ts
 import axios from 'axios';
+// lib/api/postProduceListing.ts
+
+export const postProduceListing = async (listingData: any) => {
+  const response = await axios.post("/api/produce/farmer/add/listings", listingData);
+  return response.data;
+};
 
 // Fetch produce listing for farm to manage
 export const fetchProduceListings = async ({
