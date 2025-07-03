@@ -6,13 +6,7 @@ export interface Farmer {
     pricePerKg: number;
     image: string;
   }
-  
-  export interface OrderBreakdown {
-    farmerId: string;
-    farmerName: string;
-    quantity: number;
-    price: number;
-  }
+
   
   export interface ProductFormData {
     category: string;
@@ -22,10 +16,20 @@ export interface Farmer {
     unitType: string;
   }
   
-  export interface CartItem {
-    id: string;
-    name: string;
-    category: string;
-    price: number;
+  export interface OrderBreakdown {
+    farmerId: string;
+    farmerName: string;
     quantity: number;
+    price: number;
   }
+  
+  export interface CartItem {
+    produceId: string;
+    produceName: string;
+    produceType?: string;
+    unitType: string;
+    selectedQuantity: number;
+    orderBreakdown: OrderBreakdown[];
+    totalPrice: number;
+  }
+  
