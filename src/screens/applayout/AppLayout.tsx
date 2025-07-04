@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { Header } from "./Header";
 import SideBar from "./SideBar";
+import { getFarmerInfoRequest } from "./utils/Requests";
 import { useUserStore, useFarmStore } from "@/lib/store/userStores";
 import { getFarmerInfoRequest } from "./utils/Requests";
 
@@ -50,6 +51,7 @@ export function AppLayout({
                             farmName: farmerDetails.farmName,
                             farmDetails: farmerDetails,
                         });
+                        console.log("Farmer details fetched and stored:", farmerDetails);   
                     } else {
                         console.log("No farmer details found.");
                     }

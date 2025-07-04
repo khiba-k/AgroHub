@@ -31,6 +31,10 @@ import { format } from "date-fns";
 import { Calendar as CalendarIcon, Upload } from "lucide-react";
 import { useState, useEffect } from "react";
 import ProduceFormListingUpload from "./ProduceListingUpload";
+import { createProduceListingSchema } from "@/lib/utils/farmer/FarmListingUtils";
+import { postProduceListing } from "@/lib/requests/produceListingsRequests";
+import { z } from "zod";
+import { useFarmStore } from "@/lib/store/userStores";
 
 interface ProduceFormProps {
     initialData?: any;
@@ -75,6 +79,7 @@ const getTypeExamples = (produceName: string): string => {
 };
 
 export function ProduceForm({ initialData }: ProduceFormProps) {
+    const farmId = useFarmStore((state) => state.farmId);
     const [date, setDate] = useState<Date | undefined>(
         initialData?.harvestDate ? new Date(initialData.harvestDate) : undefined,
     );
@@ -92,7 +97,8 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
     const [produceType, setProduceType] = useState(initialData?.produce?.type || initialData?.type || "");
     const [location, setLocation] = useState(initialData?.location || "");
     const [description, setDescription] = useState(initialData?.description || "");
-    const [imageUrls, setImageUrls] = useState<string[]>([])
+    const [files, setFiles] = useState<File[]>([])
+    const [previewUrls, setPreviewUrls] = useState<string[]>([])
 
     const getQuantityAndUnit = (data: any): [string, string] => {
         if (!data?.quantity) return ["", "kg"];
@@ -255,16 +261,59 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
         submitForm();
     };
 
-    const submitForm = () => {
+    const submitForm = async () => {
         setIsSubmitting(true);
 
-        // Simulate form submission
-        setTimeout(() => {
-            setIsSubmitting(false);
+        try {
+            if (!files.length) throw new Error("Please upload at least one image");
+
+            const payload = {
+                location,
+                description,
+                quantity: Number(quantity),
+                produceId: getProduceDetails(category, produceName, produceType)?.id,
+                farmId: initialData?.farmId || farmId,
+                status: status === "to_be_harvested" ? "harvest" : status,
+                harvestDate:
+                    status === "to_be_harvested" || status === "harvest"
+                        ? harvestDate?.toISOString()
+                        : undefined,
+            };
+
+            // Validate non-files first
+            createProduceListingSchema.parse(payload);
+
+            const formData = new FormData();
+            formData.append("location", payload.location);
+            formData.append("description", payload.description);
+            formData.append("quantity", String(payload.quantity));
+            formData.append("produceId", payload.produceId!);
+            formData.append("farmId", payload.farmId);
+            formData.append("status", payload.status);
+            if (payload.harvestDate) {
+                formData.append("harvestDate", payload.harvestDate);
+            }
+
+            files.forEach((file) => {
+                formData.append("images", file);
+            });
+
+            const response = await postProduceListing(formData);
+
+            console.log("Listing created:", response);
             setShowHarvestDialog(false);
-            // Close dialog or redirect
-            console.log('Form submitted successfully!');
-        }, 1000);
+        } catch (err: any) {
+            console.error("Error submitting form:", err);
+            if (err instanceof z.ZodError) {
+                alert(
+                    "Validation failed: " + err.errors.map((e) => e.message).join(", ")
+                );
+            } else {
+                alert(err.message || "Something went wrong. Please try again.");
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleHarvestDateSubmit = () => {
@@ -568,7 +617,12 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
                         </Button>
                     </div>
                 </div> */}
-                <ProduceFormListingUpload imageUrls={imageUrls} setImageUrls={setImageUrls} />
+                <ProduceFormListingUpload
+                    files={files}
+                    setFiles={setFiles}
+                    previewUrls={previewUrls}
+                    setPreviewUrls={setPreviewUrls}
+                />
             </div>
 
             {/* Form Actions */}

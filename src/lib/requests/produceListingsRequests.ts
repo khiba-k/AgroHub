@@ -1,5 +1,19 @@
 // lib/api/fetchProduceListings.ts
 import axios from 'axios';
+// lib/api/postProduceListing.ts
+
+export async function postProduceListing(formData: FormData) {
+  const response = await fetch("/api/produce/farmer/add/listings", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to create listing");
+  }
+
+  return response.json();
+}
 
 // Fetch produce listing for farm to manage
 export const fetchProduceListings = async ({

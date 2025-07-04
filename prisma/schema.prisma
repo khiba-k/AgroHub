@@ -107,9 +107,9 @@ model Produce {
 // Master listing record - persists through all states
 model ProduceListing {
   id          String   @id @default(uuid()) @db.Uuid
-  location    String
-  description String
-  quantity    Int
+  location    String?  // Make nullable
+  description String?  // Make nullable  
+  quantity    Int?     // Make nullable
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
