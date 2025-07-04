@@ -56,7 +56,6 @@ export default function SideBar({
         avatar: avatar,
     };
 
-
     return (
         <>
             {/* Mobile Menu Button */}
@@ -185,7 +184,7 @@ export default function SideBar({
             {/* Desktop Sidebar */}
             <div
                 className={cn(
-                    "hidden md:flex h-full flex-col bg-background border-r transition-all duration-300",
+                    "hidden md:flex min-h-screen flex-col bg-background border-r transition-all duration-300",
                     isOpen ? "w-64" : "w-[70px]",
                     className,
                 )}

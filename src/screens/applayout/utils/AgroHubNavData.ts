@@ -6,7 +6,8 @@ import {
   Settings,
   ShoppingCart,
   Store,
-  Truck
+  Truck,
+  List
 } from "lucide-react";
 
 interface NavItem {
@@ -21,7 +22,7 @@ interface NavItem {
 export const navItems: NavItem[] = [
   {
       label: "Listings",
-      icon: Home,
+      icon: List,
       href: "/admin/agrohub/listings",
       roles: [
           "farmer",

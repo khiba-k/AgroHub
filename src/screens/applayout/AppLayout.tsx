@@ -7,7 +7,7 @@ import { Header } from "./Header";
 import SideBar from "./SideBar";
 import { getFarmerInfoRequest } from "./utils/Requests";
 import { useUserStore, useFarmStore } from "@/lib/store/userStores";
-import { getFarmerInfoRequest } from "./utils/Requests";
+
 
 interface DashboardLayoutProps {
     children: ReactNode;
