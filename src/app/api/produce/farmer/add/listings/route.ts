@@ -5,13 +5,6 @@ import { createProduceListingSchema } from '@/lib/utils/farmer/FarmListingUtils'
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-// Helper to parse form-data (Edge: use Node.js API routes if needed for FormData parsing)
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
@@ -26,9 +19,11 @@ export async function POST(req: NextRequest) {
     const status = formData.get("status") as string;
     const harvestDateRaw = formData.get("harvestDate") as string | null;
     const harvestDate = harvestDateRaw ? new Date(harvestDateRaw) : undefined;
+
     // ✅ Process uploaded files:
     const files = formData.getAll("images") as File[];
-  
+    console.log("[ADD_LISTING_FILES]", files);
+
     // ✅ Validate main data:
     const input = createProduceListingSchema.parse({
       location,
@@ -38,7 +33,7 @@ export async function POST(req: NextRequest) {
       farmId,
       status,
       harvestDate,
-      images: files.map(file => file.name), // ✅ use real uploaded files!
+      images: files.map(file => file.name), // Pass file names to validate count
     });
 
     // ✅ Create listing:
@@ -54,10 +49,6 @@ export async function POST(req: NextRequest) {
     const listingId = result.data.id;
     const uploadedUrls: string[] = [];
 
-    
-
-    console.log("[ADD_LISTING_FILES]", files);
-    
     for (const file of files) {
       const { imageUrl, error } = await uploadImage({
         file,

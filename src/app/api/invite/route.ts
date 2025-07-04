@@ -8,7 +8,7 @@ import { badRequest, serverError, success } from "@/lib/utils/responseHandler";
 import { createInviteToken, deleteExistingInvite } from "@/actions/invite/InviteActions";
 import { createClient } from "@/lib/supabase/server";
 
-export const inviteSchema = z.object({
+const inviteSchema = z.object({
   email: z.string().email(),
   role: z.string().optional().default("agrohub"),
 });

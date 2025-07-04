@@ -3,6 +3,8 @@
 import { getUserObj } from "@/actions/auth/BasicAuthActions";
 import { getFarmerDetailsByUserId } from "@/actions/users/UserActions";
 import { notFound, serverError, success, unauthorized } from "@/lib/utils/responseHandler";
+export const dynamic = "force-dynamic";
+
 
 export async function GET() {
   try {
