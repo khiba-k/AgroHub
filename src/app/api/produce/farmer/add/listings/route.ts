@@ -56,6 +56,8 @@ export async function POST(req: NextRequest) {
 
     
 
+    console.log("[ADD_LISTING_FILES]", files);
+    
     for (const file of files) {
       const { imageUrl, error } = await uploadImage({
         file,
