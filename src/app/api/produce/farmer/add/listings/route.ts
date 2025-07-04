@@ -26,7 +26,9 @@ export async function POST(req: NextRequest) {
     const status = formData.get("status") as string;
     const harvestDateRaw = formData.get("harvestDate") as string | null;
     const harvestDate = harvestDateRaw ? new Date(harvestDateRaw) : undefined;
-
+    // ✅ Process uploaded files:
+    const files = formData.getAll("images") as File[];
+  
     // ✅ Validate main data:
     const input = createProduceListingSchema.parse({
       location,
@@ -36,7 +38,7 @@ export async function POST(req: NextRequest) {
       farmId,
       status,
       harvestDate,
-      images: [], // handled separately
+      images: files.map(file => file.name), // ✅ use real uploaded files!
     });
 
     // ✅ Create listing:
@@ -52,8 +54,7 @@ export async function POST(req: NextRequest) {
     const listingId = result.data.id;
     const uploadedUrls: string[] = [];
 
-    // ✅ Process uploaded files:
-    const files = formData.getAll("images") as File[];
+    
 
     for (const file of files) {
       const { imageUrl, error } = await uploadImage({

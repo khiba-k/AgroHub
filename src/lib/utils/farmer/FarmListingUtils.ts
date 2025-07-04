@@ -14,7 +14,8 @@ export const baseProduceListingSchema = z.object({
     produceId: z.string().uuid(),
     farmId: z.string().uuid(),
     harvestDate: z.date().optional(),
-});
+    images: z.array(z.string()).min(1, 'At least 1 image is required').max(5, 'Maximum of 5 images allowed').optional(),
+  });
 
 // Draft schema - minimal requirements
 export const draftListingSchema = baseProduceListingSchema.extend({

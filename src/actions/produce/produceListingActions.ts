@@ -257,9 +257,11 @@ export const createProduceListing = async (input: CreateProduceListingInput) => 
       // Create the produce listing with nullable fields
       const produceListing = await tx.produceListing.create({
         data: {
-          location: validatedData.location || null,
-          description: validatedData.description || null,
-          quantity: validatedData.quantity || null,
+          ...(validatedData.location !== undefined ? { location: validatedData.location } : {}),
+          ...(validatedData.description !== undefined ? { description: validatedData.description } : {}),
+          ...(validatedData.quantity !== undefined && validatedData.quantity !== null
+            ? { quantity: validatedData.quantity }
+            : {}),
           produceId: validatedData.produceId,
           farmId: validatedData.farmId,
         },
@@ -329,7 +331,7 @@ export const createProduceListing = async (input: CreateProduceListingInput) => 
     };
   } catch (error) {
     console.error('[CREATE_PRODUCE_LISTING_ERROR]', error);
-    
+
     // Handle Zod validation errors
     if (error instanceof z.ZodError) {
       return {

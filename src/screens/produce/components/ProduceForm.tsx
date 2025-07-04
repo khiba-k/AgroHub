@@ -265,8 +265,7 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
         setIsSubmitting(true);
 
         try {
-            if (!files.length) throw new Error("Please upload at least one image");
-
+            // ✅ Build the payload INCLUDING images (as file names)
             const payload = {
                 location,
                 description,
@@ -278,23 +277,25 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
                     status === "to_be_harvested" || status === "harvest"
                         ? harvestDate?.toISOString()
                         : undefined,
+                images: files.map(file => file.name), // ✅ Enforce image count with Zod
             };
 
-            // Validate non-files first
+            // ✅ Validate everything with Zod (images included!)
             createProduceListingSchema.parse(payload);
 
+            // ✅ Build the FormData
             const formData = new FormData();
-            formData.append("location", payload.location);
-            formData.append("description", payload.description);
-            formData.append("quantity", String(payload.quantity));
-            formData.append("produceId", payload.produceId!);
-            formData.append("farmId", payload.farmId);
+            if (payload.location) formData.append("location", payload.location);
+            if (payload.description) formData.append("description", payload.description);
+            if (payload.quantity !== undefined) formData.append("quantity", String(payload.quantity));
+            if (payload.produceId) formData.append("produceId", payload.produceId);
+            if (payload.farmId) formData.append("farmId", payload.farmId);
             formData.append("status", payload.status);
             if (payload.harvestDate) {
                 formData.append("harvestDate", payload.harvestDate);
             }
 
-            files.forEach((file) => {
+            files.forEach(file => {
                 formData.append("images", file);
             });
 
@@ -306,7 +307,7 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
             console.error("Error submitting form:", err);
             if (err instanceof z.ZodError) {
                 alert(
-                    "Validation failed: " + err.errors.map((e) => e.message).join(", ")
+                    "Validation failed: " + err.errors.map(e => e.message).join(", ")
                 );
             } else {
                 alert(err.message || "Something went wrong. Please try again.");
