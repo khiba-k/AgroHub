@@ -23,8 +23,13 @@ export async function POST(req: NextRequest) {
     // ✅ Process uploaded files:
     const files = formData.getAll("images") as File[];
     console.log("[ADD_LISTING_FILES]", files);
+    console.log("[ADD_LISTING_FILES_COUNT]", files.length);
 
-    // ✅ Validate main data:
+    // ✅ Filter out any non-File objects (safety check)
+    const validFiles = files.filter(file => file instanceof File && file.size > 0);
+    console.log("[ADD_LISTING_VALID_FILES]", validFiles.length);
+
+    // ✅ Validate main data WITHOUT images:
     const input = createProduceListingSchema.parse({
       location,
       description,
@@ -33,10 +38,11 @@ export async function POST(req: NextRequest) {
       farmId,
       status,
       harvestDate,
-      images: files.map(file => file.name), // Pass file names to validate count
+      // ❌ Remove this line - don't pass images to createProduceListing
+      // images: validFiles.map(file => file.name),
     });
 
-    // ✅ Create listing:
+    // ✅ Create listing WITHOUT images:
     const result = await createProduceListing(input);
 
     if (!result.success || !result.data) {
@@ -49,7 +55,14 @@ export async function POST(req: NextRequest) {
     const listingId = result.data.id;
     const uploadedUrls: string[] = [];
 
-    for (const file of files) {
+    // ✅ Upload each file:
+    for (const file of validFiles) {
+      console.log("[ADD_LISTING_FILE]", {
+        name: file.name,
+        size: file.size,
+        type: file.type
+      });
+
       const { imageUrl, error } = await uploadImage({
         file,
         bucket: "agrohubpics",
@@ -58,14 +71,18 @@ export async function POST(req: NextRequest) {
 
       if (error || !imageUrl) {
         console.error("Upload error:", error);
-        continue;
+        continue; // Skip this file but continue with others
       }
 
       uploadedUrls.push(imageUrl);
     }
 
-    // ✅ Save image URLs in DB:
+    console.log("[UPLOADED_URLS]", uploadedUrls);
+
+    // ✅ Save image URLs in DB (only after successful upload):
     if (uploadedUrls.length > 0) {
+      console.log("[SAVING_LISTING_IMAGES]", uploadedUrls.length);
+      console.log("First uploaded URL:", uploadedUrls[0]);
       await prisma.listingImg.createMany({
         data: uploadedUrls.map((url) => ({
           listingId,
@@ -85,6 +102,8 @@ export async function POST(req: NextRequest) {
         harvestListings: true,
       },
     });
+
+    console.log("[FINAL_LISTING]", finalListing);
 
     return NextResponse.json({ success: true, data: finalListing });
   } catch (error) {

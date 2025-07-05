@@ -302,15 +302,16 @@ export const createProduceListing = async (input: CreateProduceListingInput) => 
         });
       }
 
+      // ❌ Remove this entire section - images will be handled after upload
       // Create images if provided
-      if (validatedData.images && validatedData.images.length > 0) {
-        await tx.listingImg.createMany({
-          data: validatedData.images.map(url => ({
-            listingId: produceListing.id,
-            url,
-          })),
-        });
-      }
+      // if (validatedData.images && validatedData.images.length > 0) {
+      //   await tx.listingImg.createMany({
+      //     data: validatedData.images.map(url => ({
+      //       listingId: produceListing.id,
+      //       url,
+      //     })),
+      //   });
+      // }
 
       // Return the created listing with all relations
       return await tx.produceListing.findUnique({

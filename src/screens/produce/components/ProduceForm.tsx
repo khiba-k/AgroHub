@@ -270,7 +270,7 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
         setIsSubmitting(true);
 
         try {
-            // ✅ Build the payload INCLUDING images (as file names)
+            // ✅ Build the payload WITHOUT images (they'll be handled separately)
             const payload = {
                 location,
                 description,
@@ -282,10 +282,11 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
                     status === "to_be_harvested" || status === "harvest"
                         ? harvestDate?.toISOString()
                         : undefined,
-                images: files.map(file => file.name), // ✅ Enforce image count with Zod
+                // ❌ Remove this line - images will be handled after upload
+                // images: files.map(file => file.name),
             };
 
-            // ✅ Validate everything with Zod (images included!)
+            // ✅ Validate everything with Zod (without images)
             createProduceListingSchema.parse(payload);
 
             // ✅ Build the FormData
@@ -300,6 +301,7 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
                 formData.append("harvestDate", payload.harvestDate);
             }
 
+            // ✅ Append actual files (not file names)
             files.forEach(file => {
                 formData.append("images", file);
             });
@@ -350,7 +352,7 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
         const showSuggestions = focused && filteredSuggestions.length > 0;
 
         return (
-            
+
             <div className="relative">
                 <div className="flex items-center relative">
                     <Button
