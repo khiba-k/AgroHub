@@ -19,6 +19,7 @@ import { produceFormSchema, type ProduceFormData } from '../../utils/produceFrom
 import { fetchProduce, submitProduce } from '../../utils/produceRequests'
 import { ProduceStoreData, useProduceStore } from '@/lib/store/useProductStore'
 import { getProduce } from '@/actions/produce/produceActions'
+import { Loader2 } from "lucide-react";
 
 interface AgroHubAddProductFormProps {
     showAddProduct: boolean
@@ -65,7 +66,7 @@ const AgroHubAddProductForm = ({ showAddProduct, setShowAddProduct }: AgroHubAdd
     const categorySuggestions = getSuggestions()
     const nameSuggestions = watchCategory ? getSuggestions(watchCategory) : []
 
-    // ✅ Clear product name if not in the new category
+    //  Clear product name if not in the new category
     useEffect(() => {
         if (!nameSuggestions.includes(watchName)) {
             form.setValue('name', '')
@@ -183,7 +184,7 @@ const AgroHubAddProductForm = ({ showAddProduct, setShowAddProduct }: AgroHubAdd
                 </div>
 
                 {showSuggestions && (
-                    <div className="absolute bg-black left-0 mt-1 w-full z-20 border border-gray-100 rounded-md shadow-md max-h-48 overflow-y-auto">
+                    <div className="absolute  left-0 mt-1 w-full z-50 border border-gray-100 rounded-md shadow-md max-h-48 overflow-y-auto bg-white ">
                         {filteredSuggestions.map(suggestion => (
                             <div
                                 key={suggestion}
@@ -200,7 +201,7 @@ const AgroHubAddProductForm = ({ showAddProduct, setShowAddProduct }: AgroHubAdd
                 )}
 
                 {open && (
-                    <div className="absolute bg-black left-0 mt-1 w-full z-20 border border-gray-100 rounded-md shadow-md max-h-48 overflow-y-auto">
+                    <div className="absolute  left-0 mt-1 w-full z-50  border border-gray-100 rounded-md shadow-md max-h-48 overflow-y-auto bg-white text-black ">
                         {suggestions.slice(0, 10).map(suggestion => (
                             <div
                                 key={suggestion}
@@ -208,7 +209,7 @@ const AgroHubAddProductForm = ({ showAddProduct, setShowAddProduct }: AgroHubAdd
                                     field.onChange(suggestion)
                                     setOpen(false)
                                 }}
-                                className="cursor-pointer px-3 py-1 text-sm"
+                                className="cursor-pointer px-3 py-1 text-sm  index > 0 ?  border-t border-gray-200"
                             >
                                 {suggestion}
                             </div>
@@ -326,9 +327,16 @@ const AgroHubAddProductForm = ({ showAddProduct, setShowAddProduct }: AgroHubAdd
                             </Button>
                             <Button
                                 type="submit"
-                                className="flex-1 hover:bg-gray-800 font-semibold"
+                                className="flex-1 hover:bg-gray-400 font-semibold"
+                                disabled={form.formState.isSubmitting}
                             >
-                                Save Product
+                                 {form.formState.isSubmitting ? (
+    <Loader2 className="h-6 w-6 animate-spin text-gray-700" />
+  ) : (
+    'Save Product'
+  )}
+
+                            
                             </Button>
                         </div>
                     </form>
