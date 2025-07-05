@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,11 +11,15 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Filter, Plus } from "lucide-react";
 import { ProduceCalendar } from "./components/ProduceCalendar";
-import { ProduceForm } from "./components/ProduceForm";
+import  ProduceForm  from "./components/ProduceForm";
 import { ProduceInventory } from "./components/ProduceInventory";
 import { ProduceList } from "./components/ProduceList";
+import { Calendar } from "@/components/ui/calendar";
+import { useState } from "react";
 
 export default function Produce() {
+  const [date, setDate] = useState<Date | undefined>(undefined);
+
   return (
     <>
       <div className="space-y-6">
@@ -97,6 +102,7 @@ export default function Produce() {
             <ProduceInventory />
           </TabsContent>
         </Tabs>
+        
       </div>
     </>
   );
