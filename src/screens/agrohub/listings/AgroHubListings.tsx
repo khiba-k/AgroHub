@@ -96,6 +96,7 @@ export default function AgroHubListings() {
       reset()
       return
     }
+    console.log("Selected Quantity:", selectedQuantity)
     const found = loadFromCart(selectedProduceId)
     if (!found) {
       reset()
