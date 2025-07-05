@@ -232,7 +232,7 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
         };
 
         refreshProduce();
-    }, );
+    }, []);
 
     // Get suggestions based on current selections
     const categorySuggestions = getSuggestions();

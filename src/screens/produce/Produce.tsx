@@ -1,4 +1,3 @@
-"use client";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,23 +13,9 @@ import { ProduceCalendar } from "./components/ProduceCalendar";
 import { ProduceForm } from "./components/ProduceForm";
 import { ProduceInventory } from "./components/ProduceInventory";
 import { ProduceList } from "./components/ProduceList";
-import { useEffect } from "react";
-import { fetchProduce } from "../agrohub/utils/produceRequests";
+
 
 export default function Produce() {
-
-  useEffect(() => {
-   const loadProduce = async () => {
-      try {
-        const produceData = await fetchProduce();
-        console.log("Fetched Produce Data: ", produceData);
-      } catch (error) {
-        console.error("Error fetching produce data:", error);
-      }
-    }
-    loadProduce();
-  }
-  , []);
   return (
     <>
       <div className="space-y-6">
