@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import Calendar from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -99,6 +99,7 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
     const [description, setDescription] = useState(initialData?.description || "");
     const [files, setFiles] = useState<File[]>([])
     const [previewUrls, setPreviewUrls] = useState<string[]>([])
+    const [showImageWarning, setShowImageWarning] = useState(false)
 
     const getQuantityAndUnit = (data: any): [string, string] => {
         if (!data?.quantity) return ["", "kg"];
@@ -247,9 +248,16 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
             setProduceType('');
         }
     }, [produceName, initialData, isActiveListing]);
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Show warning if no images uploaded
+        if (!files.length) {
+            setShowImageWarning(true);
+            return;
+        } else {
+            setShowImageWarning(false);
+        }
 
         // If status is "to_be_harvested", show harvest date dialog
         if (status === 'to_be_harvested') {
@@ -257,7 +265,6 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
             return;
         }
 
-        // Otherwise proceed with normal submission
         submitForm();
     };
 
@@ -426,15 +433,32 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
                                 className="bg-gray-50 text-gray-500"
                             />
                         ) : (
-                            renderSuggestInput(
-                                category,
-                                setCategory,
-                                categorySuggestions,
-                                categoryOpen,
-                                setCategoryOpen,
-                                "e.g. Vegetables, Fruits, Grains",
-                                true
-                            )
+                            <Select
+  value={category}
+  onValueChange={(value) => {
+    setCategory(value);
+
+    const validNames = getSuggestions(value);
+    if (!validNames.includes(produceName)) {
+      setProduceName('');
+      setProduceType('');
+    }
+  }}
+>
+  <SelectTrigger>
+    <SelectValue placeholder="Select Category" />
+  </SelectTrigger>
+  <SelectContent>
+    {categorySuggestions
+      .filter((item) => item.trim() !== "")
+      .map((item) => (
+        <SelectItem key={item} value={item}>
+          {item}
+        </SelectItem>
+      ))}
+  </SelectContent>
+</Select>
+
                         )}
                     </div>
                     <div className="space-y-2">
@@ -446,15 +470,32 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
                                 className="bg-gray-50 text-gray-500"
                             />
                         ) : (
-                            renderSuggestInput(
-                                produceName,
-                                setProduceName,
-                                nameSuggestions,
-                                nameOpen,
-                                setNameOpen,
-                                "e.g. Tomatoes, Apples, Maize",
-                                true
-                            )
+                            <Select
+  value={produceName}
+  onValueChange={(value) => {
+    setProduceName(value); // Set the name first
+
+    // Clear the type if it's no longer valid for the selected produce
+    const validTypes = getSuggestions(category, value);
+    if (!validTypes.includes(produceType)) {
+      setProduceType('');
+    }
+  }}
+>
+  <SelectTrigger>
+    <SelectValue placeholder="Select Produce Name" />
+  </SelectTrigger>
+  <SelectContent>
+    {nameSuggestions
+      .filter((item) => item.trim() !== "")
+      .map((item) => (
+        <SelectItem key={item} value={item}>
+          {item}
+        </SelectItem>
+      ))}
+  </SelectContent>
+</Select>
+
                         )}
                     </div>
                 </div>
@@ -462,24 +503,35 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="type">Type/Variety (Optional)</Label>
-                        {isActiveListing ? (
-                            <Input
-                                value={produceType}
-                                disabled
-                                className="bg-gray-50 text-gray-500"
-                                placeholder={produceType || "Not specified"}
-                            />
-                        ) : (
-                            renderSuggestInput(
-                                produceType,
-                                setProduceType,
-                                typeSuggestions,
-                                typeOpen,
-                                setTypeOpen,
-                                getTypeExamples(produceName),
-                                false
-                            )
-                        )}
+                       {isActiveListing ? (
+  <Input
+    value={produceType || "Not specified"}
+    disabled
+    className="bg-gray-50 text-gray-500"
+  />
+) : (
+  
+    <Select value={produceType} onValueChange={setProduceType}>
+    <SelectTrigger>
+      <SelectValue placeholder="Select Type/Variety (Optional)" />
+    </SelectTrigger>
+    <SelectContent>
+      {typeSuggestions.length > 0 ? (
+        typeSuggestions
+          .filter((item) => item.trim() !== "")
+          .map((item) => (
+            <SelectItem key={item} value={item}>
+              {item}
+            </SelectItem>
+          ))
+      ) : (
+        <SelectItem value="No types available for this produce" disabled>
+          No types available for this produce
+        </SelectItem>
+      )}
+    </SelectContent>
+  </Select>
+)}
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="location">Farm Location *</Label>
@@ -600,6 +652,12 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
             {/* Images Section */}
             <div className="space-y-1">
                 <h3 className="text-lg font-semibold border-b pb-2">Images</h3>
+                {showImageWarning && (
+                    <p className="text-sm text-red-600 font-medium">
+                        Please upload at least one image of your produce to complete the listing.
+                    </p>
+                )}
+                
 
                 {/* <div className="border-2 border-dashed border-gray-300 rounded-lg p-8">
                     <div className="text-center">
@@ -664,10 +722,9 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0" align="start">
                                     <Calendar
-                                        mode="single"
-                                        selected={harvestDate}
+                                        value={harvestDate}
                                         onSelect={setHarvestDate}
-                                        disabled={(date) => date < new Date()}
+                                        disabled={(date: Date) => date < new Date()}
                                         initialFocus
                                     />
                                 </PopoverContent>

@@ -55,6 +55,8 @@ const ProduceFormListingUpload = ({
     setPreviewUrls(previewUrls.filter((_, i) => i !== indexToRemove))
   }
 
+  const showImageWarning = previewUrls.length === 0;
+  
   return (
     <>
       <div>
