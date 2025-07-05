@@ -1,4 +1,5 @@
 "use client";
+console.log("✅ ProduceForm module loaded");
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -79,6 +80,8 @@ const getTypeExamples = (produceName: string): string => {
 };
 
 export function ProduceForm({ initialData }: ProduceFormProps) {
+    console.log("✅ ProduceForm component rendered");
+
     const farmId = useFarmStore((state) => state.farmId);
     const [date, setDate] = useState<Date | undefined>(
         initialData?.harvestDate ? new Date(initialData.harvestDate) : undefined,
@@ -200,7 +203,9 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
             try {
                 resetProduce();
 
+                console.log("Fetching produce data...");
                 const produceData = await fetchProduce();
+                console.log("Fetched produce data:", produceData);
 
                 // Transform array into nested object
                 const structuredData: Record<string, Record<string, Record<string, { id: string; pricePerUnit: string; unitType: string }>>> = {};
@@ -345,6 +350,7 @@ export function ProduceForm({ initialData }: ProduceFormProps) {
         const showSuggestions = focused && filteredSuggestions.length > 0;
 
         return (
+            
             <div className="relative">
                 <div className="flex items-center relative">
                     <Button
