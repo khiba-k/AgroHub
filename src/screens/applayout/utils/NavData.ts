@@ -145,7 +145,8 @@ export const navItems: NavItem[] = [
         icon: Leaf,
         href: "/produce",
         roles: [
-            "farmer"
+            "farmer",
+            "agrohub"
         ],
         children: [
             {
@@ -158,6 +159,7 @@ export const navItems: NavItem[] = [
                     "logistics",
                     "distributor",
                     "service",
+                    "agrohub",
                 ],
             },
         
@@ -165,7 +167,7 @@ export const navItems: NavItem[] = [
                 label: "Orders",
                 icon: ShoppingCart,
                 href: "/produce/orders",
-                roles: ["farmer", "retailer"],
+                roles: [ "agrohub","farmer", "retailer",],
             },
         
         ],
@@ -193,12 +195,14 @@ export const navItems: NavItem[] = [
        icon: Settings,
        href: "/settings",
         roles: [
+            "agrohub",
             "farmer",
            "retailer",
            "logistics",
          "distributor",
            "service",
           "consumer",
+          
        ],
     },
 ];

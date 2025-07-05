@@ -110,7 +110,7 @@ export function Header({
                             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                                 <Avatar className="h-8 w-8">
                                     <AvatarImage src={avatar} alt={userName} />
-                                    <AvatarFallback>{userName?.charAt(0)?.toUpperCase()}</AvatarFallback>
+                                    <AvatarFallback>{email?.charAt(0)?.toUpperCase()}</AvatarFallback>
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
