@@ -2,7 +2,11 @@ import axios from "axios";
 
 export const sendInvite = async (email: string, role: string = "agrohub") => {
   try {
-    const response = await axios.post("/api/invite", { email, role });
+    const response = await axios.post(
+      "/api/invite",
+      { email, role },
+      { withCredentials: true } // ✅ THIS sends your cookies!
+    );
     return { success: true, message: response.data.message };
   } catch (err: any) {
     return {
