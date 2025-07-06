@@ -41,7 +41,7 @@ export async function signup(formData: FormData) {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
   const role = formData.get('role') as string;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const siteUrl = process.env.SITE_URL || 'http://localhost:3000';
 
   const { error } = await supabase.auth.signUp({
     email,

@@ -257,9 +257,11 @@ export const createProduceListing = async (input: CreateProduceListingInput) => 
       // Create the produce listing with nullable fields
       const produceListing = await tx.produceListing.create({
         data: {
-          location: validatedData.location || null,
-          description: validatedData.description || null,
-          quantity: validatedData.quantity || null,
+          ...(validatedData.location !== undefined ? { location: validatedData.location } : {}),
+          ...(validatedData.description !== undefined ? { description: validatedData.description } : {}),
+          ...(validatedData.quantity !== undefined && validatedData.quantity !== null
+            ? { quantity: validatedData.quantity }
+            : {}),
           produceId: validatedData.produceId,
           farmId: validatedData.farmId,
         },
@@ -300,15 +302,16 @@ export const createProduceListing = async (input: CreateProduceListingInput) => 
         });
       }
 
+      // ❌ Remove this entire section - images will be handled after upload
       // Create images if provided
-      if (validatedData.images && validatedData.images.length > 0) {
-        await tx.listingImg.createMany({
-          data: validatedData.images.map(url => ({
-            listingId: produceListing.id,
-            url,
-          })),
-        });
-      }
+      // if (validatedData.images && validatedData.images.length > 0) {
+      //   await tx.listingImg.createMany({
+      //     data: validatedData.images.map(url => ({
+      //       listingId: produceListing.id,
+      //       url,
+      //     })),
+      //   });
+      // }
 
       // Return the created listing with all relations
       return await tx.produceListing.findUnique({
@@ -329,7 +332,7 @@ export const createProduceListing = async (input: CreateProduceListingInput) => 
     };
   } catch (error) {
     console.error('[CREATE_PRODUCE_LISTING_ERROR]', error);
-    
+
     // Handle Zod validation errors
     if (error instanceof z.ZodError) {
       return {

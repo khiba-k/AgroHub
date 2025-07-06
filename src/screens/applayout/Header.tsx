@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Logo } from "@/components/ui/logo";
-import { Bell, Menu, MessageSquare, Search } from "lucide-react";
+import { Bell, Menu, MessageSquare, Search, } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ThemeSwitcher } from "./components/ThemeSwitcher";
 import { useUserStore, useFarmStore } from "@/lib/store/userStores";
@@ -68,7 +68,7 @@ export function Header({
                     </Button>
                     <Logo size="md" />
                 </div>
-
+{/* 
                 <div className="hidden md:flex md:flex-1 md:items-center md:justify-center">
                     <div className="relative w-full max-w-md">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -78,9 +78,9 @@ export function Header({
                             className="w-full pl-8"
                         />
                     </div>
-                </div>
+                </div> */}
 
-                <div className="flex items-center gap-3">
+                {/* <div className="flex items-center gap-3">
                     <Button variant="ghost" size="icon" className="text-muted-foreground">
                         <Search className="h-5 w-5 md:hidden" />
                         <span className="sr-only">Search</span>
@@ -99,16 +99,18 @@ export function Header({
                     <Button variant="ghost" size="icon" className="text-muted-foreground">
                         <Bell className="h-5 w-5" />
                         <span className="sr-only">Notifications</span>
-                    </Button>
-
+                    </Button> */}
+                  <div className="flex items-center gap-2">
                     <ThemeSwitcher />
+                   
 
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
+                        
                             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                                 <Avatar className="h-8 w-8">
                                     <AvatarImage src={avatar} alt={userName} />
-                                    <AvatarFallback>{userName?.charAt(0)?.toUpperCase()}</AvatarFallback>
+                                    <AvatarFallback>{email?.charAt(0)?.toUpperCase()}</AvatarFallback>
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
@@ -147,8 +149,10 @@ export function Header({
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                </div>
-            </div>
+                    </div>
+                    </div>
+            
+            
         </header>
     );
 }

@@ -1,10 +1,12 @@
 import PasswordReset from '@/screens/auth/forgotPass/ResetPassword'
-import React from 'react'
+import React, { Suspense } from 'react'
 
 const page = () => {
   return (
     <div>
-      <PasswordReset/>
+      <Suspense fallback={<div>Loading...</div>}>
+        <PasswordReset />
+      </Suspense>
     </div>
   )
 }

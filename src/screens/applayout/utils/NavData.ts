@@ -19,19 +19,19 @@ interface NavItem {
 }
 
 export const navItems: NavItem[] = [
-    {
-        label: "Dashboard",
-        icon: Home,
-        href: "/dashboard",
-        roles: [
-            "farmer",
-            "retailer",
-            "logistics",
-            "distributor",
-            "service",
-            "consumer",
-        ],
-    },
+    // {
+    //     label: "Dashboard",
+    //     icon: Home,
+    //     href: "/dashboard",
+    //     roles: [
+    //         "farmer",
+    //         "retailer",
+    //         "logistics",
+    //         "distributor",
+    //         "service",
+    //         "consumer",
+    //     ],
+    // },
 
     
     /*
@@ -94,12 +94,12 @@ export const navItems: NavItem[] = [
         badge: "3",
     },
     */
-    {
-        label: "Marketplace",
-        icon: ShoppingCart,
-        href: "/marketplace",
-        roles: [
-            "farmer", "retailer", "logistics", "distributor", "service", "consumer",],
+    // {
+    //     label: "Marketplace",
+    //     icon: ShoppingCart,
+    //     href: "/marketplace",
+    //     roles: [
+    //         "farmer", "retailer", "logistics", "distributor", "service", "consumer",],
         /*
         children: [
             {
@@ -125,13 +125,13 @@ export const navItems: NavItem[] = [
             
         ],
         */
-    },
-    {
-        label: "Auctions",
-        icon: BarChart,
-        href: "/auctions",
-        roles: ["farmer", "retailer", "distributor", "consumer"],
-    },
+  //  },
+    // {
+    //     label: "Auctions",
+    //     icon: BarChart,
+    //     href: "/auctions",
+    //     roles: ["farmer", "retailer", "distributor", "consumer"],
+    // },
     /*
     {
         label: "Farm Analytics",
@@ -145,7 +145,8 @@ export const navItems: NavItem[] = [
         icon: Leaf,
         href: "/produce",
         roles: [
-            "farmer"
+            "farmer",
+            "agrohub"
         ],
         children: [
             {
@@ -158,6 +159,7 @@ export const navItems: NavItem[] = [
                     "logistics",
                     "distributor",
                     "service",
+                    "agrohub",
                 ],
             },
         
@@ -165,40 +167,42 @@ export const navItems: NavItem[] = [
                 label: "Orders",
                 icon: ShoppingCart,
                 href: "/produce/orders",
-                roles: ["farmer", "retailer"],
+                roles: [ "agrohub","farmer", "retailer",],
             },
         
         ],
     },
-    {
-        label: "My Store",
-        icon: Store,
-        href: "/store",
-        roles: ["retailer"],
-    },
-    {
-        label: "Deliveries",
-        icon: Truck,
-        href: "/deliveries",
-        roles: ["logistics"],
-    },
-    {
-        label: "Services",
-        icon: Briefcase,
-        href: "/services",
-        roles: ["service"],
-    },
-    {
+    // {
+    //     label: "My Store",
+    //     icon: Store,
+    //     href: "/store",
+    //     roles: ["retailer"],
+    // },
+    // {
+    //     label: "Deliveries",
+    //     icon: Truck,
+    //     href: "/deliveries",
+    //     roles: ["logistics"],
+    // },
+    // {
+    //     label: "Services",
+    //     icon: Briefcase,
+    //     href: "/services",
+    //     roles: ["service"],
+    // },
+     {
         label: "Settings",
-        icon: Settings,
-        href: "/settings",
+       icon: Settings,
+       href: "/settings",
         roles: [
+            "agrohub",
             "farmer",
-            "retailer",
-            "logistics",
-            "distributor",
-            "service",
-            "consumer",
-        ],
+           "retailer",
+           "logistics",
+         "distributor",
+           "service",
+          "consumer",
+          
+       ],
     },
 ];

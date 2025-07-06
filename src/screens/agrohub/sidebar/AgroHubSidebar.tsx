@@ -9,6 +9,7 @@ import {
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useUserStore } from "@/lib/store/userStores";
 import { cn } from "@/lib/utils";
 import { navItems } from "@/screens/applayout/utils/AgroHubNavData";
 import {
@@ -23,8 +24,6 @@ import { useState } from "react";
 
 interface SidebarNavigationProps {
     className?: string;
-    userRole?: string;
-    avatar?: string;
 }
 
 interface NavItem {
@@ -38,24 +37,18 @@ interface NavItem {
 
 export default function SideBar({
     className,
-    userRole = "farmer",
-    avatar,
 }: SidebarNavigationProps) {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(true);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const { email, avatar, role } = useUserStore();
 
 
     const filteredNavItems = navItems.filter((item) =>
-        item.roles.includes(userRole),
+        item.roles.includes(role),
     );
 
-    const user = {
-        name: "John Farmer",
-        role: "Farmer",
-        avatar: avatar,
-    };
-
+    
 
     return (
         <>
@@ -100,12 +93,11 @@ export default function SideBar({
                     <div className="p-4 border-b">
                         <div className="flex items-center space-x-3">
                             <Avatar>
-                                <AvatarImage src={user.avatar} alt={user.name} />
-                                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                <AvatarFallback>{email?.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div>
-                                <p className="font-medium">{user.name}</p>
-                                <p className="text-sm text-muted-foreground">{user.role}</p>
+                                <p className="font-medium">{email}</p>
+                                <p className="text-sm text-muted-foreground">{role}</p>
                             </div>
                         </div>
                     </div>
@@ -185,7 +177,7 @@ export default function SideBar({
             {/* Desktop Sidebar */}
             <div
                 className={cn(
-                    "hidden md:flex h-full flex-col bg-background border-r transition-all duration-300",
+                    "hidden md:flex min-h-screen flex-col bg-background border-r transition-all duration-300",
                     isOpen ? "w-64" : "w-[70px]",
                     className,
                 )}
@@ -225,12 +217,11 @@ export default function SideBar({
                     <div className="p-4 border-b">
                         <div className="flex items-center space-x-3">
                             <Avatar>
-                                <AvatarImage src={user.avatar} alt={user.name} />
-                                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                <AvatarFallback>{email?.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div>
-                                <p className="font-medium">{user.name}</p>
-                                <p className="text-sm text-muted-foreground">{user.role}</p>
+                                <p className="font-medium">{email}</p>
+                                <p className="text-sm text-muted-foreground">{role}</p>
                             </div>
                         </div>
                     </div>

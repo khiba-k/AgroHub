@@ -1,9 +1,13 @@
 import OnboardingAgrohub from '@/screens/onboarding/agrohub/OnboardingAgroHub'
-import React from 'react'
+import React, { Suspense } from 'react'
 
 const page = () => {
   return (
-    <div><OnboardingAgrohub/></div>
+    <div>
+      <Suspense>
+        <OnboardingAgrohub />
+      </Suspense>
+    </div>
   )
 }
 

@@ -27,25 +27,25 @@ export interface FilteredListing {
 }
 
 // This function loads listings based on selected filters and updates the store with the results.(AgroHubListings.tsx)
-export const loadListings = async (setIsLoading: (loading: boolean) => void,
-  setListings: (listings: FilteredListing[], total: number, hasMore: boolean) => void,
+export const loadListings = async (
+  setIsLoading: (loading: boolean) => void,
+  setListings: (listings: FilteredListing[], total: number, hasMore: boolean, totalAvailable: number) => void,
   selectedCategory: string | undefined,
   selectedProduce: string | undefined,
   selectedType: string | undefined,
   getSuggestions: (category?: string, produce?: string) => string[],
-
 ) => {
-
   console.log("Loading listings with filters:", {
     selectedCategory,
     selectedProduce,
     selectedType,
   })
+
   try {
     setIsLoading(true)
 
     if (!selectedCategory || !selectedProduce) {
-      setListings([], 0, false)
+      setListings([], 0, false, 0)
       setIsLoading(false)
       return
     }
@@ -55,7 +55,7 @@ export const loadListings = async (setIsLoading: (loading: boolean) => void,
     const hasTypes = realTypes.length > 0
 
     if (hasTypes && !selectedType) {
-      setListings([], 0, false)
+      setListings([], 0, false, 0)
       setIsLoading(false)
       return
     }
@@ -66,9 +66,16 @@ export const loadListings = async (setIsLoading: (loading: boolean) => void,
       type: hasTypes ? selectedType : undefined,
     })
 
-    setListings(data, data.length, data.length >= 6)
+    console.log("Listings data received:", data)
+
+    const totalAvailable: number = data.reduce(
+      (sum: number, item: FilteredListing) => sum + item.quantity,
+      0
+    )
+
+    setListings(data, data.length, data.length >= 6, totalAvailable)
   } catch (error) {
-    setListings([], 0, false)
+    setListings([], 0, false, 0)
   } finally {
     setIsLoading(false)
   }

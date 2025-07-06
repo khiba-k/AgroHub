@@ -6,7 +6,8 @@ import {
   Settings,
   ShoppingCart,
   Store,
-  Truck
+  Truck,
+  List
 } from "lucide-react";
 
 interface NavItem {
@@ -21,15 +22,10 @@ interface NavItem {
 export const navItems: NavItem[] = [
   {
       label: "Listings",
-      icon: Home,
-      href: "/agrohub/listings",
+      icon: List,
+      href: "/admin/agrohub/listings",
       roles: [
-          "farmer",
-          "retailer",
-          "logistics",
-          "distributor",
-          "service",
-          "consumer",
+          "agrohub",
       ],
   },
 
@@ -38,16 +34,16 @@ export const navItems: NavItem[] = [
   {
       label: "Cart",
       icon: ShoppingCart,
-      href: "/agrohub/cart",
+      href: "/admin/agrohub/cart",
       roles: [
-          "farmer", "retailer", "logistics", "distributor", "service", "consumer",],
+          "agrohub",],
       
   },
   {
       label: "Orders",
       icon: BarChart,
-      href: "/agrohub/orders",
-      roles: ["farmer", "retailer", "distributor", "consumer"],
+      href: "/admin/agrohub/orders",
+      roles: ["agrohub"],
   },
 
   {
@@ -55,12 +51,7 @@ export const navItems: NavItem[] = [
         icon: Settings,
         href: "/settings",
         roles: [
-            "farmer",
-            "retailer",
-            "logistics",
-            "distributor",
-            "service",
-            "consumer",
+            "agrohub",
         ],
     },
   

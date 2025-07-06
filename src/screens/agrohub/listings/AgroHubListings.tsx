@@ -43,6 +43,8 @@ export default function AgroHubListings() {
   const [totalPrice, setTotalPrice] = useState(0)
   const [unitType, setUnitType] = useState('')
   const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [totalAvailableQuantity, setTotalAvailableQuantity] = useState(0)
+  const [quantityError, setQuantityError] = useState('')
 
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
 
@@ -75,10 +77,11 @@ export default function AgroHubListings() {
   useEffect(() => {
     loadListings(
       setIsLoading,
-      (newListings, newTotal, newHasMore) => {
+      (newListings, newTotal, newHasMore, newTotalAvailable) => {
         setListings(newListings)
         setTotal(newTotal)
         setHasMore(newHasMore)
+        setTotalAvailableQuantity(newTotalAvailable)
       },
       selectedCategory,
       selectedProduce,
@@ -93,6 +96,7 @@ export default function AgroHubListings() {
       reset()
       return
     }
+    console.log("Selected Quantity:", selectedQuantity)
     const found = loadFromCart(selectedProduceId)
     if (!found) {
       reset()
@@ -101,8 +105,13 @@ export default function AgroHubListings() {
 
   // ✅ Cart helpers
   const setQuantity = (quantity: number) => {
-    setSelectedQuantity(quantity)
-    calculateBreakdown(quantity)
+    if (quantity > totalAvailableQuantity) {
+      setQuantityError(`Exceeded total available. Only ${totalAvailableQuantity}kg available.`)
+    } else {
+      setQuantityError('')
+      setSelectedQuantity(quantity)
+      calculateBreakdown(quantity)
+    }
   }
 
   const calculateBreakdown = (quantity: number) => {
@@ -274,6 +283,7 @@ export default function AgroHubListings() {
                 addToCart(selectedProduceId, selectedProduce, selectedType)
               }
             }}
+            quantityError={quantityError}
           />
         </div>
       </div>
