@@ -105,44 +105,56 @@ export function useProduceFormLogic(initialData: any, options?: { step?: number;
     return produceMap?.[cat]?.[name]?.[type]?.id;
   };
 
-  // --- Submit ---
+  // --- Submit (Updated with improved logic) ---
   const submitForm = async () => {
     setIsSubmitting(true);
     try {
-      if (files.length === 0) throw new Error("Please upload at least one image");
-      const produceId = getProduceId();
-      if (!produceId) throw new Error("Select valid category, name, and type.");
-
+      // ✅ Build the payload WITHOUT images (they'll be handled separately)
       const payload = {
-        farmId,
         location,
         description,
         quantity: Number(quantity),
-        unit,
-        produceId,
+        produceId: getProduceId(),
+        farmId: initialData?.farmId || farmId,
         status: status === "to_be_harvested" ? "harvest" : status,
         harvestDate:
-          status === "to_be_harvested" ? harvestDate?.toISOString() : undefined,
+          status === "to_be_harvested" || status === "harvest"
+            ? harvestDate?.toISOString()
+            : undefined,
       };
 
+      // ✅ Validate everything with Zod (without images)
       createProduceListingSchema.parse(payload);
 
+      // ✅ Build the FormData
       const formData = new FormData();
-      Object.entries(payload).forEach(([key, val]) => {
-        if (val !== undefined) formData.append(key, String(val));
+      if (payload.location) formData.append("location", payload.location);
+      if (payload.description) formData.append("description", payload.description);
+      if (payload.quantity !== undefined) formData.append("quantity", String(payload.quantity));
+      if (payload.produceId) formData.append("produceId", payload.produceId);
+      if (payload.farmId) formData.append("farmId", payload.farmId);
+      formData.append("status", payload.status);
+      if (payload.harvestDate) {
+        formData.append("harvestDate", payload.harvestDate);
+      }
+
+      // ✅ Append actual files (not file names)
+      files.forEach(file => {
+        formData.append("images", file);
       });
-      files.forEach((file) => formData.append("images", file));
 
       const response = await postProduceListing(formData);
-      console.log("Listing submitted", response);
+      console.log("Listing created:", response);
       setShowHarvestDialog(false);
       // optionally reset form or navigate away here
     } catch (err: any) {
-      console.error("Submit error:", err);
+      console.error("Error submitting form:", err);
       if (err instanceof z.ZodError) {
-        alert(err.errors.map((e) => e.message).join(", "));
+        alert(
+          "Validation failed: " + err.errors.map(e => e.message).join(", ")
+        );
       } else {
-        alert(err.message || "Submission failed");
+        alert(err.message || "Something went wrong. Please try again.");
       }
     } finally {
       setIsSubmitting(false);
