@@ -9,7 +9,8 @@ export function ProduceStepTwo({
   setFiles,
   previewUrls,
   setPreviewUrls,
-  isActiveListing
+  isActiveListing,
+  showImageWarning,
 }: any) {
   return (
     <div className="space-y-6">
@@ -26,6 +27,10 @@ export function ProduceStepTwo({
         />
       </div>
 
+      {showImageWarning && (
+        <div className="text-red-600">
+          Please upload at least one image for your listing.
+        </div>)}
       <ProduceFormListingUpload
         files={files}
         setFiles={setFiles}
