@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ProduceStepOne } from "./ProduceStepOne";
 import { ProduceStepTwo } from "./ProduceStepTwo";
 import { HarvestDateDialog } from "./HarvestDialog";
+import { Loader2 } from "lucide-react";
 
 export function ProduceFormSteps({
   step,
@@ -46,7 +47,7 @@ export function ProduceFormSteps({
         {step === 2 && (
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting
-              ? "Saving..."
+              ? <><Loader2/></>
               : form.initialData
               ? "Update Listing"
               : "Create Listing"}

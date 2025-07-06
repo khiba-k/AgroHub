@@ -1,6 +1,6 @@
 // lib/actions/getProduceListings.ts
 
-import { CreateProduceListingInput, createProduceListingSchema } from '@/lib/utils/farmer/FarmListingUtils';
+import { CreateProduceListingInput, createProduceListingSchema, updateProduceListingSchema } from '@/lib/utils/farmer/FarmListingUtils';
 import { ActiveDraftStatus, PrismaClient } from '@prisma/client';
 import z from 'zod';
 
@@ -347,4 +347,68 @@ export const createProduceListing = async (input: CreateProduceListingInput) => 
       error: 'Failed to create produce listing',
     };
   }
+};
+
+// 🟢 The action
+export const updateProduceListing = async (input: any) => {
+  // ✅ Validate all data first
+  const validatedData = updateProduceListingSchema.parse(input);
+
+  // 🔄 Perform all in one transaction for safety
+  return await prisma.$transaction(async (tx) => {
+    // ✅ 1️⃣ Update the main listing base data
+    const listing = await tx.produceListing.update({
+      where: { id: validatedData.id },
+      data: {
+        ...(validatedData.location !== undefined && { location: validatedData.location }),
+        ...(validatedData.description !== undefined && { description: validatedData.description }),
+        ...(validatedData.quantity !== undefined && { quantity: validatedData.quantity }),
+        produceId: validatedData.produceId,
+        farmId: validatedData.farmId,
+      },
+    });
+
+    // ✅ 2️⃣ Update or create the correct status row
+    const statusToUse: ActiveDraftStatus =
+      validatedData.status === 'draft'
+        ? ActiveDraftStatus.draft
+        : ActiveDraftStatus.active;
+
+    await tx.activeDraftListing.upsert({
+      where: { listingId: validatedData.id },
+      create: {
+        listingId: validatedData.id,
+        status: statusToUse,
+      },
+      update: {
+        status: statusToUse,
+      },
+    });
+
+    // ✅ 3️⃣ If harvest, also upsert harvest details
+    if (validatedData.status === 'harvest') {
+      await tx.harvestListing.upsert({
+        where: { listingId: validatedData.id }, // requires `listingId` to be unique
+        create: {
+          listingId: validatedData.id,
+          harvestDate: validatedData.harvestDate!,
+        },
+        update: {
+          harvestDate: validatedData.harvestDate!,
+        },
+      });
+    }
+
+    // ✅ 4️⃣ Return full updated listing
+    return tx.produceListing.findUnique({
+      where: { id: validatedData.id },
+      include: {
+        produce: true,
+        farm: true,
+        images: true,
+        activeDraftListing: true,
+        harvestListings: true,
+      },
+    });
+  });
 };

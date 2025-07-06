@@ -1,4 +1,3 @@
-// File: ProduceStepOne.tsx
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +21,6 @@ export function ProduceStepOne({
   quantity,
   setQuantity,
   unit,
-  setUnit,
   location,
   setLocation,
   produceStatus,
@@ -110,20 +108,15 @@ export function ProduceStepOne({
           />
         </div>
 
-        {/* Unit */}
+        {/* Unit - now readonly */}
         <div>
           <Label>Unit</Label>
-          <Select value={unit} onValueChange={setUnit}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select unit" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="kg">Kilogram (kg)</SelectItem>
-              <SelectItem value="litre">Litre</SelectItem>
-              <SelectItem value="bunch">Bunch</SelectItem>
-              <SelectItem value="pack">Pack</SelectItem>
-            </SelectContent>
-          </Select>
+          <Input
+            type="text"
+            value={unit}
+            readOnly
+            disabled
+          />
         </div>
 
         {/* Location */}
@@ -136,7 +129,7 @@ export function ProduceStepOne({
           />
         </div>
 
-        {/* Produce Status (only editable in drafts) */}
+        {/* Status */}
         {!isActiveListing && (
           <div>
             <Label>Status</Label>

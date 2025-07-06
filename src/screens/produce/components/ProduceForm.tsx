@@ -12,8 +12,10 @@ export default function ProduceForm({ initialData }: ProduceFormProps) {
   const [formData, setFormData] = useState<any | null>(null);
 
   useEffect(() => {
+    console.log("ProduceForm mounted with initialData:", initialData);
     if (initialData) {
       setFormData(initialData);
+      console.log("Editing produce listing:", initialData);
     }
   }, [initialData]);
 

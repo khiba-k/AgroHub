@@ -54,7 +54,7 @@ export default function Produce() {
             <TabsTrigger value="active">Active Listings</TabsTrigger>
             <TabsTrigger value="sold">Sold</TabsTrigger>
             <TabsTrigger value="harvest">To Be Harvested</TabsTrigger>
-            <TabsTrigger value="calendar">Planting Calendar</TabsTrigger>
+            {/* <TabsTrigger value="calendar">Planting Calendar</TabsTrigger> */}
             <TabsTrigger value="draft">Drafts</TabsTrigger>
             <TabsTrigger value="inventory">Inventory</TabsTrigger>
           </TabsList>

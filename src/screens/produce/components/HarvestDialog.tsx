@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Label } from "@/components/ui/label";
 
@@ -48,7 +48,7 @@ export function HarvestDateDialog({
         </div>
         <DialogFooter>
           <Button onClick={handleHarvestDateSubmit} disabled={!harvestDate || isSubmitting}>
-            Set Harvest Date
+            {isSubmitting ? <Loader2 className="animate-spin w-4 h-4" /> : "Set Harvest Date"}
           </Button>
         </DialogFooter>
       </DialogContent>

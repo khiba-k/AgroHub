@@ -47,46 +47,55 @@ export const createProduceListingSchema = z.discriminatedUnion('status', [
     harvestListingSchema,
 ]);
 
+// ✅ NEW: update schema: merge id with union
+export const updateProduceListingSchema = z.object({
+    id: z.string().uuid(),
+    keepImages: z.array(z.string().url()).optional().default([]),
+    removeImageIds: z.array(z.string().uuid()).optional().default([]),
+}).and(createProduceListingSchema);
 
-export async function convertBlobUrlToFile(bloburl: string){
-    const response = await fetch(bloburl);
-    const blob = await response.blob();
-    const filename = Math.random().toString(36).slice(2, 9);
-    const mimeType = blob.type || 'application/octet-stream';
-    const file = new File([blob], `${filename}.${mimeType.split('/')[1]}`,
-    {type: mimeType, 
-        });
-    return file;
 
-}
+// export async function convertBlobUrlToFile(bloburl: string){
+//     const response = await fetch(bloburl);
+//     const blob = await response.blob();
+//     const filename = Math.random().toString(36).slice(2, 9);
+//     const mimeType = blob.type || 'application/octet-stream';
+//     const file = new File([blob], `${filename}.${mimeType.split('/')[1]}`,
+//     {type: mimeType, 
+//         });
+//     return file;
 
-export const uploadListingImages = async (
-    blobUrls: string[],
-    bucket: string = "agrohubpics",
-    folder: string = "listings"
-): Promise<{ urls: string[]; errors: string[] }> => {
-    const uploadedUrls: string[] = [];
-    const errors: string[] = [];
+// }
 
-    for (const blobUrl of blobUrls) {
-    try {
-        const file = await convertBlobUrlToFile(blobUrl);
-        const { imageUrl, error } = await uploadImage({ file, bucket: bucket, folder });
+// export const uploadListingImages = async (
+//     blobUrls: string[],
+//     bucket: string = "agrohubpics",
+//     folder: string = "listings"
+// ): Promise<{ urls: string[]; errors: string[] }> => {
+//     const uploadedUrls: string[] = [];
+//     const errors: string[] = [];
 
-        if (error || !imageUrl) {
-        console.error("Upload error:", error);
-        errors.push(error || "Unknown upload error");
-        continue;
-        }
+//     for (const blobUrl of blobUrls) {
+//     try {
+//         const file = await convertBlobUrlToFile(blobUrl);
+//         const { imageUrl, error } = await uploadImage({ file, bucket: bucket, folder });
 
-        uploadedUrls.push(imageUrl);
-    } catch (err: any) {
-        console.error("Conversion/upload failed:", err);
-        errors.push(err.message || "Unknown error");
-    }
-    }
+//         if (error || !imageUrl) {
+//         console.error("Upload error:", error);
+//         errors.push(error || "Unknown upload error");
+//         continue;
+//         }
 
-    return { urls: uploadedUrls, errors };
-};
+//         uploadedUrls.push(imageUrl);
+//     } catch (err: any) {
+//         console.error("Conversion/upload failed:", err);
+//         errors.push(err.message || "Unknown error");
+//     }
+//     }
+
+//     return { urls: uploadedUrls, errors };
+// };
 
 export type CreateProduceListingInput = z.infer<typeof createProduceListingSchema>;
+
+export type UpdateProduceListingInput = z.infer<typeof updateProduceListingSchema>;

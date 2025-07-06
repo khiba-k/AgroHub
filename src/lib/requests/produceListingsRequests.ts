@@ -1,5 +1,6 @@
 // lib/api/fetchProduceListings.ts
 import axios from 'axios';
+import { UpdateProduceListingInput } from '../utils/farmer/FarmListingUtils';
 // lib/api/postProduceListing.ts
 
 export async function postProduceListing(formData: FormData) {
@@ -12,27 +13,30 @@ export async function postProduceListing(formData: FormData) {
     throw new Error("Failed to create listing");
   }
 
-  return response.json();
+  return response.json(); // should be the full created listing object
 }
 
-// Fetch produce listing for farm to manage
+export interface FetchProduceListingsParams {
+  farmId: string;
+  status: string;
+  page?: number;   // optional page number
+  limit?: number;  // optional limit number
+}
+
 export const fetchProduceListings = async ({
   farmId,
   status,
   page,
-  limit = 6,
-}: {
-  farmId: string;
-  status: string;
-  page: number;
-  limit?: number;
-}) => {
-  const response = await axios.post('/api/produce/farmer/listings', {
-    farmId,
-    status,
-    page,
-    limit,
-  });
+  limit,
+}: FetchProduceListingsParams) => {
+  // Build request body with optional pagination
+  const body: any = { farmId, status };
+  if (page !== undefined) body.page = page;
+  if (limit !== undefined) body.limit = limit;
+
+  const response = await axios.post("/api/produce/farmer/listings", body);
+
+  // Return data as-is; adjust here if backend wraps listings in an object
   return response.data.data;
 };
 
@@ -66,3 +70,14 @@ export const filterProduceListings = async ({
   });
   return response.data.data;
 };
+
+
+export async function updateProduceListing(payload: any) {
+  const response = await axios.put("/api/produce/farmer/update/listing", payload);
+
+  if (!response.data) {
+    throw new Error("Failed to update listing");
+  }
+
+  return response.data; // should be the full updated listing object
+}

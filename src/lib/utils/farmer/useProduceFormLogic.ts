@@ -1,23 +1,35 @@
 import { useState, useEffect } from "react";
-import { useProduceStore } from "@/lib/store/useProductStore";
 import { useFarmStore } from "@/lib/store/userStores";
 import { fetchProduce } from "@/screens/agrohub/utils/produceRequests";
-import { createProduceListingSchema } from "@/lib/utils/farmer/FarmListingUtils";
-import { postProduceListing } from "@/lib/requests/produceListingsRequests";
-import { z } from "zod";
+import {
+  createProduceListingSchema,
+  updateProduceListingSchema,
+} from "@/lib/utils/farmer/FarmListingUtils";
+import {
+  postProduceListing,
+  updateProduceListing,
+} from "@/lib/requests/produceListingsRequests";
+import { toast } from "@/components/ui/use-toast";
+import { useProduceStore } from "@/lib/store/useProductStore";
+import { useProduceListingStore } from "@/lib/store/useProduceListingStore";
 
-export function useProduceFormLogic(initialData: any, options?: { step?: number; setStep?: (step: number) => void }) {
+export function useProduceFormLogic(
+  initialData: any,
+  options?: { step?: number; setStep?: (step: number) => void }
+) {
   const farmId = useFarmStore((state) => state.farmId);
-  const { produceMap, getSuggestions, setProduceMap, resetProduce } = useProduceStore();
+  const { produceMap, getSuggestions, setProduceMap, resetProduce } =
+    useProduceStore();
+
+  const { updateListing, addListing } = useProduceListingStore();
 
   const isActiveListing = initialData?.status === "active";
+  const isUpdate = !!initialData?.id;
 
-  // --- Step management ---
   const [internalStep, setInternalStep] = useState(options?.step || 1);
   const step = options?.step || internalStep;
   const setStep = options?.setStep || setInternalStep;
 
-  // --- Form state ---
   const [category, setCategory] = useState(
     initialData?.produce?.category || initialData?.category || ""
   );
@@ -30,52 +42,64 @@ export function useProduceFormLogic(initialData: any, options?: { step?: number;
   const [quantity, setQuantity] = useState(
     initialData?.quantity ? String(initialData.quantity) : ""
   );
-  const [unit, setUnit] = useState(initialData?.unit || "kg");
+  const [unit, setUnit] = useState(
+    initialData?.produce?.unitType || initialData?.unit || "kg"
+  );
   const [location, setLocation] = useState(initialData?.location || "");
-  const [description, setDescription] = useState(initialData?.description || "");
+  const [description, setDescription] = useState(
+    initialData?.description || ""
+  );
   const [status, setStatus] = useState(initialData?.status || "draft");
   const [harvestDate, setHarvestDate] = useState<Date | undefined>(
     initialData?.harvestDate ? new Date(initialData.harvestDate) : undefined
   );
   const [showHarvestDialog, setShowHarvestDialog] = useState(false);
 
+  // ✅ For edit mode: full objects with IDs
+  const [existingImages, setExistingImages] = useState<{ id: string; url: string }[]>(
+    initialData?.images || []
+  );
+
+  // ✅ You don’t need the old 'existingImageUrls' array anymore
+  // Use existingImages for both id + url
+
   const [files, setFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [showImageWarning, setShowImageWarning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // --- Fetch produce data ---
+  // ✅ Track which IDs the user wants removed
+  const [removeImageIds, setRemoveImageIds] = useState<string[]>([]);
+
   useEffect(() => {
     const loadProduce = async () => {
-      try {
-        resetProduce();
-        const produceData = await fetchProduce();
-        const map: Record<string, Record<string, Record<string, any>>> = {};
-        produceData.forEach((item: any) => {
-          const cat = capitalize(item.category);
-          const name = capitalize(item.name);
-          const type = capitalize(item.type);
+      resetProduce();
+      const produceData = await fetchProduce();
+      const map: Record<string, Record<string, Record<string, any>>> = {};
+      produceData.forEach((item: any) => {
+        const cat = capitalize(item.category);
+        const name = capitalize(item.name);
+        const type = capitalize(item.type);
 
-          if (!map[cat]) map[cat] = {};
-          if (!map[cat][name]) map[cat][name] = {};
+        if (!map[cat]) map[cat] = {};
+        if (!map[cat][name]) map[cat][name] = {};
 
-          map[cat][name][type] = item;
-        });
-        setProduceMap(map);
-      } catch (e) {
-        console.error("Failed to load produce data:", e);
-      }
+        map[cat][name][type] = item;
+      });
+      setProduceMap(map);
     };
     loadProduce();
   }, [resetProduce, setProduceMap]);
 
-  // --- Suggestions ---
+  useEffect(() => {
+    console.log("Updated removeImageIds:", removeImageIds);
+  }, [removeImageIds]);
+
   const categorySuggestions = getSuggestions();
   const nameSuggestions = category ? getSuggestions(category) : [];
   const typeSuggestions =
     category && produceName ? getSuggestions(category, produceName) : [];
 
-  // --- Clear dependent selects if changed ---
   useEffect(() => {
     if (!initialData && !isActiveListing && !nameSuggestions.includes(produceName)) {
       setProduceName("");
@@ -89,7 +113,6 @@ export function useProduceFormLogic(initialData: any, options?: { step?: number;
     }
   }, [produceName, typeSuggestions, produceType, initialData, isActiveListing]);
 
-  // --- Helpers ---
   const capitalize = (str: string | null | undefined) =>
     (str ?? "")
       .toLowerCase()
@@ -105,76 +128,110 @@ export function useProduceFormLogic(initialData: any, options?: { step?: number;
     return produceMap?.[cat]?.[name]?.[type]?.id;
   };
 
-  // --- Submit (Updated with improved logic) ---
-  const submitForm = async () => {
-    setIsSubmitting(true);
-    try {
-      // ✅ Build the payload WITHOUT images (they'll be handled separately)
-      const payload = {
-        location,
-        description,
-        quantity: Number(quantity),
-        produceId: getProduceId(),
-        farmId: initialData?.farmId || farmId,
-        status: status === "to_be_harvested" ? "harvest" : status,
-        harvestDate:
-          status === "to_be_harvested" || status === "harvest"
-            ? harvestDate?.toISOString()
-            : undefined,
-      };
-
-      // ✅ Validate everything with Zod (without images)
-      createProduceListingSchema.parse(payload);
-
-      // ✅ Build the FormData
-      const formData = new FormData();
-      if (payload.location) formData.append("location", payload.location);
-      if (payload.description) formData.append("description", payload.description);
-      if (payload.quantity !== undefined) formData.append("quantity", String(payload.quantity));
-      if (payload.produceId) formData.append("produceId", payload.produceId);
-      if (payload.farmId) formData.append("farmId", payload.farmId);
-      formData.append("status", payload.status);
-      if (payload.harvestDate) {
-        formData.append("harvestDate", payload.harvestDate);
-      }
-
-      // ✅ Append actual files (not file names)
-      files.forEach(file => {
-        formData.append("images", file);
-      });
-
-      const response = await postProduceListing(formData);
-      console.log("Listing created:", response);
-      setShowHarvestDialog(false);
-      // optionally reset form or navigate away here
-    } catch (err: any) {
-      console.error("Error submitting form:", err);
-      if (err instanceof z.ZodError) {
-        alert(
-          "Validation failed: " + err.errors.map(e => e.message).join(", ")
-        );
-      } else {
-        alert(err.message || "Something went wrong. Please try again.");
-      }
-    } finally {
-      setIsSubmitting(false);
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e?.preventDefault) {
+      e.preventDefault();
     }
-  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (files.length === 0) {
+    console.log("Submitting produce form with data:", {
+      category,
+      produceName,
+      produceType,
+      quantity,
+      unit,
+      location,
+      description,
+      status,
+      harvestDate,
+      files,
+      existingImages,
+      removeImageIds,
+    });
+
+    if (!isUpdate && files.length === 0 && existingImages.length === 0) {
       setShowImageWarning(true);
       return;
     }
+
+    console.log("Ids to remove: ", removeImageIds);
+
     setShowImageWarning(false);
 
-    if (status === "to_be_harvested") {
+    if (status === "to_be_harvested" && !harvestDate) {
       setShowHarvestDialog(true);
       return;
     }
 
-    submitForm();
+    setIsSubmitting(true);
+
+    try {
+      if (isUpdate) {
+        const payload = {
+          id: initialData.id,
+          location,
+          description,
+          quantity: quantity ? Number(quantity) : undefined,
+          produceId: getProduceId(),
+          farmId,
+          status,
+          harvestDate: harvestDate ? harvestDate.toISOString() : undefined,
+          keepImages: existingImages.map(img => img.url),
+          removeImageIds: removeImageIds,
+        };
+        updateProduceListingSchema.parse(payload);
+
+        const formData = new FormData();
+        formData.append("payload", JSON.stringify(payload));
+
+        files.forEach((file) => formData.append("images", file));
+
+        const updatedListing = await updateProduceListing(formData);
+        console.log("Listing updated:", updatedListing);
+        updateListing(updatedListing.data);
+
+        toast({ description: "Listing updated successfully!" });
+
+      } else {
+        const payload = {
+          location,
+          description,
+          quantity: Number(quantity),
+          produceId: getProduceId(),
+          farmId: farmId,
+          status,
+          harvestDate: harvestDate ? harvestDate.toISOString() : undefined,
+        };
+        createProduceListingSchema.parse(payload);
+
+        const formData = new FormData();
+        formData.append("location", payload.location!);
+        formData.append("description", payload.description!);
+        formData.append("quantity", String(payload.quantity));
+        formData.append("produceId", payload.produceId!);
+        formData.append("farmId", payload.farmId!);
+        formData.append("status", payload.status);
+        if (harvestDate) {
+          formData.append("harvestDate", harvestDate.toISOString());
+        }
+
+        files.forEach((file) => formData.append("images", file));
+
+        const newListing = await postProduceListing(formData);
+
+        console.log("New listing created:", newListing.data);
+        addListing(newListing.data);
+
+        toast({ description: "Listing created successfully!" });
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast({
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleHarvestDateSubmit = () => {
@@ -182,14 +239,18 @@ export function useProduceFormLogic(initialData: any, options?: { step?: number;
       alert("Please select a harvest date");
       return;
     }
-    submitForm();
+
+    // ✅ CLOSE THE DIALOG FIRST
+    setShowHarvestDialog(false);
+    setStatus("harvest");
+    console.log("Harvest date submitted:", harvestDate);
+
+    handleSubmit();
   };
 
   return {
-    // Step management
     step,
     setStep,
-    // Form state
     category,
     setCategory,
     produceName,
@@ -205,9 +266,9 @@ export function useProduceFormLogic(initialData: any, options?: { step?: number;
     description,
     setDescription,
     status,
-    setStatus: setStatus, // This maps to produceStatus in ProduceStepOne
-    produceStatus: status, // Add this for backward compatibility
-    setProduceStatus: setStatus, // Add this for backward compatibility
+    setStatus,
+    produceStatus: status,
+    setProduceStatus: setStatus,
     harvestDate,
     setHarvestDate,
     showHarvestDialog,
@@ -216,14 +277,16 @@ export function useProduceFormLogic(initialData: any, options?: { step?: number;
     setFiles,
     previewUrls,
     setPreviewUrls,
+    existingImages,         // ✅ Pass the correct array!
+    setExistingImages,      // ✅ So uploader can modify
+    removeImageIds,         // ✅ Also expose these
+    setRemoveImageIds,      // ✅ So uploader can push to it
     showImageWarning,
     isSubmitting,
     handleSubmit,
     handleHarvestDateSubmit,
     initialData,
-    // Add produceMap for ProduceStepOne
     produceMap,
-    // Add suggestions for easier access
     categorySuggestions,
     nameSuggestions,
     typeSuggestions,

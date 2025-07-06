@@ -1,6 +1,7 @@
 // File: ProduceStepTwo.tsx
 
-import ProduceFormListingUpload from "./ProduceListingUpload";
+import ProduceListingUpload from "./ProduceListingUpload";
+import React, { useState } from "react";
 
 export function ProduceStepTwo({
   description,
@@ -9,9 +10,15 @@ export function ProduceStepTwo({
   setFiles,
   previewUrls,
   setPreviewUrls,
+  existingImages,
+  setExistingImages,
   isActiveListing,
   showImageWarning,
+  setShowImageWarning,
+  removeImageIds,
+  setRemoveImageIds,
 }: any) {
+
   return (
     <div className="space-y-6">
       <div>
@@ -30,12 +37,18 @@ export function ProduceStepTwo({
       {showImageWarning && (
         <div className="text-red-600">
           Please upload at least one image for your listing.
-        </div>)}
-      <ProduceFormListingUpload
+        </div>
+      )}
+
+      <ProduceListingUpload
         files={files}
         setFiles={setFiles}
         previewUrls={previewUrls}
         setPreviewUrls={setPreviewUrls}
+        existingImages={existingImages}
+        setExistingImages={setExistingImages}
+        removeImageIds={removeImageIds}        // <--- THIS MATCHES YOUR HOOK STATE
+        setRemoveImageIds={setRemoveImageIds}  // <--- THIS TOO
       />
     </div>
   );
