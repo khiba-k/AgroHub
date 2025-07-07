@@ -36,7 +36,7 @@ export default function Produce() {
               Manage your farm produce and inventory
             </p>
           </div>
-           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="mr-2 h-4 w-4" /> Add New Produce

@@ -12,12 +12,16 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { useProduceStore } from "@/lib/store/useProductStore";
 import { useProduceListingStore } from "@/lib/store/useProduceListingStore";
+import { toaster } from "@/components/ui/toaster";
+import { useToastStore } from "@/lib/store/useToastStore";
 
 export function useProduceFormLogic(
   initialData: any,
   onClose?: () => void,
   options?: { step?: number; setStep?: (step: number) => void }
 ) {
+
+  const { showToast } = useToastStore();
   const farmId = useFarmStore((state) => state.farmId);
   const { produceMap, getSuggestions, setProduceMap, resetProduce } =
     useProduceStore();
@@ -197,7 +201,7 @@ export function useProduceFormLogic(
         console.log("Listing updated:", updatedListing);
         updateListing(updatedListing.data);
 
-        toast({ description: "Listing updated successfully!" });
+        showToast(false, "Listing updated successfully!")
 
       } else {
         const payload = {
@@ -229,20 +233,16 @@ export function useProduceFormLogic(
         console.log("New listing created:", newListing.data);
         addListing(newListing.data);
 
-        toast({ description: "Listing created successfully!" });
+        showToast(false, "Listing created successfully!")
       }
 
       if (onClose) onClose();
 
     } catch (err: any) {
       console.error(err);
-      toast({
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+      showToast(false, "Failed to create listing")
     } finally {
       setIsSubmitting(false);
-
     }
   };
 
