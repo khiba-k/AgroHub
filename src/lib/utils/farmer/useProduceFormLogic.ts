@@ -15,6 +15,7 @@ import { useProduceListingStore } from "@/lib/store/useProduceListingStore";
 
 export function useProduceFormLogic(
   initialData: any,
+  onClose?: () => void,
   options?: { step?: number; setStep?: (step: number) => void }
 ) {
   const farmId = useFarmStore((state) => state.farmId);
@@ -230,6 +231,9 @@ export function useProduceFormLogic(
 
         toast({ description: "Listing created successfully!" });
       }
+
+      if (onClose) onClose();
+
     } catch (err: any) {
       console.error(err);
       toast({
@@ -238,6 +242,7 @@ export function useProduceFormLogic(
       });
     } finally {
       setIsSubmitting(false);
+
     }
   };
 

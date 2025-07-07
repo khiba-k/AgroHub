@@ -6,9 +6,11 @@ import { ProduceFormEntry } from "./ProduceFormEntry";
 
 type ProduceFormProps = {
   initialData?: any; // optional; passed when editing
+  onClose?: () => void; // optional; callback when form is closed
+
 };
 
-export default function ProduceForm({ initialData }: ProduceFormProps) {
+export default function ProduceForm({ initialData, onClose }: ProduceFormProps) {
   const [formData, setFormData] = useState<any | null>(null);
 
   useEffect(() => {
@@ -25,7 +27,7 @@ export default function ProduceForm({ initialData }: ProduceFormProps) {
         {formData ? "Edit Produce Listing" : "Create New Produce Listing"}
       </h1>
 
-      <ProduceFormEntry initialData={formData} />
+      <ProduceFormEntry initialData={formData} onClose={onClose} />
     </div>
   );
 }
