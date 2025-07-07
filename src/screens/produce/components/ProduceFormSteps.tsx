@@ -14,16 +14,7 @@ export function ProduceFormSteps({
   isActiveListing,
   ...form
 }: any) {
-    console.log("ProduceFormSteps props:", {
-        step,
-        setStep,
-        handleSubmit,
-        isSubmitting,
-        showHarvestDialog,
-        setShowHarvestDialog,
-        isActiveListing,
-        ...form
-        });
+    console.log("****Form Status: ", form.produceStatus);
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
       {step === 1 && (
@@ -63,6 +54,7 @@ export function ProduceFormSteps({
         handleHarvestDateSubmit={form.handleHarvestDateSubmit}
         isSubmitting={isSubmitting}
         produceName={form.produceName}
+        setEditHarvestDate={form.setEditHarvestDate} // Pass the function to set edit mode
       />
     </form>
   );

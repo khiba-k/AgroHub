@@ -71,6 +71,8 @@ export function useProduceFormLogic(
   // ✅ Track which IDs the user wants removed
   const [removeImageIds, setRemoveImageIds] = useState<string[]>([]);
 
+  const [editHarvestDate, setEditHarvestDate] = useState(false);
+
   useEffect(() => {
     const loadProduce = async () => {
       resetProduce();
@@ -157,9 +159,14 @@ export function useProduceFormLogic(
 
     setShowImageWarning(false);
 
-    if (status === "harvest" && !harvestDate) {
-      setShowHarvestDialog(true);
-      return;
+    
+    console.log("****Before Harvest Dialog: ", status, harvestDate);
+    if (status === "harvest") {
+      if ((isUpdate && editHarvestDate) || !harvestDate) {
+        setShowHarvestDialog(true);
+        setEditHarvestDate(false);
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -235,6 +242,7 @@ export function useProduceFormLogic(
   };
 
   const handleHarvestDateSubmit = () => {
+    console.log("Submitting harvest date:", harvestDate);
     if (!harvestDate) {
       alert("Please select a harvest date");
       return;
@@ -289,5 +297,6 @@ export function useProduceFormLogic(
     categorySuggestions,
     nameSuggestions,
     typeSuggestions,
+    setEditHarvestDate
   };
 }

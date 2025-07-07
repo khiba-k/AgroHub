@@ -28,6 +28,7 @@ export function ProduceStepOne({
   isActiveListing,
   produceMap
 }: any) {
+  console.log("***Status:", produceStatus);
   const isDisabled = isActiveListing;
   const { getSuggestions } = useProduceStore();
 
