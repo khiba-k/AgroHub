@@ -66,7 +66,7 @@ export function ProduceInventory() {
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
@@ -123,7 +123,7 @@ export function ProduceInventory() {
                         </div>
                     </CardContent>
                 </Card>
-            </div>
+            </div> */}
 
             <Card>
                 <CardHeader>
@@ -137,7 +137,7 @@ export function ProduceInventory() {
                             <div>Quantity</div>
                             <div>Status</div>
                             <div>Location</div>
-                            <div>Change</div>
+                            {/* <div>Change</div> */}
                         </div>
                         {inventoryItems.map((item) => (
                             <div key={item.id} className="grid grid-cols-6 border-b p-3">
@@ -152,7 +152,7 @@ export function ProduceInventory() {
                                     </Badge>
                                 </div>
                                 <div>{item.location}</div>
-                                <div className="flex items-center">
+                                {/* <div className="flex items-center">
                                     {item.change > 0 ? (
                                         <ArrowUpRight className="mr-1 h-4 w-4 text-green-500" />
                                     ) : item.change < 0 ? (
@@ -164,7 +164,7 @@ export function ProduceInventory() {
                                         {item.change > 0 ? "+" : ""}
                                         {item.change}%
                                     </span>
-                                </div>
+                                </div> */}
                             </div>
                         ))}
                     </div>
