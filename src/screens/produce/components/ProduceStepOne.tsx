@@ -140,7 +140,7 @@ export function ProduceStepOne({
               <SelectContent>
                 <SelectItem value="draft">Draft</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="to_be_harvested">To Be Harvested</SelectItem>
+                <SelectItem value="harvest">To Be Harvested</SelectItem>
               </SelectContent>
             </Select>
           </div>

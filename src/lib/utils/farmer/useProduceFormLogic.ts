@@ -157,7 +157,7 @@ export function useProduceFormLogic(
 
     setShowImageWarning(false);
 
-    if (status === "to_be_harvested" && !harvestDate) {
+    if (status === "harvest" && !harvestDate) {
       setShowHarvestDialog(true);
       return;
     }
@@ -242,7 +242,6 @@ export function useProduceFormLogic(
 
     // ✅ CLOSE THE DIALOG FIRST
     setShowHarvestDialog(false);
-    setStatus("harvest");
     console.log("Harvest date submitted:", harvestDate);
 
     handleSubmit();
