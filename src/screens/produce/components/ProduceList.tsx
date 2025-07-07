@@ -24,8 +24,6 @@ import { Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
 import { useProduceListingStore } from "@/lib/store/useProduceListingStore";
 import { fetchProduceListings } from "@/lib/requests/produceListingsRequests";
 import { useFarmStore } from "@/lib/store/userStores";
-import { ProduceFormEditActive } from "./ProduceFormEditActive";
-import { ProduceFormEditDraft } from "./ProduceFormEditDraft"; // ✅ NEW
 import ProduceForm from "./ProduceForm";
 
 interface ProduceListProps {
@@ -47,6 +45,9 @@ export function ProduceList({ status }: ProduceListProps) {
 
   const [loading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const [selectedListing, setSelectedListing] = useState<any>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
@@ -112,8 +113,6 @@ export function ProduceList({ status }: ProduceListProps) {
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {listings.map((item) => {
-
-
           return (
             <Card key={item.id} className="overflow-hidden">
               <div className="aspect-video relative overflow-hidden">
@@ -146,7 +145,13 @@ export function ProduceList({ status }: ProduceListProps) {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          setSelectedListing(item);
+                          setIsViewDialogOpen(true);
+                        }}
+                      >
                         <Eye className="mr-2 h-4 w-4" /> View Details
                       </DropdownMenuItem>
                       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -162,7 +167,7 @@ export function ProduceList({ status }: ProduceListProps) {
                               Update the details of your produce listing
                             </DialogDescription>
                           </DialogHeader>
-                          <ProduceForm initialData={item} />
+                          <ProduceForm initialData={item} onClose={handleDialogClose} />
                         </DialogContent>
                       </Dialog>
                       <DropdownMenuSeparator />
@@ -180,7 +185,8 @@ export function ProduceList({ status }: ProduceListProps) {
                   <div className="flex justify-between">
                     <span className="text-sm">Price:</span>
                     <span className="font-medium">
-                      ${item.produce?.pricePerUnit ?? "0"}/{item.produce?.unitType ?? ""}
+                      ${item.produce?.pricePerUnit ?? "0"}/
+                      {item.produce?.unitType ?? ""}
                     </span>
                   </div>
                   {status === "harvest" && (
@@ -188,14 +194,11 @@ export function ProduceList({ status }: ProduceListProps) {
                       <span className="text-sm">Harvest Date:</span>
                       <span className="font-medium">
                         {item.harvestDate
-                          ? new Date(item.harvestDate).toLocaleDateString(
-                            "en-US",
-                            {
+                          ? new Date(item.harvestDate).toLocaleDateString("en-US", {
                               year: "numeric",
                               month: "long",
                               day: "numeric",
-                            }
-                          )
+                            })
                           : "N/A"}
                       </span>
                     </div>
@@ -203,7 +206,14 @@ export function ProduceList({ status }: ProduceListProps) {
                 </div>
               </CardContent>
               <CardFooter className="p-4 pt-0 flex justify-between">
-                <Button variant="outline" size="sm">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedListing(item);
+                    setIsViewDialogOpen(true);
+                  }}
+                >
                   <Eye className="mr-2 h-4 w-4" /> View Details
                 </Button>
                 <Dialog>
@@ -219,7 +229,7 @@ export function ProduceList({ status }: ProduceListProps) {
                         Update the details of your produce listing
                       </DialogDescription>
                     </DialogHeader>
-                    <ProduceForm initialData={item} onClose={handleDialogClose}/>
+                    <ProduceForm initialData={item} onClose={handleDialogClose} />
                   </DialogContent>
                 </Dialog>
               </CardFooter>
@@ -227,6 +237,7 @@ export function ProduceList({ status }: ProduceListProps) {
           );
         })}
       </div>
+
       {hasMore && (
         <div className="flex justify-center mt-6">
           <Button onClick={loadMore} variant="outline">
@@ -234,6 +245,59 @@ export function ProduceList({ status }: ProduceListProps) {
           </Button>
         </div>
       )}
+
+      {/* View Details Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="sm:max-w-[700px]">
+          <DialogHeader>
+            <DialogTitle>Produce Listing Details</DialogTitle>
+            <DialogDescription>
+              Full details for this produce listing.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedListing && (
+            <div className="space-y-4">
+              {/* Carousel */}
+              <div className="w-full overflow-hidden relative">
+                <div className="flex overflow-x-auto space-x-4 pb-2">
+                  {selectedListing.images?.map((img: { id: string; url: string }) => (
+                    <img
+                      key={img.id}
+                      src={img.url}
+                      alt="Produce"
+                      className="w-64 h-40 object-cover flex-shrink-0 rounded"
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Listing Info */}
+              <div className="space-y-2">
+                <p><strong>Name:</strong> {selectedListing.produce?.name}</p>
+                <p><strong>Type:</strong> {selectedListing.produce?.type}</p>
+                <p><strong>Category:</strong> {selectedListing.produce?.category}</p>
+                <p><strong>Location:</strong> {selectedListing.location}</p>
+                <p><strong>Description:</strong> {selectedListing.description}</p>
+                <p><strong>Quantity:</strong> {selectedListing.quantity} kg</p>
+                <p><strong>Price:</strong> ${selectedListing.produce?.pricePerUnit} per {selectedListing.produce?.unitType}</p>
+                {selectedListing.harvestDate && (
+                  <p>
+                    <strong>Harvest Date:</strong>{" "}
+                    {new Date(selectedListing.harvestDate).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
+
+              {/* Sales History Placeholder */}
+              <div>
+                <h4 className="font-semibold">Sales History</h4>
+                <p className="text-muted-foreground text-sm">No sales history available yet.</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

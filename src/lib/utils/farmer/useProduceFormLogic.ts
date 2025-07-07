@@ -201,7 +201,7 @@ export function useProduceFormLogic(
         console.log("Listing updated:", updatedListing);
         updateListing(updatedListing.data);
 
-        showToast(false, "Listing updated successfully!")
+        showToast(true, "Listing updated successfully!")
 
       } else {
         const payload = {
@@ -233,7 +233,7 @@ export function useProduceFormLogic(
         console.log("New listing created:", newListing.data);
         addListing(newListing.data);
 
-        showToast(false, "Listing created successfully!")
+        showToast(true, "Listing created successfully!")
       }
 
       if (onClose) onClose();
