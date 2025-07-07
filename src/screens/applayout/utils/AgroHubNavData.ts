@@ -25,12 +25,7 @@ export const navItems: NavItem[] = [
       icon: List,
       href: "/admin/agrohub/listings",
       roles: [
-          "farmer",
-          "retailer",
-          "logistics",
-          "distributor",
-          "service",
-          "consumer",
+          "agrohub",
       ],
   },
 
@@ -41,14 +36,14 @@ export const navItems: NavItem[] = [
       icon: ShoppingCart,
       href: "/admin/agrohub/cart",
       roles: [
-          "farmer", "retailer", "logistics", "distributor", "service", "consumer",],
+          "agrohub",],
       
   },
   {
       label: "Orders",
       icon: BarChart,
       href: "/admin/agrohub/orders",
-      roles: ["farmer", "retailer", "distributor", "consumer"],
+      roles: ["agrohub"],
   },
 
   {
@@ -56,12 +51,7 @@ export const navItems: NavItem[] = [
         icon: Settings,
         href: "/settings",
         roles: [
-            "farmer",
-            "retailer",
-            "logistics",
-            "distributor",
-            "service",
-            "consumer",
+            "agrohub",
         ],
     },
   

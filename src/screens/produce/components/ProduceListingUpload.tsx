@@ -1,34 +1,43 @@
-import { Label } from '@/components/ui/label'
-import imageCompression from 'browser-image-compression'
-import { Upload } from 'lucide-react'
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, useState } from 'react';
+import imageCompression from 'browser-image-compression';
+import { Upload } from 'lucide-react';
 
-const ProduceFormListingUpload = ({
+interface Props {
+  files: File[];
+  setFiles: React.Dispatch<React.SetStateAction<File[]>>;
+  previewUrls: string[];
+  setPreviewUrls: React.Dispatch<React.SetStateAction<string[]>>;
+  existingImages: { id: string; url: string }[];
+  setExistingImages: React.Dispatch<React.SetStateAction<{ id: string; url: string }[]>>;
+  removeImageIds: string[]; // ✅ matches hook!
+  setRemoveImageIds: React.Dispatch<React.SetStateAction<string[]>>; // ✅ matches hook!
+}
+
+const ProduceListingUpload = ({
   files,
   setFiles,
   previewUrls,
-  setPreviewUrls
-}: {
-  files: File[]
-  setFiles: React.Dispatch<React.SetStateAction<File[]>>
-  previewUrls: string[]
-  setPreviewUrls: React.Dispatch<React.SetStateAction<string[]>>
-}) => {
-  const imageInputRef = React.useRef<HTMLInputElement>(null)
-
-  const [isPending, setIsPending] = useState(false)
+  setPreviewUrls,
+  existingImages,
+  setExistingImages,
+  removeImageIds,
+  setRemoveImageIds,
+}: Props) => {
+  const imageInputRef = React.useRef<HTMLInputElement>(null);
+  const [isPending, setIsPending] = useState(false);
 
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
 
-      const remainingSlots = 5 - files.length;
+      const remainingSlots = 5 - (existingImages.length + files.length);
+      if (remainingSlots <= 0) return; // Defensive guard
+
       const filesToAdd = filesArray.slice(0, remainingSlots);
 
       const compressedFiles: File[] = [];
 
       for (const file of filesToAdd) {
-        console.log("Uploading file:", file, "type:", typeof file, "instanceof File?", file instanceof File);
         try {
           const compressed = await imageCompression(file, {
             maxSizeMB: 1,
@@ -36,7 +45,6 @@ const ProduceFormListingUpload = ({
           compressedFiles.push(compressed);
         } catch (err) {
           console.error("Image compression failed:", err);
-          // fallback: add original if compression fails
           compressedFiles.push(file);
         }
       }
@@ -49,21 +57,36 @@ const ProduceFormListingUpload = ({
       setPreviewUrls((prev) => [...prev, ...newPreviews]);
     }
   };
+
   const removeImage = (indexToRemove: number) => {
-    URL.revokeObjectURL(previewUrls[indexToRemove])
-    setFiles(files.filter((_, i) => i !== indexToRemove))
-    setPreviewUrls(previewUrls.filter((_, i) => i !== indexToRemove))
-  }
+    const totalExisting = existingImages.length;
+    const isExisting = indexToRemove < totalExisting;
+
+    if (isExisting) {
+      const removed = existingImages[indexToRemove];
+      setExistingImages(existingImages.filter((_, i) => i !== indexToRemove));
+      setRemoveImageIds((prev) => [...prev, removed.id]);
+      console.log("Ids to remove: ", [...removeImageIds]);
+      console.log("Removed existing image ID:", removed.id);
+    } else {
+      const previewIndex = indexToRemove - totalExisting;
+      URL.revokeObjectURL(previewUrls[previewIndex]);
+      setFiles(files.filter((_, i) => i !== previewIndex));
+      setPreviewUrls(previewUrls.filter((_, i) => i !== previewIndex));
+    }
+  };
+
+  const allImages = [...existingImages.map(img => img.url), ...previewUrls];
 
   return (
     <>
       <div>
-        {previewUrls.length > 0 ? (
+        {allImages.length > 0 ? (
           <div className="space-y-4">
-            <Label>Images ({previewUrls.length})</Label>
+            <label>Images ({allImages.length})</label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {previewUrls.map((url, index) => (
-                <div key={url} className="relative overflow-hidden rounded-lg">
+              {allImages.map((url, index) => (
+                <div key={`${url}-${index}`} className="relative overflow-hidden rounded-lg">
                   <img
                     src={url}
                     width={200}
@@ -71,7 +94,6 @@ const ProduceFormListingUpload = ({
                     alt={`img-${index}`}
                     className="w-full h-48 object-cover"
                   />
-
                   <div className="absolute inset-0 border-2 border-dashed border-gray-400 bg-white bg-opacity-20 flex items-center justify-center">
                     <button
                       onClick={() => removeImage(index)}
@@ -85,28 +107,34 @@ const ProduceFormListingUpload = ({
               ))}
             </div>
 
-            {previewUrls.length < 5 && (
+            {allImages.length < 5 && (
               <div
                 className="relative border-2 border-dashed border-gray-600 rounded-md h-32 cursor-pointer overflow-hidden"
                 onClick={() => imageInputRef.current?.click()}
               >
                 <div className="absolute inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center text-white">
                   <Upload className="h-8 w-8 mb-2" />
-                  <p className="text-sm">Add more images ({previewUrls.length}/5)</p>
+                  <p className="text-sm">
+                    Add more images ({allImages.length}/5)
+                  </p>
                 </div>
               </div>
             )}
 
-            {previewUrls.length >= 5 && (
+            {allImages.length >= 5 && (
               <div className="text-center p-4 bg-green-50 border border-green-200 rounded-md">
-                <p className="text-green-700 font-medium">✓ Maximum images uploaded (5/5)</p>
-                <p className="text-green-600 text-sm">You can still remove and replace images if needed</p>
+                <p className="text-green-700 font-medium">
+                  ✓ Maximum images uploaded (5/5)
+                </p>
+                <p className="text-green-600 text-sm">
+                  You can still remove and replace images if needed
+                </p>
               </div>
             )}
           </div>
         ) : (
           <div className="space-y-2">
-            <Label>Images</Label>
+            <label>Images</label>
             <div
               className="relative border-2 border-dashed border-gray-600 rounded-md h-48 cursor-pointer overflow-hidden"
               onClick={() => imageInputRef.current?.click()}
@@ -135,7 +163,7 @@ const ProduceFormListingUpload = ({
         disabled={isPending}
       />
     </>
-  )
-}
+  );
+};
 
-export default ProduceFormListingUpload
+export default ProduceListingUpload;

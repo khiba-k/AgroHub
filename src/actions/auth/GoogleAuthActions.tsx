@@ -10,10 +10,8 @@ const signInWith = async (provider: AuthProvider) => {
     const supabase = await createClient();
 
     const baseUrl =
-        process.env.NEXT_PUBLIC_SITE_URL ||
-        (process.env.NODE_ENV === "development"
-            ? "http://localhost:3000"
-            : "https://yourdomain.com");
+        process.env.SITE_URL ||
+        "http://localhost:3000";
 
     const redirectTo = `${baseUrl}/auth/callback`;
 

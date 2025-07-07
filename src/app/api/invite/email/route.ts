@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma/prisma";
 import { compare } from "bcryptjs";
 import { badRequest, success, serverError } from "@/lib/utils/responseHandler";
 import { getUnusedInviteTokens } from "@/actions/invite/InviteActions";
+export const dynamic = "force-dynamic";
+
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);

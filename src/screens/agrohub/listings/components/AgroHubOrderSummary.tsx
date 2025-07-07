@@ -19,6 +19,7 @@ interface AgroHubOrderSummaryProps {
   orderBreakdown: OrderBreakdown[]
   totalPrice: number
   onAddToCart: () => void
+  quantityError: string
 }
 
 const AgroHubOrderSummary = ({
@@ -27,6 +28,7 @@ const AgroHubOrderSummary = ({
   orderBreakdown,
   totalPrice,
   onAddToCart,
+  quantityError,
 }: AgroHubOrderSummaryProps) => {
   return (
     <div className="lg:col-span-1">
@@ -46,6 +48,9 @@ const AgroHubOrderSummary = ({
               className="mt-1 border-gray-300"
               min="1"
             />
+            {quantityError && (
+              <p className="text-red-600 text-sm mt-1">{quantityError}</p>
+            )}
           </div>
 
           {orderBreakdown.length > 0 && (

@@ -1,15 +1,15 @@
 import { use } from "react"
-import { FilteredListing } from "../store/useFilterListingStore"
-import { useCartStore } from "../store/useCartStore"
+// import { FilteredListing } from "../store/useFilterListingStore"
+// import { useCartStore } from "../store/useCartStore"
 
 
 // Handles quantity change and updates the cart state
-export const handleQuantityChange = (quantity: number,
-    listings: FilteredListing[],
-    setQuantity: (quantity: number, listings: FilteredListing[]) => void,
-) => {
-    setQuantity(quantity, listings)
-}
+// export const handleQuantityChange = (quantity: number,
+//     listings: FilteredListing[],
+//     setQuantity: (quantity: number, listings: FilteredListing[]) => void,
+// ) => {
+//     setQuantity(quantity, listings)
+// }
 
 // // Add to cart before switching produce filters (AgroHubListings.tsx)
 // export const handleBlockSwitchAddToCart = (

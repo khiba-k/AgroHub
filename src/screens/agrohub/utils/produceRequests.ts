@@ -15,6 +15,11 @@ export const submitProduce = async (data: ProduceFormData) => {
 }
 
 export const fetchProduce = async () => {
+ try {
   const response = await axios.get('/api/produce/get')
   return response.data.data
+ }catch (error: any) {
+  console.error('Error fetching produce:', error)
+  throw error
+ }
 }
