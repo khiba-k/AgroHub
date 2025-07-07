@@ -46,6 +46,11 @@ export function ProduceList({ status }: ProduceListProps) {
   } = useProduceListingStore();
 
   const [loading, setLoading] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+  };
 
   useEffect(() => {
     reset();
@@ -120,14 +125,14 @@ export function ProduceList({ status }: ProduceListProps) {
                   />
                 )}
                 <Badge className="absolute top-2 right-2">
-                {item.produce?.category ?? ""}
+                  {item.produce?.category ?? ""}
                 </Badge>
               </div>
               <CardContent className="p-4">
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-semibold text-lg">
-                    {item.produce?.type ?? ""} {item.produce?.name ?? ""}
+                      {item.produce?.type ?? ""} {item.produce?.name ?? ""}
                     </h3>
                     <p className="text-sm text-muted-foreground">
                       {item.location ?? ""}
@@ -144,7 +149,7 @@ export function ProduceList({ status }: ProduceListProps) {
                       <DropdownMenuItem>
                         <Eye className="mr-2 h-4 w-4" /> View Details
                       </DropdownMenuItem>
-                      <Dialog>
+                      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                         <DialogTrigger asChild>
                           <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                             <Edit className="mr-2 h-4 w-4" /> Edit Listing
@@ -175,7 +180,7 @@ export function ProduceList({ status }: ProduceListProps) {
                   <div className="flex justify-between">
                     <span className="text-sm">Price:</span>
                     <span className="font-medium">
-                    ${item.produce?.pricePerUnit ?? "0"}/{item.produce?.unitType ?? ""}
+                      ${item.produce?.pricePerUnit ?? "0"}/{item.produce?.unitType ?? ""}
                     </span>
                   </div>
                   {status === "harvest" && (
@@ -214,7 +219,7 @@ export function ProduceList({ status }: ProduceListProps) {
                         Update the details of your produce listing
                       </DialogDescription>
                     </DialogHeader>
-                    <ProduceForm initialData={item} />
+                    <ProduceForm initialData={item} onClose={handleDialogClose}/>
                   </DialogContent>
                 </Dialog>
               </CardFooter>

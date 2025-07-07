@@ -49,7 +49,7 @@ export default function Produce() {
                   Enter details about your new produce listing
                 </DialogDescription>
               </DialogHeader>
-              <ProduceForm />
+              <ProduceForm onClose={handleDialogClose} />
             </DialogContent>
           </Dialog>
         </div>
