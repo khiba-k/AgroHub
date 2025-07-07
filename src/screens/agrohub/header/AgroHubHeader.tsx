@@ -55,9 +55,10 @@ const AgroHubHeader = () => {
   return (
     <>
       <header className="border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+        <div className=" mx-auto px-6 py-3 flex items-center ">
           <h1 className="text-2xl font-bold">AgroHub</h1>
-          <div className="flex items-center space-x-4">
+
+          <div className="flex items-center gap-2 ml-auto ">
             <Button
               onClick={() => setShowAddProduct(true)}
               className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
@@ -65,8 +66,8 @@ const AgroHubHeader = () => {
               <Plus className="w-4 h-4" />
               <span>Add New Produce</span>
             </Button>
-
-            <div className="flex items-center gap-2">
+           
+            
               <ThemeSwitcher />
 
               <DropdownMenu>
@@ -100,6 +101,7 @@ const AgroHubHeader = () => {
                   <DropdownMenuItem onClick={() => router.push("/profile")}>
                     Profile
                   </DropdownMenuItem>
+                  
 
                   {/* ✅ INVITE USER TRIGGER */}
                   <Dialog>
@@ -130,7 +132,6 @@ const AgroHubHeader = () => {
               </DropdownMenu>
             </div>
           </div>
-        </div>
       </header>
 
       <AgroHubAddProductForm

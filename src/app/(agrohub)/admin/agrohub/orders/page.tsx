@@ -3,7 +3,7 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div><Orders/></div>
+    <div className='flex justify-center  items-center h-full'><Orders/></div>
   )
 }
 

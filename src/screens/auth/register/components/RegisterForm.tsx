@@ -163,7 +163,11 @@ export function RegisterForm({ role }: { role: string }) {
                             className="w-full py-3 text-lg" // Changed text-lg to text-xl
                             disabled={isLoading}
                         >
-                            {isLoading ? <Loader2/> : "Register"}
+                           {isLoading ? (
+    <Loader2 className="h-8 w-8 animate-spin" />
+  ) : (
+    "Register"
+  )}
                         </Button>
                     </form>
                 </Form>
