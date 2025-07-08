@@ -20,6 +20,11 @@ import { useState } from "react";
 
 export default function Produce() {
   const [date, setDate] = useState<Date | undefined>(undefined);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+  };
 
   return (
     <>
@@ -31,7 +36,7 @@ export default function Produce() {
               Manage your farm produce and inventory
             </p>
           </div>
-          <Dialog>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="mr-2 h-4 w-4" /> Add New Produce
@@ -44,7 +49,7 @@ export default function Produce() {
                   Enter details about your new produce listing
                 </DialogDescription>
               </DialogHeader>
-              <ProduceForm />
+              <ProduceForm onClose={handleDialogClose} />
             </DialogContent>
           </Dialog>
         </div>

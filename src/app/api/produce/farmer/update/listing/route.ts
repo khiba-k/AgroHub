@@ -63,6 +63,8 @@ export async function PUT(req: NextRequest) {
         produce: true,
         farm: true,
         images: true,
+        activeDraftListing: true,
+        harvestListings: true,
       },
     });
 

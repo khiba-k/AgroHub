@@ -6,6 +6,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Label } from "@/components/ui/label";
+import { useEffect } from "react";
 
 export function HarvestDateDialog({
   open,
@@ -15,7 +16,15 @@ export function HarvestDateDialog({
   handleHarvestDateSubmit,
   isSubmitting,
   produceName,
+  setEditHarvestDate
 }: any) {
+  useEffect(() => {
+    if (harvestDate) {
+      console.log("Harvest date already set:", harvestDate);
+      setEditHarvestDate(true);
+    }
+  }, []);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">

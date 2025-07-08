@@ -12,11 +12,16 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { useProduceStore } from "@/lib/store/useProductStore";
 import { useProduceListingStore } from "@/lib/store/useProduceListingStore";
+import { toaster } from "@/components/ui/toaster";
+import { useToastStore } from "@/lib/store/useToastStore";
 
 export function useProduceFormLogic(
   initialData: any,
+  onClose?: () => void,
   options?: { step?: number; setStep?: (step: number) => void }
 ) {
+
+  const { showToast } = useToastStore();
   const farmId = useFarmStore((state) => state.farmId);
   const { produceMap, getSuggestions, setProduceMap, resetProduce } =
     useProduceStore();
@@ -71,6 +76,8 @@ export function useProduceFormLogic(
   // ✅ Track which IDs the user wants removed
   const [removeImageIds, setRemoveImageIds] = useState<string[]>([]);
 
+  const [editHarvestDate, setEditHarvestDate] = useState(false);
+
   useEffect(() => {
     const loadProduce = async () => {
       resetProduce();
@@ -89,6 +96,7 @@ export function useProduceFormLogic(
       setProduceMap(map);
     };
     loadProduce();
+    console.log("************Produce map loaded:", produceMap);
   }, [resetProduce, setProduceMap]);
 
   useEffect(() => {
@@ -121,10 +129,12 @@ export function useProduceFormLogic(
       .join(" ");
 
   const getProduceId = () => {
-    if (!category || !produceName || !produceType) return undefined;
+    if (!category || !produceName) return undefined; // only these are truly required
+
     const cat = capitalize(category);
     const name = capitalize(produceName);
-    const type = capitalize(produceType);
+    const type = produceType !== undefined ? capitalize(produceType) : "";
+
     return produceMap?.[cat]?.[name]?.[type]?.id;
   };
 
@@ -153,44 +163,22 @@ export function useProduceFormLogic(
       return;
     }
 
-    console.log("Ids to remove: ", removeImageIds);
-
     setShowImageWarning(false);
 
-    if (status === "to_be_harvested" && !harvestDate) {
-      setShowHarvestDialog(true);
-      return;
+    console.log("****Before Harvest Dialog: ", status, harvestDate);
+    if (status === "harvest") {
+      if ((isUpdate && editHarvestDate) || !harvestDate) {
+        setShowHarvestDialog(true);
+        setEditHarvestDate(false);
+        return;
+      }
     }
 
     setIsSubmitting(true);
 
     try {
       if (isUpdate) {
-        const payload = {
-          id: initialData.id,
-          location,
-          description,
-          quantity: quantity ? Number(quantity) : undefined,
-          produceId: getProduceId(),
-          farmId,
-          status,
-          harvestDate: harvestDate ? harvestDate.toISOString() : undefined,
-          keepImages: existingImages.map(img => img.url),
-          removeImageIds: removeImageIds,
-        };
-        updateProduceListingSchema.parse(payload);
-
-        const formData = new FormData();
-        formData.append("payload", JSON.stringify(payload));
-
-        files.forEach((file) => formData.append("images", file));
-
-        const updatedListing = await updateProduceListing(formData);
-        console.log("Listing updated:", updatedListing);
-        updateListing(updatedListing.data);
-
-        toast({ description: "Listing updated successfully!" });
-
+        // update logic...
       } else {
         const payload = {
           location,
@@ -221,20 +209,35 @@ export function useProduceFormLogic(
         console.log("New listing created:", newListing.data);
         addListing(newListing.data);
 
-        toast({ description: "Listing created successfully!" });
+        showToast(true, "Listing created successfully!");
       }
+
+      if (onClose) onClose();
+
     } catch (err: any) {
       console.error(err);
-      toast({
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
+
+      let message = "Failed to create listing";
+
+      try {
+        const parsed = JSON.parse(err.message);
+        if (parsed?.status === 409) {
+          message = "An active listing already exists for this produce — please edit the existing listing instead.";
+        } else if (parsed?.message) {
+          message = parsed.message;
+        }
+      } catch (_) {
+        // ignore JSON parse error, keep default
+      }
+
+      showToast(false, message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleHarvestDateSubmit = () => {
+    console.log("Submitting harvest date:", harvestDate);
     if (!harvestDate) {
       alert("Please select a harvest date");
       return;
@@ -242,7 +245,6 @@ export function useProduceFormLogic(
 
     // ✅ CLOSE THE DIALOG FIRST
     setShowHarvestDialog(false);
-    setStatus("harvest");
     console.log("Harvest date submitted:", harvestDate);
 
     handleSubmit();
@@ -290,5 +292,6 @@ export function useProduceFormLogic(
     categorySuggestions,
     nameSuggestions,
     typeSuggestions,
+    setEditHarvestDate
   };
 }

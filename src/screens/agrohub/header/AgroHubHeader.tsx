@@ -30,7 +30,11 @@ const AgroHubHeader = () => {
   const { email, avatar, role, clearUser } = useUserStore();
   const { farmName, clearFarm } = useFarmStore();
   const router = useRouter();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+  };
   const handleLogout = async () => {
     try {
       const res = await fetch('/api/signout', {
@@ -104,14 +108,14 @@ const AgroHubHeader = () => {
                   
 
                   {/* ✅ INVITE USER TRIGGER */}
-                  <Dialog>
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen} >
                     <DialogTrigger asChild>
                       <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                         Invite User
                       </DropdownMenuItem>
                     </DialogTrigger>
                     <DialogContent className="max-w-md border-none">
-                      <InviteForm />
+                      <InviteForm closeDialog={handleDialogClose} />
                     </DialogContent>
                   </Dialog>
 

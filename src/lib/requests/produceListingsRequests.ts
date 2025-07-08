@@ -10,10 +10,16 @@ export async function postProduceListing(formData: FormData) {
   });
 
   if (!response.ok) {
-    throw new Error("Failed to create listing");
+    // Try get custom API error
+    const errorResponse = await response.json().catch(() => ({}));
+    const message = errorResponse?.error || "Failed to create listing";
+    const status = response.status;
+
+    // Pass both up
+    throw new Error(JSON.stringify({ message, status }));
   }
 
-  return response.json(); // should be the full created listing object
+  return response.json();
 }
 
 export interface FetchProduceListingsParams {

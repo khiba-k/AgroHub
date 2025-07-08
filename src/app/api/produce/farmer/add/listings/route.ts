@@ -1,3 +1,5 @@
+// File: app/api/produce/farmer/add/listings/route.ts
+
 import { createProduceListing } from '@/actions/produce/produceListingActions';
 import prisma from '@/lib/prisma/prisma';
 import { uploadImage } from '@/lib/supabase/uploadimage';
@@ -8,9 +10,9 @@ import { z } from 'zod';
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
+
     console.log("[ADD_LISTING_FORM_DATA]", formData);
 
-    // ✅ Extract fields:
     const location = formData.get("location") as string;
     const description = formData.get("description") as string;
     const quantity = Number(formData.get("quantity"));
@@ -20,16 +22,9 @@ export async function POST(req: NextRequest) {
     const harvestDateRaw = formData.get("harvestDate") as string | null;
     const harvestDate = harvestDateRaw ? new Date(harvestDateRaw) : undefined;
 
-    // ✅ Process uploaded files:
     const files = formData.getAll("images") as File[];
-    console.log("[ADD_LISTING_FILES]", files);
-    console.log("[ADD_LISTING_FILES_COUNT]", files.length);
-
-    // ✅ Filter out any non-File objects (safety check)
     const validFiles = files.filter(file => file instanceof File && file.size > 0);
-    console.log("[ADD_LISTING_VALID_FILES]", validFiles.length);
 
-    // ✅ Validate main data WITHOUT images:
     const input = createProduceListingSchema.parse({
       location,
       description,
@@ -38,31 +33,61 @@ export async function POST(req: NextRequest) {
       farmId,
       status,
       harvestDate,
-      // ❌ Remove this line - don't pass images to createProduceListing
-      // images: validFiles.map(file => file.name),
     });
 
-    // ✅ Create listing WITHOUT images:
+    // ✅ CHECK ONLY IF STATUS === 'active'
+    if (status === "active") {
+      const produce = await prisma.produce.findUnique({
+        where: { id: produceId },
+        select: { category: true, name: true, type: true },
+      });
+
+      if (!produce) {
+        return NextResponse.json(
+          { success: false, error: "Invalid produce selected." },
+          { status: 400 }
+        );
+      }
+
+      const existingActive = await prisma.produceListing.findFirst({
+        where: {
+          farmId,
+          produce: {
+            category: produce.category,
+            name: produce.name,
+            ...(produce.type ? { type: produce.type } : {}),
+          },
+          activeDraftListing: {
+            status: 'active',
+          },
+        },
+      });
+
+      if (existingActive) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "You already have an active listing for this produce. Please edit the existing one instead.",
+          },
+          { status: 409 }
+        );
+      }
+    }
+
+    // ✅ Create the listing
     const result = await createProduceListing(input);
 
     if (!result.success || !result.data) {
       return NextResponse.json(
-        { success: false, error: "Failed to create listing" },
+        { success: false, error: "Failed to create listing." },
         { status: 500 }
       );
     }
 
     const listingId = result.data.id;
+
     const uploadedUrls: string[] = [];
-
-    // ✅ Upload each file:
     for (const file of validFiles) {
-      console.log("[ADD_LISTING_FILE]", {
-        name: file.name,
-        size: file.size,
-        type: file.type
-      });
-
       const { imageUrl, error } = await uploadImage({
         file,
         bucket: "agrohubpics",
@@ -70,19 +95,14 @@ export async function POST(req: NextRequest) {
       });
 
       if (error || !imageUrl) {
-        console.error("Upload error:", error);
-        continue; // Skip this file but continue with others
+        console.error("[UPLOAD_IMAGE_ERROR]", error);
+        continue;
       }
 
       uploadedUrls.push(imageUrl);
     }
 
-    console.log("[UPLOADED_URLS]", uploadedUrls);
-
-    // ✅ Save image URLs in DB (only after successful upload):
     if (uploadedUrls.length > 0) {
-      console.log("[SAVING_LISTING_IMAGES]", uploadedUrls.length);
-      console.log("First uploaded URL:", uploadedUrls[0]);
       await prisma.listingImg.createMany({
         data: uploadedUrls.map((url) => ({
           listingId,
@@ -91,7 +111,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // ✅ Fetch final listing with images:
     const finalListing = await prisma.produceListing.findUnique({
       where: { id: listingId },
       include: {
@@ -103,28 +122,20 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    console.log("[FINAL_LISTING]", finalListing);
-
     return NextResponse.json({ success: true, data: finalListing });
+
   } catch (error) {
     console.error("[ADD_LISTING_ERROR]", error);
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Validation failed",
-          details: error.errors,
-        },
+        { success: false, error: "Validation failed", details: error.errors },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      {
-        success: false,
-        error: "Server error occurred while creating produce listing",
-      },
+      { success: false, error: "Server error occurred while creating listing." },
       { status: 500 }
     );
   }

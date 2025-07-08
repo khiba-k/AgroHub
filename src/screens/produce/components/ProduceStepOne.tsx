@@ -28,6 +28,7 @@ export function ProduceStepOne({
   isActiveListing,
   produceMap
 }: any) {
+  console.log("***Status:", produceStatus);
   const isDisabled = isActiveListing;
   const { getSuggestions } = useProduceStore();
 
@@ -91,9 +92,15 @@ export function ProduceStepOne({
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>
-              {typeSuggestions.map((type) => (
-                <SelectItem key={type} value={type}>{type}</SelectItem>
-              ))}
+              {typeSuggestions.length > 0 ? (
+                typeSuggestions
+                  .filter((type) => type.trim() !== "")
+                  .map((type) => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))
+              ) : (
+                <SelectItem disabled value="no-type">No types available</SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -140,7 +147,7 @@ export function ProduceStepOne({
               <SelectContent>
                 <SelectItem value="draft">Draft</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="to_be_harvested">To Be Harvested</SelectItem>
+                <SelectItem value="harvest">To Be Harvested</SelectItem>
               </SelectContent>
             </Select>
           </div>

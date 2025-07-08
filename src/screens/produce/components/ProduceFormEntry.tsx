@@ -4,17 +4,17 @@ import { ProduceFormCreate } from "./ProduceFormCreate";
 import { ProduceFormEditDraft } from "./ProduceFormEditDraft";
 import { ProduceFormEditActive } from "./ProduceFormEditActive";
 
-export function ProduceFormEntry({ initialData }: { initialData?: any }) {
+export function ProduceFormEntry({ initialData, onClose }: { initialData?: any; onClose?: () => void }) {
   const isActive = initialData?.status === "active";
   const isEditing = !!initialData;
 
   if (isEditing) {
     return isActive ? (
-      <ProduceFormEditActive initialData={initialData} />
+      <ProduceFormEditActive initialData={initialData} onClose={onClose} />
     ) : (
-      <ProduceFormEditDraft initialData={initialData} />
+      <ProduceFormEditDraft initialData={initialData} onClose={onClose} />
     );
   }
 
-  return <ProduceFormCreate />;
+  return <ProduceFormCreate onClose={onClose} />;
 }

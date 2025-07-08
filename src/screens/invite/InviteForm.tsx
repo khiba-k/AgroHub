@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { getUserObj } from "@/actions/auth/BasicAuthActions";
+import { useToastStore } from "@/lib/store/useToastStore";
 
 export const InviteFormSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -30,7 +31,11 @@ export const InviteFormSchema = z.object({
 
 export type InviteFormType = z.infer<typeof InviteFormSchema>;
 
-const InviteForm = () => {
+
+const InviteForm =  ({closeDialog}:{closeDialog:
+  () => void
+}) => {
+  const { showToast } = useToastStore();
   const [status, setStatus] = useState<string | null>(null);
   const [senderId, setSenderId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -61,6 +66,16 @@ const InviteForm = () => {
 
     const res = await sendInvite(values.email);
     setLoading(false);
+    console.log("Invite response:", res);
+    if (res.success) {
+      showToast(true, "Invite sent successfully!");
+      closeDialog()
+      form.reset();
+      
+      
+    } else {
+      showToast(false, res.message || "Failed to send invite.");
+    }
     setStatus(res.message);
   }
 
