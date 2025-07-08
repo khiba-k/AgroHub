@@ -1,5 +1,6 @@
 "use client";
 import { getUserObj } from '@/actions/auth/BasicAuthActions';
+import { Toast } from '@/components/agrohub/ui/Toast';
 import { useUserStore } from '@/lib/store/userStores';
 // app/agrohub/layout.tsx
 import AgroHubHeader from '@/screens/agrohub/header/AgroHubHeader';
@@ -39,7 +40,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         
         <div className='flex flex-col w-[100%]'>
         <AgroHubHeader/>
-          {children}</div>
+          {children}
+          <Toast/>
+          </div>
     </div>
   );
 }
