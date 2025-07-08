@@ -133,8 +133,9 @@ export default function Orders() {
 
     return (
         <>
-            <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="space-y-6 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pl-4">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight">My Orders</h1>
                         <p className="text-muted-foreground">
@@ -143,7 +144,7 @@ export default function Orders() {
                     </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-4 justify-between">
+                <div className="flex flex-col sm:flex-row gap-4 justify-between pl-4">
                     <div className="relative flex-1">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -152,23 +153,29 @@ export default function Orders() {
                             className="pl-8"
                         />
                     </div>
-                    <Button variant="outline" size="icon">
-                        <Filter className="h-4 w-4" />
+                    
+                    <Button variant="outline" size="icon" >
+                        <Filter className="h-4 w-4"  />
                     </Button>
+                    
                 </div>
 
                 <Tabs defaultValue="all">
-                    <TabsList className="w-full justify-start">
+                <div className="px-4 md:px-4"> 
+                    <TabsList className="w-full justify-start pl-4">
                         <TabsTrigger value="all">All Orders</TabsTrigger>
                         <TabsTrigger value="processing">Processing</TabsTrigger>
                         <TabsTrigger value="shipped">Shipped</TabsTrigger>
                         <TabsTrigger value="delivered">Delivered</TabsTrigger>
                         <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
                     </TabsList>
+                   </div> 
 
-                    <TabsContent value="all" className="space-y-4 pt-4">
+                    <TabsContent value="all" className="space-y-4 pl-4 ">
+                    
                         <Card>
                             <CardContent className="p-0">
+                            <div className="overflow-x-auto">  
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
@@ -177,7 +184,7 @@ export default function Orders() {
                                             <TableHead>Seller</TableHead>
                                             <TableHead>Total</TableHead>
                                             <TableHead>Status</TableHead>
-                                            <TableHead className="text-right">Actions</TableHead>
+                                            <TableHead className="text-right pr-12">Actions</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -210,6 +217,7 @@ export default function Orders() {
                                         ))}
                                     </TableBody>
                                 </Table>
+                                </div>
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -285,7 +293,7 @@ export default function Orders() {
                         </TabsContent>
                     ))}
                 </Tabs>
-
+                <div className="px-4 md:px-4">
                 <Card>
                     <CardHeader>
                         <CardTitle>Order Summary</CardTitle>
@@ -296,13 +304,13 @@ export default function Orders() {
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <Card>
-                                <CardContent className="pt-6">
+                                <CardContent className="pt-6 ">
                                     <div className="text-2xl font-bold">{orders.length}</div>
                                     <p className="text-sm text-muted-foreground">Total Orders</p>
                                 </CardContent>
                             </Card>
                             <Card>
-                                <CardContent className="pt-6">
+                                <CardContent className="pt-6 ">
                                     <div className="text-2xl font-bold">
                                         {orders.filter((o) => o.status === "delivered").length}
                                     </div>
@@ -336,6 +344,7 @@ export default function Orders() {
                         </div>
                     </CardContent>
                 </Card>
+            </div>
             </div>
         </>
     );
