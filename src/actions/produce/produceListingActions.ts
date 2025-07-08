@@ -267,6 +267,8 @@ export const createProduceListing = async (input: CreateProduceListingInput) => 
         },
       });
 
+      console.log('[CREATE_PRODUCE_LISTING]', validatedData);
+
       // Handle status-specific logic
       if (validatedData.status === 'draft') {
         // Create draft status
@@ -285,13 +287,6 @@ export const createProduceListing = async (input: CreateProduceListingInput) => 
           },
         });
       } else if (validatedData.status === 'harvest') {
-        // Create active status (harvest listings are active)
-        await tx.activeDraftListing.create({
-          data: {
-            listingId: produceListing.id,
-            status: ActiveDraftStatus.active,
-          },
-        });
 
         // Create harvest listing
         await tx.harvestListing.create({
@@ -301,17 +296,6 @@ export const createProduceListing = async (input: CreateProduceListingInput) => 
           },
         });
       }
-
-      // ❌ Remove this entire section - images will be handled after upload
-      // Create images if provided
-      // if (validatedData.images && validatedData.images.length > 0) {
-      //   await tx.listingImg.createMany({
-      //     data: validatedData.images.map(url => ({
-      //       listingId: produceListing.id,
-      //       url,
-      //     })),
-      //   });
-      // }
 
       // Return the created listing with all relations
       return await tx.produceListing.findUnique({

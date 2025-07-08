@@ -67,11 +67,19 @@ export function ProduceList({ status }: ProduceListProps) {
 
     setLoading(true);
     try {
+      console.log("[LOAD_LISTINGS]", {
+        farmId,
+        status,
+        page: pageToLoad,
+      }
+      )
       const data = await fetchProduceListings({
         farmId,
         status,
         page: pageToLoad,
       });
+
+      console.log("[LOAD_LISTINGS_RESPONSE]", data);
 
       if (pageToLoad === 1) {
         setListings(data.listings, data.total, data.hasMore);

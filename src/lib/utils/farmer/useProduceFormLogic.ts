@@ -96,6 +96,7 @@ export function useProduceFormLogic(
       setProduceMap(map);
     };
     loadProduce();
+    console.log("************Produce map loaded:", produceMap);
   }, [resetProduce, setProduceMap]);
 
   useEffect(() => {
@@ -128,10 +129,12 @@ export function useProduceFormLogic(
       .join(" ");
 
   const getProduceId = () => {
-    if (!category || !produceName || !produceType) return undefined;
+    if (!category || !produceName) return undefined; // only these are truly required
+
     const cat = capitalize(category);
     const name = capitalize(produceName);
-    const type = capitalize(produceType);
+    const type = produceType !== undefined ? capitalize(produceType) : "";
+
     return produceMap?.[cat]?.[name]?.[type]?.id;
   };
 
