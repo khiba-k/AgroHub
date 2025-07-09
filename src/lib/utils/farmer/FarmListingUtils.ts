@@ -28,14 +28,14 @@ export const activeListingSchema = baseProduceListingSchema.extend({
     status: z.literal('active'),
     location: z.string().min(1, 'Location is required for active listings'),
     description: z.string().min(1, 'Description is required for active listings'),
-    quantity: z.number().int().min(1, 'Quantity must be at least 1 for active listings'),
+    quantity: z.number().int().min(1, 'Quantity is required for active listings'),
 });
 
 // Harvest schema - all fields + harvest date required
 export const harvestListingSchema = baseProduceListingSchema.extend({
     status: z.literal('harvest'),
     location: z.string().min(1, 'Location is required for harvest listings'),
-    quantity: z.number().int().min(1, 'Quantity must be at least 1 for harvest listings'),
+    quantity: z.number().int().min(1, 'Quantity is required for harvest listings'),
     harvestDate: z.coerce.date({ required_error: 'Harvest date is required for harvest listings' }),
 });
 
