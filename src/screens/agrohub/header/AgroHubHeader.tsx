@@ -102,9 +102,9 @@ const AgroHubHeader = () => {
 
                   <DropdownMenuSeparator />
 
-                  <DropdownMenuItem onClick={() => router.push("/profile")}>
+                  {/* <DropdownMenuItem onClick={() => router.push("/profile")}>
                     Profile
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                   
 
                   {/* ✅ INVITE USER TRIGGER */}
