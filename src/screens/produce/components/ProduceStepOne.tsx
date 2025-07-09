@@ -92,9 +92,15 @@ export function ProduceStepOne({
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>
-              {typeSuggestions.map((type) => (
-                <SelectItem key={type} value={type}>{type}</SelectItem>
-              ))}
+              {typeSuggestions.length > 0 ? (
+                typeSuggestions
+                  .filter((type) => type.trim() !== "")
+                  .map((type) => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))
+              ) : (
+                <SelectItem disabled value="no-type">No types available</SelectItem>
+              )}
             </SelectContent>
           </Select>
         </div>

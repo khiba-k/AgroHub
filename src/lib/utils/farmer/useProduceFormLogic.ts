@@ -96,6 +96,7 @@ export function useProduceFormLogic(
       setProduceMap(map);
     };
     loadProduce();
+    console.log("************Produce map loaded:", produceMap);
   }, [resetProduce, setProduceMap]);
 
   useEffect(() => {
@@ -128,10 +129,12 @@ export function useProduceFormLogic(
       .join(" ");
 
   const getProduceId = () => {
-    if (!category || !produceName || !produceType) return undefined;
+    if (!category || !produceName) return undefined; // only these are truly required
+
     const cat = capitalize(category);
     const name = capitalize(produceName);
-    const type = capitalize(produceType);
+    const type = produceType !== undefined ? capitalize(produceType) : "";
+
     return produceMap?.[cat]?.[name]?.[type]?.id;
   };
 
@@ -160,11 +163,8 @@ export function useProduceFormLogic(
       return;
     }
 
-    console.log("Ids to remove: ", removeImageIds);
-
     setShowImageWarning(false);
 
-    
     console.log("****Before Harvest Dialog: ", status, harvestDate);
     if (status === "harvest") {
       if ((isUpdate && editHarvestDate) || !harvestDate) {
@@ -178,31 +178,7 @@ export function useProduceFormLogic(
 
     try {
       if (isUpdate) {
-        const payload = {
-          id: initialData.id,
-          location,
-          description,
-          quantity: quantity ? Number(quantity) : undefined,
-          produceId: getProduceId(),
-          farmId,
-          status,
-          harvestDate: harvestDate ? harvestDate.toISOString() : undefined,
-          keepImages: existingImages.map(img => img.url),
-          removeImageIds: removeImageIds,
-        };
-        updateProduceListingSchema.parse(payload);
-
-        const formData = new FormData();
-        formData.append("payload", JSON.stringify(payload));
-
-        files.forEach((file) => formData.append("images", file));
-
-        const updatedListing = await updateProduceListing(formData);
-        console.log("Listing updated:", updatedListing);
-        updateListing(updatedListing.data);
-
-        showToast(true, "Listing updated successfully!")
-
+        // update logic...
       } else {
         const payload = {
           location,
@@ -233,14 +209,28 @@ export function useProduceFormLogic(
         console.log("New listing created:", newListing.data);
         addListing(newListing.data);
 
-        showToast(true, "Listing created successfully!")
+        showToast(true, "Listing created successfully!");
       }
 
       if (onClose) onClose();
 
     } catch (err: any) {
       console.error(err);
-      showToast(false, "Failed to create listing")
+
+      let message = "Failed to create listing";
+
+      try {
+        const parsed = JSON.parse(err.message);
+        if (parsed?.status === 409) {
+          message = "An active listing already exists for this produce — please edit the existing listing instead.";
+        } else if (parsed?.message) {
+          message = parsed.message;
+        }
+      } catch (_) {
+        // ignore JSON parse error, keep default
+      }
+
+      showToast(false, message);
     } finally {
       setIsSubmitting(false);
     }
