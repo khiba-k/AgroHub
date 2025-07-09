@@ -120,8 +120,9 @@ export function ProduceList({ status }: ProduceListProps) {
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {listings.map((item) => {
-          return (
+        {listings
+          .filter((item) => item.status === status)
+          .map((item) => (
             <Card key={item.id} className="overflow-hidden">
               <div className="aspect-video relative overflow-hidden">
                 {item.images?.length > 0 && (
@@ -242,10 +243,9 @@ export function ProduceList({ status }: ProduceListProps) {
                 </Dialog>
               </CardFooter>
             </Card>
-          );
-        })}
+          ))}
       </div>
-
+  
       {hasMore && (
         <div className="flex justify-center mt-6">
           <Button onClick={loadMore} variant="outline">
@@ -253,7 +253,7 @@ export function ProduceList({ status }: ProduceListProps) {
           </Button>
         </div>
       )}
-
+  
       {/* View Details Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogContent className="sm:max-w-[700px]">
@@ -263,7 +263,7 @@ export function ProduceList({ status }: ProduceListProps) {
               Full details for this produce listing.
             </DialogDescription>
           </DialogHeader>
-
+  
           {selectedListing && (
             <div className="space-y-4">
               {/* Carousel */}
@@ -279,7 +279,7 @@ export function ProduceList({ status }: ProduceListProps) {
                   ))}
                 </div>
               </div>
-
+  
               {/* Listing Info */}
               <div className="space-y-2">
                 <p><strong>Name:</strong> {selectedListing.produce?.name}</p>
@@ -296,7 +296,7 @@ export function ProduceList({ status }: ProduceListProps) {
                   </p>
                 )}
               </div>
-
+  
               {/* Sales History Placeholder */}
               <div>
                 <h4 className="font-semibold">Sales History</h4>
@@ -308,4 +308,4 @@ export function ProduceList({ status }: ProduceListProps) {
       </Dialog>
     </>
   );
-}
+}  
