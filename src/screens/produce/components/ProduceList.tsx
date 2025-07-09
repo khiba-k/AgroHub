@@ -53,6 +53,13 @@ export function ProduceList({ status }: ProduceListProps) {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [confirmAction, setConfirmAction] = useState<null | "setActive" | "delete">(null);
 
+  const [activeMode, setActiveMode] = useState<null | {
+    type: "merge" | "new";
+    harvest?: any;
+    active?: any;
+    listing: any;
+  }>(null);
+
   const handleDialogClose = () => {
     setIsDialogOpen(false);
   };
@@ -72,7 +79,7 @@ export function ProduceList({ status }: ProduceListProps) {
     setLoading(true);
     try {
       const data = await fetchProduceListings({
-        farmId,
+        farmId: farmId,
         status,
         page: pageToLoad,
       });
@@ -95,22 +102,51 @@ export function ProduceList({ status }: ProduceListProps) {
     incrementPage();
   };
 
-  const handleSetActive = async (listingId: string) => {
-    setConfirmLoading(true);
-    try {
-      await axios.put(`/api/farmer/update/listing/${listingId}`, {
-        status: "active",
+  const handleSetActive = async (listing: any) => {
+    if (!farmId) {
+      showToast(false, "No farm ID found. Cannot continue.");
+      return;
+    }
+
+    if (listing.status === "harvest") {
+      try {
+        const data = await fetchProduceListings({
+          farmId,
+          status: "active",
+          page: 1,
+        });
+
+        const match = data.listings.find((l: any) =>
+          l.produce?.category === listing.produce?.category &&
+          l.produce?.name === listing.produce?.name &&
+          l.produce?.type === listing.produce?.type &&
+          l.location === listing.location
+        );
+
+        if (match) {
+          setActiveMode({
+            type: "merge",
+            harvest: listing,
+            active: match,
+            listing: match,
+          });
+        } else {
+          setActiveMode({
+            type: "new",
+            listing,
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        showToast(false, "Error checking for match.");
+      }
+    }
+
+    if (listing.status === "draft") {
+      setActiveMode({
+        type: "new",
+        listing,
       });
-      showToast(true, "Listing set to active!");
-      reset();
-      loadListings(1);
-    } catch (err) {
-      console.error(err);
-      showToast(false, "Failed to set active.");
-    } finally {
-      setConfirmLoading(false);
-      setConfirmAction(null);
-      setSelectedListing(null);
     }
   };
 
@@ -134,156 +170,161 @@ export function ProduceList({ status }: ProduceListProps) {
     }
   };
 
-  if (loading && listings.length === 0) {
-    return (
-      <div className="col-span-full text-center py-10">
-        <p className="text-muted-foreground">Loading listings...</p>
-      </div>
-    );
-  }
-
-  if (!loading && listings.length === 0) {
-    return (
-      <div className="col-span-full text-center py-10">
-        <p className="text-muted-foreground">
-          No {status} produce listings found.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {listings
-          .filter((item) => item.status === status)
-          .map((item) => (
-            <Card key={item.id} className="overflow-hidden">
-              <div className="aspect-video relative overflow-hidden">
-                {item.images?.length > 0 && (
-                  <img
-                    src={item.images[0].url}
-                    alt={item.produce.name}
-                    className="w-full h-full object-cover transition-transform hover:scale-105"
-                  />
-                )}
-                <Badge className="absolute top-2 right-2">
-                  {item.produce?.category ?? ""}
-                </Badge>
-              </div>
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="font-semibold text-lg">
-                      {item.produce?.type ?? ""} {item.produce?.name ?? ""}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {item.location ?? ""}
-                    </p>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
+      {/* If loading and no data yet */}
+      {loading && listings.length === 0 && (
+        <div className="col-span-full text-center py-10">
+          <p className="text-muted-foreground">Loading listings...</p>
+        </div>
+      )}
 
-                      {(status === "draft" || status === "harvest") && (
+      {/* If loaded but no listings */}
+      {!loading && listings.length === 0 && (
+        <div className="col-span-full text-center py-10">
+          <p className="text-muted-foreground">
+            No {status} produce listings found.
+          </p>
+        </div>
+      )}
+
+      {/* Listings grid */}
+      {listings.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {listings
+            .filter((item) => item.status === status)
+            .map((item) => (
+              <Card key={item.id} className="overflow-hidden">
+                <div className="aspect-video relative overflow-hidden">
+                  {item.images?.length > 0 && (
+                    <img
+                      src={item.images[0].url}
+                      alt={item.produce.name}
+                      className="w-full h-full object-cover transition-transform hover:scale-105"
+                    />
+                  )}
+                  <Badge className="absolute top-2 right-2">
+                    {item.produce?.category ?? ""}
+                  </Badge>
+                </div>
+
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-semibold text-lg">
+                        {item.produce?.type ?? ""} {item.produce?.name ?? ""}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {item.location ?? ""}
+                      </p>
+                    </div>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+                        {(status === "draft" || status === "harvest") && (
+                          <DropdownMenuItem onClick={() => handleSetActive(item)}>
+                            ✅ Set Active
+                          </DropdownMenuItem>
+                        )}
+
+                        <DropdownMenuSeparator />
+
                         <DropdownMenuItem
                           onClick={() => {
                             setSelectedListing(item);
-                            setConfirmAction("setActive");
+                            setConfirmAction("delete");
                           }}
+                          className="text-red-600"
                         >
-                          ✅ Set Active
+                          <Trash2 className="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>
-                      )}
-
-                      <DropdownMenuSeparator />
-
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setSelectedListing(item);
-                          setConfirmAction("delete");
-                        }}
-                        className="text-red-600"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" /> Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-                <div className="mt-4 space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm">Quantity:</span>
-                    <span className="font-medium">{item.quantity} kg</span>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm">Price:</span>
-                    <span className="font-medium">
-                      ${item.produce?.pricePerUnit ?? "0"}/
-                      {item.produce?.unitType ?? ""}
-                    </span>
-                  </div>
-                  {status === "harvest" && (
+
+                  {/* ✅ Important details */}
+                  <div className="mt-4 space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-sm">Harvest Date:</span>
+                      <span className="text-sm">Quantity:</span>
+                      <span className="font-medium">{item.quantity} kg</span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-sm">Price:</span>
                       <span className="font-medium">
-                        {item.harvestDate
-                          ? new Date(item.harvestDate).toLocaleDateString("en-US", {
+                        ${item.produce?.pricePerUnit ?? "0"}/
+                        {item.produce?.unitType ?? ""}
+                      </span>
+                    </div>
+
+                    {status === "harvest" && (
+                      <div className="flex justify-between">
+                        <span className="text-sm">Harvest Date:</span>
+                        <span className="font-medium">
+                          {item.harvestDate
+                            ? new Date(item.harvestDate).toLocaleDateString("en-US", {
                               year: "numeric",
                               month: "long",
                               day: "numeric",
                             })
-                          : "N/A"}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-              <CardFooter className="p-4 pt-0 flex justify-between">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedListing(item);
-                    setIsViewDialogOpen(true);
-                  }}
-                >
-                  <Eye className="mr-2 h-4 w-4" /> View Details
-                </Button>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button size="sm">
-                      <Edit className="mr-2 h-4 w-4" /> Edit
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[600px]">
-                    <DialogHeader>
-                      <DialogTitle>Edit Produce Listing</DialogTitle>
-                      <DialogDescription>
-                        Update the details of your produce listing
-                      </DialogDescription>
-                    </DialogHeader>
-                    <ProduceForm initialData={item} onClose={handleDialogClose} />
-                  </DialogContent>
-                </Dialog>
-              </CardFooter>
-            </Card>
-          ))}
-      </div>
+                            : "N/A"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
 
-      {hasMore && (
+                <CardFooter className="p-4 pt-0 flex justify-between">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedListing(item);
+                      setIsViewDialogOpen(true);
+                    }}
+                  >
+                    <Eye className="mr-2 h-4 w-4" /> View Details
+                  </Button>
+
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button size="sm">
+                        <Edit className="mr-2 h-4 w-4" /> Edit
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[600px]">
+                      <DialogHeader>
+                        <DialogTitle>Edit Produce Listing</DialogTitle>
+                        <DialogDescription>
+                          Update the details of your produce listing.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <ProduceForm initialData={item} onClose={handleDialogClose} />
+                    </DialogContent>
+                  </Dialog>
+                </CardFooter>
+              </Card>
+            ))}
+        </div>
+      )}
+
+      {/* Load More */}
+      {hasMore && !loading && listings.length > 0 && (
         <div className="flex justify-center mt-6">
           <Button onClick={loadMore} variant="outline">
-            {loading ? "Loading..." : "Load More"}
+            Load More
           </Button>
         </div>
       )}
 
-      {/* View Details Dialog */}
+      {/* View Details Dialog (must be OUTSIDE map) */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogContent className="sm:max-w-[700px]">
           <DialogHeader>
@@ -297,24 +338,42 @@ export function ProduceList({ status }: ProduceListProps) {
             <div className="space-y-4">
               <div className="w-full overflow-hidden relative">
                 <div className="flex overflow-x-auto space-x-4 pb-2">
-                  {selectedListing.images?.map((img: { id: string; url: string }) => (
-                    <img
-                      key={img.id}
-                      src={img.url}
-                      alt="Produce"
-                      className="w-64 h-40 object-cover flex-shrink-0 rounded"
-                    />
-                  ))}
+                  {selectedListing.images?.map(
+                    (img: { id: string; url: string }) => (
+                      <img
+                        key={img.id}
+                        src={img.url}
+                        alt="Produce"
+                        className="w-64 h-40 object-cover flex-shrink-0 rounded"
+                      />
+                    )
+                  )}
                 </div>
               </div>
+
               <div className="space-y-2">
-                <p><strong>Name:</strong> {selectedListing.produce?.name}</p>
-                <p><strong>Type:</strong> {selectedListing.produce?.type}</p>
-                <p><strong>Category:</strong> {selectedListing.produce?.category}</p>
-                <p><strong>Location:</strong> {selectedListing.location}</p>
-                <p><strong>Description:</strong> {selectedListing.description}</p>
-                <p><strong>Quantity:</strong> {selectedListing.quantity} kg</p>
-                <p><strong>Price:</strong> ${selectedListing.produce?.pricePerUnit} per {selectedListing.produce?.unitType}</p>
+                <p>
+                  <strong>Name:</strong> {selectedListing.produce?.name}
+                </p>
+                <p>
+                  <strong>Type:</strong> {selectedListing.produce?.type}
+                </p>
+                <p>
+                  <strong>Category:</strong> {selectedListing.produce?.category}
+                </p>
+                <p>
+                  <strong>Location:</strong> {selectedListing.location}
+                </p>
+                <p>
+                  <strong>Description:</strong> {selectedListing.description}
+                </p>
+                <p>
+                  <strong>Quantity:</strong> {selectedListing.quantity} kg
+                </p>
+                <p>
+                  <strong>Price:</strong> ${selectedListing.produce?.pricePerUnit} per{" "}
+                  {selectedListing.produce?.unitType}
+                </p>
                 {selectedListing.harvestDate && (
                   <p>
                     <strong>Harvest Date:</strong>{" "}
@@ -322,51 +381,15 @@ export function ProduceList({ status }: ProduceListProps) {
                   </p>
                 )}
               </div>
+
               <div>
                 <h4 className="font-semibold">Sales History</h4>
-                <p className="text-muted-foreground text-sm">No sales history available yet.</p>
+                <p className="text-muted-foreground text-sm">
+                  No sales history available yet.
+                </p>
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Confirm Action Dialog */}
-      <Dialog open={!!confirmAction} onOpenChange={() => {
-        if (!confirmLoading) {
-          setConfirmAction(null);
-          setSelectedListing(null);
-        }
-      }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Are you sure?</DialogTitle>
-            <DialogDescription>
-              {confirmAction === "delete"
-                ? "This will remove the listing. Continue?"
-                : "This will move the listing to active. Continue?"}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" disabled={confirmLoading} onClick={() => setConfirmAction(null)}>
-              Cancel
-            </Button>
-            <Button
-              disabled={confirmLoading}
-              onClick={() => {
-                if (selectedListing) {
-                  confirmAction === "delete"
-                    ? handleDelete(selectedListing.id)
-                    : handleSetActive(selectedListing.id);
-                }
-              }}
-            >
-              {confirmLoading && (
-                <Loader2 className="animate-spin mr-2 h-4 w-4" />
-              )}
-              Yes, Confirm
-            </Button>
-          </div>
         </DialogContent>
       </Dialog>
     </>
