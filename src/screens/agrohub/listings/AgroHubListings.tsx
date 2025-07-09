@@ -242,7 +242,7 @@ export default function AgroHubListings() {
             farmer={{
               id: listing.id,
               name: listing.farm.name,
-              location: listing.farm.district,
+              location: listing.location,
               quantityAvailable: listing.quantity,
               pricePerKg: Number(listing.produce.pricePerUnit),
               image: listing.images[0]?.url || "/placeholder.jpg",

@@ -228,6 +228,9 @@ export const getActiveListings = async ({
         activeDraftListing: {
           status: ActiveDraftStatus.active,
         },
+        quantity: {
+          gt: 0, //Only fetch listings with quantity greater than 0 
+        },
         produce: {
           category: category || undefined,
           name: name || undefined,

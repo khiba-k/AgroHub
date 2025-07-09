@@ -20,6 +20,7 @@ import { fetchProduce, submitProduce } from '../../utils/produceRequests'
 import { ProduceStoreData, useProduceStore } from '@/lib/store/useProductStore'
 import { getProduce } from '@/actions/produce/produceActions'
 import { Loader2 } from "lucide-react";
+import { useToastStore } from '@/lib/store/useToastStore'
 
 interface AgroHubAddProductFormProps {
     showAddProduct: boolean
@@ -38,15 +39,15 @@ const unitTypes = [
 
 const capitalize = (str: string | null | undefined) =>
     (str ?? '')
-      .toLowerCase()
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+        .toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
 
 const AgroHubAddProductForm = ({ showAddProduct, setShowAddProduct }: AgroHubAddProductFormProps) => {
     const [categoryOpen, setCategoryOpen] = useState(false)
     const [productNameOpen, setProductNameOpen] = useState(false)
-
+    const { showToast } = useToastStore();
     const { addProduce, getSuggestions, resetProduce, setProduceMap } = useProduceStore()
 
     const form = useForm<ProduceFormData>({
@@ -118,9 +119,15 @@ const AgroHubAddProductForm = ({ showAddProduct, setShowAddProduct }: AgroHubAdd
                 type: data.type ? capitalize(data.type) : undefined,
                 pricePerUnit: data.pricePerUnit,
                 unitType: data.unitType
-              }
-
+                }
+            console.log("format data: ",formattedData )
             const newProduce = await submitProduce(formattedData)
+            console.log("newProduce: ",newProduce )
+            if (newProduce.success){
+                showToast(true, "New produce added");
+                form.reset();
+
+            
 
             // newProduce should include the id, e.g. newProduce.id
             addProduce(
@@ -128,16 +135,20 @@ const AgroHubAddProductForm = ({ showAddProduct, setShowAddProduct }: AgroHubAdd
                 formattedData.name,
                 formattedData.type ?? "",
                 {
-                  id: newProduce.id,
-                  pricePerUnit: formattedData.pricePerUnit,
-                  unitType: formattedData.unitType,
+                    id: newProduce.data.id,
+                    pricePerUnit: formattedData.pricePerUnit,
+                    unitType: formattedData.unitType,
                 }
-              )
+                )
 
             setShowAddProduct(false)
             form.reset()
+            }
+            else {
+                showToast(false, newProduce.message || "Failed to add new produce")
+            }
         } catch (error) {
-            console.error('Failed to submit product:', error)
+            console.error('Failed to submit produce:', error)
         }
     }
 
@@ -160,6 +171,8 @@ const AgroHubAddProductForm = ({ showAddProduct, setShowAddProduct }: AgroHubAdd
             .slice(0, 5)
 
         const showSuggestions = focused && filteredSuggestions.length > 0
+
+        
 
         return (
             <div className="relative">
