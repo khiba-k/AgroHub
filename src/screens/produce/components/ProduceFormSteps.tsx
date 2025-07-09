@@ -12,13 +12,14 @@ export function ProduceFormSteps({
   showHarvestDialog,
   setShowHarvestDialog,
   isActiveListing,
+  isEditing,
   ...form
 }: any) {
   console.log("****Form Status: ", form.produceStatus);
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
       {step === 1 && (
-        <ProduceStepOne {...form} isActiveListing={isActiveListing} />
+        <ProduceStepOne {...form} isActiveListing={isActiveListing} isEditing={isEditing}/>
       )}
       {step === 2 && form.produceStatus !== "harvest" && (
         <ProduceStepTwo {...form} isActiveListing={isActiveListing} />

@@ -78,12 +78,19 @@ export const filterProduceListings = async ({
 };
 
 
-export async function updateProduceListing(payload: any) {
-  const response = await axios.put("/api/produce/farmer/update/listing", payload);
+export async function updateProduceListing(formData: FormData) {
+  const res = await fetch("/api/produce/farmer/update/listing", {
+    method: "PUT",
+    body: formData,
+  });
 
-  if (!response.data) {
-    throw new Error("Failed to update listing");
+  if (!res.ok) {
+    const body = await res.json();
+    throw new Error(JSON.stringify({
+      message: body.error || "Unknown error",
+      status: res.status
+    }));
   }
 
-  return response.data; // should be the full updated listing object
+  return await res.json();
 }

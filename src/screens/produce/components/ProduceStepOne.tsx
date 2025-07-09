@@ -26,7 +26,8 @@ export function ProduceStepOne({
   produceStatus,
   setProduceStatus,
   isActiveListing,
-  produceMap
+  produceMap,
+  isEditing
 }: any) {
   console.log("***Status:", produceStatus);
   const isDisabled = isActiveListing;
@@ -137,7 +138,7 @@ export function ProduceStepOne({
         </div>
 
         {/* Status */}
-        {!isActiveListing && (
+        {!isEditing && (
           <div>
             <Label>Status</Label>
             <Select value={produceStatus} onValueChange={setProduceStatus}>
