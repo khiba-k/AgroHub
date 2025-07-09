@@ -6,11 +6,12 @@ export const submitProduce = async (data: ProduceFormData) => {
   try {
     const response = await axios.post('/api/produce/add', data)
     console.log("Data: ", data)
-    return response.data
+    return { success: true, data: response.data };
   } catch (error: any) {
-    // Log and rethrow for UI to handle if needed
-    console.error('Error submitting produce:', error)
-    throw error
+    return {
+      success: false,
+      message: error?.response?.data?.message || "Failed to add new produce.",
+    };
   }
 }
 
