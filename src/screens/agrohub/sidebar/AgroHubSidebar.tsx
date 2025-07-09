@@ -221,7 +221,7 @@ export default function SideBar({
                             </Avatar>
   
                             <div>
-                                <p className="font-sm break-words max-w-[180px]">{email}</p>
+                                <p className="text-sm break-words max-w-[180px]">{email}</p>
                                 <p className="text-sm text-muted-foreground">{role}</p>
                             </div>
                         </div>
