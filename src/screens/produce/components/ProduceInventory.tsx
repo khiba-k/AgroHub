@@ -1,6 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,130 +17,85 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ArrowDownRight, ArrowUpRight, BarChart3, PieChart, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
 import { useFarmStore } from "@/lib/store/userStores";
-import { fetchProduceListings } from "@/lib/requests/produceListingsRequests";
+
+interface InventoryGroup {
+  location: string;
+  category: string;
+  name: string;
+  type: string | null;
+  active: any;
+  harvests: any[];
+  solds: any[];
+  images: any[];
+  description: string | null;
+  quantity: number;
+  unitType: string;
+  pricePerUnit: string;
+}
 
 export function ProduceInventory() {
   const { farmId } = useFarmStore();
 
-  const [listings, setListings] = useState<any[]>([]);
+  const [inventory, setInventory] = useState<InventoryGroup[]>([]);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
+  const [selected, setSelected] = useState<InventoryGroup | null>(null);
+
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (farmId) {
-      loadListings(1);
+      loadInventory();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [farmId]);
 
-  const loadListings = async (pageToLoad: number) => {
-    if (!farmId) return;
-
+  const loadInventory = async () => {
     setLoading(true);
     try {
-      const data = await fetchProduceListings({
-        farmId,
-        status: "active",
-        page: pageToLoad,
-      });
+      const res = await fetch(`/api/inventory/get?farmId=${farmId}`);
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data)) {
+        const enriched = json.data.map((item: any) => ({
+          ...item,
+          unitType:
+            item.active?.produce?.unitType ||
+            item.active?.unitType ||
+            item.produce?.unitType ||
+            "unit",
+          pricePerUnit:
+            item.active?.produce?.pricePerUnit ||
+            item.active?.pricePerUnit ||
+            item.produce?.pricePerUnit ||
+            "0",
+        }));
 
-      if (pageToLoad === 1) {
-        setListings(data.listings);
+        console.log("[INVENTORY_FETCHED]", enriched);
+        setInventory(enriched);
       } else {
-        setListings((prev) => [...prev, ...data.listings]);
+        setInventory([]);
+        console.error("Invalid inventory response", json);
       }
-
-      setHasMore(data.hasMore);
     } catch (error) {
       console.error("[INVENTORY_FETCH_ERROR]", error);
+      setInventory([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const loadMore = () => {
-    const nextPage = page + 1;
-    loadListings(nextPage);
-    setPage(nextPage);
-  };
-
-  // Example for later
-  const totalWeight = listings.reduce((sum, item) => sum + item.quantity, 0);
-  const lowStockCount = listings.filter((item) => item.quantity < 100).length;
-
   return (
     <div className="space-y-6">
-      {/* 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Inventory</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalWeight} kg</div>
-            <p className="text-xs text-muted-foreground">
-              Across {listings.length} products
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Low Stock Items</CardTitle>
-            <PieChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{lowStockCount}</div>
-            <p className="text-xs text-muted-foreground">
-              Item{lowStockCount !== 1 && "s"} below threshold
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Inventory Value</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">$5,842</div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              <ArrowUpRight className="mr-1 h-4 w-4 text-green-500" />
-              <span className="text-green-500 font-medium">+8.2%</span>
-              <span className="ml-1">from last month</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Turnover Rate</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12.5 days</div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              <ArrowDownRight className="mr-1 h-4 w-4 text-green-500" />
-              <span className="text-green-500 font-medium">-2.3 days</span>
-              <span className="ml-1">from last month</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      */}
-
       <Card>
         <CardHeader>
           <CardTitle>Produce Inventory</CardTitle>
           <CardDescription>
-            Current active produce listings and stock levels
+            Inventory of your produce currently available for sale and to be harvested.
           </CardDescription>
         </CardHeader>
         <CardContent>
+
           <div className="rounded-md border">
             <div className="grid grid-cols-6 border-b bg-muted/50 p-3 font-medium">
               <div className="col-span-2">Product</div>
@@ -143,51 +105,181 @@ export function ProduceInventory() {
               <div>Actions</div>
             </div>
 
-            {listings.map((item) => {
-              const hasStock = item.quantity > 0;
-              const productName = item.produce?.type
-                ? `${item.produce.type} ${item.produce.name}`
-                : item.produce?.name;
+            {loading ? (
+              <div className="text-center py-6">Loading inventory...</div>
+            ) : (
+              <>
+                {inventory.length > 0 ? (
+                  inventory.map((item, idx) => {
+                    const hasStock = item.quantity > 0;
+                    const productName = item.type
+                      ? `${item.type} ${item.name}`
+                      : item.name;
 
-              return (
-                <div
-                  key={item.id}
-                  className="grid grid-cols-6 border-b p-3 items-center"
-                >
-                  <div className="col-span-2 font-medium">{productName}</div>
-                  <div>{item.quantity} kg</div>
-                  <div>
-                    <Badge
-                      variant="outline"
-                      className={`${
-                        hasStock
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
-                          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
-                      }`}
-                    >
-                      {hasStock ? "In Stock" : "Out of Stock"}
-                    </Badge>
+                    return (
+                      <div
+                        key={idx}
+                        className="grid grid-cols-6 border-b p-3 items-center"
+                      >
+                        <div className="col-span-2 font-medium">{productName}</div>
+                        <div>
+                          {item.quantity > 0
+                            ? `${item.quantity} ${item.unitType}`
+                            : `0 ${item.harvests[0]?.listing?.produce?.unitType || "units"}`}
+                        </div>
+                        <div>
+                          <Badge
+                            variant="outline"
+                            className={`${hasStock
+                              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
+                              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
+                              }`}
+                          >
+                            {hasStock ? "In Stock" : "Out of Stock"}
+                          </Badge>
+                        </div>
+                        <div>{item.location}</div>
+                        <div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelected(item)}
+                          >
+                            <Eye className="w-4 h-4 mr-1" /> View Details
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-6">
+                    No inventory items found.
                   </div>
-                  <div>{item.location}</div>
-                  <div>
-                    <Button variant="outline" size="sm">
-                      <Eye className="w-4 h-4 mr-1" /> View Details
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
+                )}
+              </>
+            )}
           </div>
 
-          {hasMore && (
-            <div className="flex justify-center mt-4">
-              <Button onClick={loadMore} disabled={loading} variant="outline">
-                {loading ? "Loading..." : "Load More"}
-              </Button>
-            </div>
-          )}
         </CardContent>
       </Card>
+
+      {/* View more Dialog */}
+      <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
+        <DialogContent className="max-w-3xl">
+          {selected && (
+            <>
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold">
+                  {selected.type
+                    ? `${selected.type} ${selected.name}`
+                    : selected.name}
+                </DialogTitle>
+                <DialogDescription>
+                  Location: {selected.location}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-6">
+                {/* Active Listing */}
+                <section className="border-b pb-4">
+                  <h4 className="text-lg font-semibold mb-2">Active Listing</h4>
+                  {selected.quantity > 0 ? (
+                    <>
+                      <p className="mb-1">
+                        Description: {selected.description || "N/A"}
+                      </p>
+                      <p className="mb-1">
+                        Quantity: {selected.quantity} {selected.unitType}
+                      </p>
+                      <p className="mb-1">
+                        Unit Price: M{selected.pricePerUnit} per{" "}
+                        {selected.unitType}
+                      </p>
+                      <p className="font-medium">
+                        Est. Income: M
+                        {(
+                          parseFloat(selected.pricePerUnit || "0") *
+                          selected.quantity
+                        ).toFixed(2)}
+                      </p>
+                    </>
+                  ) : (
+                    <p>No active listing available.</p>
+                  )}
+                </section>
+
+                {/* Harvest Batches */}
+                <section className="border-b pb-4">
+                  <h4 className="text-lg font-semibold mb-2">Harvest Batches</h4>
+                  {selected.harvests.length ? (
+                    <ul className="list-disc list-inside space-y-1">
+                      {selected.harvests.map((h) => (
+                        <li key={h.id}>
+                          Date: {new Date(h.harvestDate).toLocaleDateString()}
+                          {h.listing?.quantity > 0 &&
+                            ` – ${h.listing.quantity} ${h.listing.produce.unitType} to be harvested`}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>No harvests recorded.</p>
+                  )}
+                </section>
+
+                {/* Sold History */}
+                <section className="border-b pb-4">
+                  <h4 className="text-lg font-semibold mb-2">Sold History</h4>
+                  {selected.solds.length ? (
+                    <ul className="list-disc list-inside space-y-1">
+                      {selected.solds.map((s) => (
+                        <li key={s.id}>
+                          Sold Date:{" "}
+                          {new Date(s.soldDate).toLocaleDateString()} — Price: M
+                          {s.soldPrice}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>No sales yet.</p>
+                  )}
+                </section>
+
+                {/* Images */}
+                <section>
+                  <h4 className="text-lg font-semibold mb-2">Images</h4>
+                  {selected.images.length ? (
+                    <div className="flex gap-3 flex-wrap">
+                      {selected.images.map((img) => (
+                        <button
+                          key={img.id}
+                          onClick={() => setPreviewImage(img.url)}
+                          className="focus:outline-none"
+                        >
+                          <img
+                            src={img.url}
+                            alt="Listing"
+                            className="w-28 h-28 object-cover rounded border hover:opacity-80"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p>No images uploaded.</p>
+                  )}
+                  {previewImage && (
+                    <Dialog open={!!previewImage} onOpenChange={() => setPreviewImage(null)}>
+                      <DialogContent className="max-w-4xl p-0 overflow-hidden">
+                        <img src={previewImage} alt="Preview" className="w-full h-auto object-contain" />
+                      </DialogContent>
+                    </Dialog>
+                  )}
+
+                </section>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
