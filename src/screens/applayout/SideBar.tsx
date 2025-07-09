@@ -228,11 +228,11 @@ export default function SideBar({
                     <div className="p-4 border-b">
                         <div className="flex items-center space-x-3">
                             <Avatar>
-                                <AvatarImage src={avatar} alt={userName} />
-                                <AvatarFallback>{userName?.charAt(0)?.toUpperCase()}</AvatarFallback>
+                                <AvatarImage src={avatar} alt={email} />
+                                <AvatarFallback>{email?.charAt(0)?.toUpperCase()}</AvatarFallback>
                             </Avatar>
                             <div>
-                                <p className="font-medium">{userName}</p>
+                                <p className="font-sm break-words max-w-[180px]">{email}</p>
                                 {farmName && (
                                     <p className="text-xs text-muted-foreground">
                                         {farmName}

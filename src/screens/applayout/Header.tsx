@@ -1,4 +1,6 @@
 "use client";
+import { useState } from "react";
+import FarmerProfileDialog from "@/components/FarmerProfileDialog"; 
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -25,6 +27,8 @@ export function Header({
     onMenuToggle = () => { },
 }: HeaderProps) {
     const router = useRouter();
+    const [openProfileDialog, setOpenProfileDialog] = useState(false);
+ 
     
     // Get user data from Zustand store
     const { email, avatar, role, clearUser } = useUserStore();
@@ -134,7 +138,7 @@ export function Header({
                                 </div>
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => router.push("/profile")}>
+                            <DropdownMenuItem onClick={() => setOpenProfileDialog(true)}>
                                 Profile
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => router.push("/settings")}>
@@ -149,6 +153,10 @@ export function Header({
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
+                    <FarmerProfileDialog
+  open={openProfileDialog}
+  onOpenChange={setOpenProfileDialog}
+/>  
                     </div>
                     </div>
             
