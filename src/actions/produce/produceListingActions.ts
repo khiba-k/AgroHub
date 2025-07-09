@@ -34,6 +34,9 @@ export const getProduceListings = async ({
             activeDraftListing: {
               status: ActiveDraftStatus.active,
             },
+            quantity: {
+              gt: 0, // Ensure only active listings with quantity > 0
+            },
           },
           include: {
             produce: true,
@@ -52,6 +55,9 @@ export const getProduceListings = async ({
             farmId,
             activeDraftListing: {
               status: ActiveDraftStatus.active,
+            },
+            quantity: {
+              gt: 0, // Ensure only active listings with quantity > 0
             },
           },
         });
