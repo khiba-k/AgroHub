@@ -4,5 +4,6 @@ import { on } from "events";
 
 export const ProduceFormEditActive = ({ initialData, onClose }: { initialData: any; onClose?: () => void }) => {
   const form = useProduceFormLogic(initialData, onClose);
-  return <ProduceFormSteps {...form} isActiveListing={true} />;
+  const isEditing = true;
+  return <ProduceFormSteps {...form} isActiveListing={true} isEditing={isEditing} />;
 };

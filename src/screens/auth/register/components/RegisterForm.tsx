@@ -164,7 +164,7 @@ export function RegisterForm({ role }: { role: string }) {
                             disabled={isLoading}
                         >
                            {isLoading ? (
-    <Loader2 className="h-8 w-8 animate-spin" />
+    <Loader2 className="h-9 w-9 animate-spin" />
   ) : (
     "Register"
   )}

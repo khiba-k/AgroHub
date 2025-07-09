@@ -14,6 +14,7 @@ import { useProduceStore } from "@/lib/store/useProductStore";
 import { useProduceListingStore } from "@/lib/store/useProduceListingStore";
 import { toaster } from "@/components/ui/toaster";
 import { useToastStore } from "@/lib/store/useToastStore";
+import { stat } from "fs/promises";
 
 export function useProduceFormLogic(
   initialData: any,
@@ -158,7 +159,7 @@ export function useProduceFormLogic(
       removeImageIds,
     });
 
-    if (!isUpdate && files.length === 0 && existingImages.length === 0) {
+    if (!isUpdate && files.length === 0 && existingImages.length === 0 && status === "active") { 
       setShowImageWarning(true);
       return;
     }
@@ -178,7 +179,31 @@ export function useProduceFormLogic(
 
     try {
       if (isUpdate) {
-        // update logic...
+        const payload = {
+          id: initialData.id,
+          location,
+          description,
+          quantity: quantity ? Number(quantity) : undefined,
+          produceId: getProduceId(),
+          farmId,
+          status,
+          harvestDate: harvestDate ? harvestDate.toISOString() : undefined,
+          keepImages: existingImages.map(img => img.url),
+          removeImageIds: removeImageIds,
+        };
+        updateProduceListingSchema.parse(payload);
+
+        const formData = new FormData();
+        formData.append("payload", JSON.stringify(payload));
+
+        files.forEach((file) => formData.append("images", file));
+
+        const updatedListing = await updateProduceListing(formData);
+        console.log("Listing updated:", updatedListing);
+        updateListing(updatedListing.data);
+
+        showToast(true, "Listing updated successfully!")
+
       } else {
         const payload = {
           location,
@@ -206,7 +231,7 @@ export function useProduceFormLogic(
 
         const newListing = await postProduceListing(formData);
 
-        console.log("New listing created:", newListing.data);
+        console.log("-----------New listing created:", newListing.data);
         addListing(newListing.data);
 
         showToast(true, "Listing created successfully!");
@@ -222,7 +247,9 @@ export function useProduceFormLogic(
       try {
         const parsed = JSON.parse(err.message);
         if (parsed?.status === 409) {
-          message = "An active listing already exists for this produce — please edit the existing listing instead.";
+          message = status === "harvest" 
+          ? "You already have a harvest listing for this produce, with the same date & location." 
+          : "You already have a listing for this produce, with the same location. Please edit the existing one instead.";
         } else if (parsed?.message) {
           message = parsed.message;
         }

@@ -12,15 +12,16 @@ export function ProduceFormSteps({
   showHarvestDialog,
   setShowHarvestDialog,
   isActiveListing,
+  isEditing,
   ...form
 }: any) {
-    console.log("****Form Status: ", form.produceStatus);
+  console.log("****Form Status: ", form.produceStatus);
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
       {step === 1 && (
-        <ProduceStepOne {...form} isActiveListing={isActiveListing} />
+        <ProduceStepOne {...form} isActiveListing={isActiveListing} isEditing={isEditing}/>
       )}
-      {step === 2 && (
+      {step === 2 && form.produceStatus !== "harvest" && (
         <ProduceStepTwo {...form} isActiveListing={isActiveListing} />
       )}
 
@@ -38,10 +39,10 @@ export function ProduceFormSteps({
         {step === 2 && (
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting
-              ? <><Loader2/></>
+              ? <><Loader2 /></>
               : form.initialData
-              ? "Update Listing"
-              : "Create Listing"}
+                ? "Update Listing"
+                : "Create Listing"}
           </Button>
         )}
       </div>

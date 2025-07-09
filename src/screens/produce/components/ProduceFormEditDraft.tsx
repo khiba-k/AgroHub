@@ -4,6 +4,6 @@ import { ProduceFormSteps } from "./ProduceFormSteps";
 
 export const ProduceFormEditDraft = ({ initialData, onClose }: { initialData: any; onClose?: () => void}) => {
   const form = useProduceFormLogic(initialData);
-  console.log("*****ProduceFormEditDraft props:", { initialData });
-  return <ProduceFormSteps {...form} isActiveListing={false} />;
+  const isEditing = true;
+  return <ProduceFormSteps {...form} isActiveListing={false} isEditing={isEditing} />;
 };

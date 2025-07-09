@@ -35,21 +35,22 @@ export async function POST(req: NextRequest) {
       harvestDate,
     });
 
-    // ✅ CHECK ONLY IF STATUS === 'active'
-    if (status === "active") {
-      const produce = await prisma.produce.findUnique({
-        where: { id: produceId },
-        select: { category: true, name: true, type: true },
-      });
+    // ✅ Get produce details once
+    const produce = await prisma.produce.findUnique({
+      where: { id: produceId },
+      select: { category: true, name: true, type: true },
+    });
 
-      if (!produce) {
-        return NextResponse.json(
-          { success: false, error: "Invalid produce selected." },
-          { status: 400 }
-        );
-      }
+    if (!produce) {
+      return NextResponse.json(
+        { success: false, error: "Invalid produce selected." },
+        { status: 400 }
+      );
+    }
 
-      const existingActive = await prisma.produceListing.findFirst({
+    // ✅ ACTIVE/DRAFT DUPLICATE CHECK
+    if (status === "active" || status === "draft") {
+      const existingActiveOrDraft = await prisma.produceListing.findFirst({
         where: {
           farmId,
           produce: {
@@ -58,23 +59,66 @@ export async function POST(req: NextRequest) {
             ...(produce.type ? { type: produce.type } : {}),
           },
           activeDraftListing: {
-            status: 'active',
+            status: {
+              in: ['active', 'draft'],
+            },
+          },
+          location: input.location,
+          quantity: {
+            not: 0,
           },
         },
       });
 
-      if (existingActive) {
+      if (existingActiveOrDraft) {
         return NextResponse.json(
           {
             success: false,
-            error: "You already have an active listing for this produce. Please edit the existing one instead.",
+            error: "You already have an active or draft listing for this produce. Please edit the existing one instead.",
           },
           { status: 409 }
         );
       }
     }
 
-    // ✅ Create the listing
+    // ✅ HARVEST DUPLICATE CHECK
+    if (status === "harvest") {
+      if (!harvestDate) {
+        return NextResponse.json(
+          { success: false, error: "Harvest date is required for harvest listings." },
+          { status: 400 }
+        );
+      }
+
+      const existingHarvest = await prisma.produceListing.findFirst({
+        where: {
+          farmId,
+          produce: {
+            category: produce.category,
+            name: produce.name,
+            ...(produce.type ? { type: produce.type } : {}),
+          },
+          location: input.location,
+          harvestListings: {
+            some: {
+              harvestDate: harvestDate,
+            },
+          },
+        },
+      });
+
+      if (existingHarvest) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "You already have a harvest listing for this produce with the same location and date.",
+          },
+          { status: 409 }
+        );
+      }
+    }
+
+    // ✅ Create the listing in the action
     const result = await createProduceListing(input);
 
     if (!result.success || !result.data) {

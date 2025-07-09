@@ -96,7 +96,7 @@ export default function SideBar({
                                 <AvatarFallback>{email?.charAt(0)}</AvatarFallback>
                             </Avatar>
                             <div>
-                                <p className="font-medium">{email}</p>
+                                <p className="font-medium ">{email}</p>
                                 <p className="text-sm text-muted-foreground">{role}</p>
                             </div>
                         </div>
@@ -219,12 +219,14 @@ export default function SideBar({
                             <Avatar>
                                 <AvatarFallback>{email?.charAt(0)}</AvatarFallback>
                             </Avatar>
+  
                             <div>
-                                <p className="font-medium">{email}</p>
+                                <p className="font-sm break-words max-w-[180px]">{email}</p>
                                 <p className="text-sm text-muted-foreground">{role}</p>
                             </div>
                         </div>
                     </div>
+                  
                 )}
 
                 <ScrollArea className="flex-1 py-3">
