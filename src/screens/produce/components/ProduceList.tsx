@@ -20,11 +20,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Edit, Eye, MoreHorizontal, Trash2 } from "lucide-react";
+import { Edit, Eye, MoreHorizontal, Trash2, Loader2 } from "lucide-react";
 import { useProduceListingStore } from "@/lib/store/useProduceListingStore";
 import { fetchProduceListings } from "@/lib/requests/produceListingsRequests";
 import { useFarmStore } from "@/lib/store/userStores";
+import { useToastStore } from "@/lib/store/useToastStore";
 import ProduceForm from "./ProduceForm";
+import axios from "axios";
 
 interface ProduceListProps {
   status: "active" | "draft" | "harvest" | "sold";
@@ -32,7 +34,6 @@ interface ProduceListProps {
 
 export function ProduceList({ status }: ProduceListProps) {
   const { farmId } = useFarmStore();
-
   const {
     listings,
     page,
@@ -43,11 +44,14 @@ export function ProduceList({ status }: ProduceListProps) {
     reset,
   } = useProduceListingStore();
 
-  const [loading, setLoading] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { showToast } = useToastStore();
 
+  const [loading, setLoading] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<any>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<null | "setActive" | "delete">(null);
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
@@ -67,19 +71,11 @@ export function ProduceList({ status }: ProduceListProps) {
 
     setLoading(true);
     try {
-      console.log("[LOAD_LISTINGS]", {
-        farmId,
-        status,
-        page: pageToLoad,
-      }
-      )
       const data = await fetchProduceListings({
         farmId,
         status,
         page: pageToLoad,
       });
-
-      console.log("[LOAD_LISTINGS_RESPONSE]", data);
 
       if (pageToLoad === 1) {
         setListings(data.listings, data.total, data.hasMore);
@@ -97,6 +93,45 @@ export function ProduceList({ status }: ProduceListProps) {
     const nextPage = page + 1;
     loadListings(nextPage);
     incrementPage();
+  };
+
+  const handleSetActive = async (listingId: string) => {
+    setConfirmLoading(true);
+    try {
+      await axios.put(`/api/farmer/update/listing/${listingId}`, {
+        status: "active",
+      });
+      showToast(true, "Listing set to active!");
+      reset();
+      loadListings(1);
+    } catch (err) {
+      console.error(err);
+      showToast(false, "Failed to set active.");
+    } finally {
+      setConfirmLoading(false);
+      setConfirmAction(null);
+      setSelectedListing(null);
+    }
+  };
+
+  const handleDelete = async (listingId: string) => {
+    setConfirmLoading(true);
+    try {
+      await axios.post(`/api/produce/farmer/delete/listing`, { id: listingId });
+      showToast(true, "Listing deleted!");
+      setListings(
+        listings.filter((l) => l.id !== listingId),
+        listings.length - 1,
+        hasMore
+      );
+    } catch (err) {
+      console.error(err);
+      showToast(false, "Failed to delete listing.");
+    } finally {
+      setConfirmLoading(false);
+      setConfirmAction(null);
+      setSelectedListing(null);
+    }
   };
 
   if (loading && listings.length === 0) {
@@ -154,33 +189,27 @@ export function ProduceList({ status }: ProduceListProps) {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onSelect={(e) => {
-                          e.preventDefault();
-                          setSelectedListing(item);
-                          setIsViewDialogOpen(true);
-                        }}
-                      >
-                        <Eye className="mr-2 h-4 w-4" /> View Details
-                      </DropdownMenuItem>
-                      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                        <DialogTrigger asChild>
-                          <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                            <Edit className="mr-2 h-4 w-4" /> Edit Listing
-                          </DropdownMenuItem>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[600px]">
-                          <DialogHeader>
-                            <DialogTitle>Edit Produce Listing</DialogTitle>
-                            <DialogDescription>
-                              Update the details of your produce listing
-                            </DialogDescription>
-                          </DialogHeader>
-                          <ProduceForm initialData={item} onClose={handleDialogClose} />
-                        </DialogContent>
-                      </Dialog>
+
+                      {(status === "draft" || status === "harvest") && (
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setSelectedListing(item);
+                            setConfirmAction("setActive");
+                          }}
+                        >
+                          ✅ Set Active
+                        </DropdownMenuItem>
+                      )}
+
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-red-600">
+
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setSelectedListing(item);
+                          setConfirmAction("delete");
+                        }}
+                        className="text-red-600"
+                      >
                         <Trash2 className="mr-2 h-4 w-4" /> Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -245,7 +274,7 @@ export function ProduceList({ status }: ProduceListProps) {
             </Card>
           ))}
       </div>
-  
+
       {hasMore && (
         <div className="flex justify-center mt-6">
           <Button onClick={loadMore} variant="outline">
@@ -253,7 +282,7 @@ export function ProduceList({ status }: ProduceListProps) {
           </Button>
         </div>
       )}
-  
+
       {/* View Details Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
         <DialogContent className="sm:max-w-[700px]">
@@ -263,10 +292,9 @@ export function ProduceList({ status }: ProduceListProps) {
               Full details for this produce listing.
             </DialogDescription>
           </DialogHeader>
-  
+
           {selectedListing && (
             <div className="space-y-4">
-              {/* Carousel */}
               <div className="w-full overflow-hidden relative">
                 <div className="flex overflow-x-auto space-x-4 pb-2">
                   {selectedListing.images?.map((img: { id: string; url: string }) => (
@@ -279,8 +307,6 @@ export function ProduceList({ status }: ProduceListProps) {
                   ))}
                 </div>
               </div>
-  
-              {/* Listing Info */}
               <div className="space-y-2">
                 <p><strong>Name:</strong> {selectedListing.produce?.name}</p>
                 <p><strong>Type:</strong> {selectedListing.produce?.type}</p>
@@ -296,8 +322,6 @@ export function ProduceList({ status }: ProduceListProps) {
                   </p>
                 )}
               </div>
-  
-              {/* Sales History Placeholder */}
               <div>
                 <h4 className="font-semibold">Sales History</h4>
                 <p className="text-muted-foreground text-sm">No sales history available yet.</p>
@@ -306,6 +330,45 @@ export function ProduceList({ status }: ProduceListProps) {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Confirm Action Dialog */}
+      <Dialog open={!!confirmAction} onOpenChange={() => {
+        if (!confirmLoading) {
+          setConfirmAction(null);
+          setSelectedListing(null);
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you sure?</DialogTitle>
+            <DialogDescription>
+              {confirmAction === "delete"
+                ? "This will remove the listing. Continue?"
+                : "This will move the listing to active. Continue?"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" disabled={confirmLoading} onClick={() => setConfirmAction(null)}>
+              Cancel
+            </Button>
+            <Button
+              disabled={confirmLoading}
+              onClick={() => {
+                if (selectedListing) {
+                  confirmAction === "delete"
+                    ? handleDelete(selectedListing.id)
+                    : handleSetActive(selectedListing.id);
+                }
+              }}
+            >
+              {confirmLoading && (
+                <Loader2 className="animate-spin mr-2 h-4 w-4" />
+              )}
+              Yes, Confirm
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
-}  
+}
