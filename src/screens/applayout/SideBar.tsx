@@ -232,7 +232,7 @@ export default function SideBar({
                                 <AvatarFallback>{email?.charAt(0)?.toUpperCase()}</AvatarFallback>
                             </Avatar>
                             <div>
-                                <p className="font-sm break-words max-w-[180px]">{email}</p>
+                                <p className="text-sm break-words max-w-[180px]">{email}</p>
                                 {farmName && (
                                     <p className="text-xs text-muted-foreground">
                                         {farmName}
