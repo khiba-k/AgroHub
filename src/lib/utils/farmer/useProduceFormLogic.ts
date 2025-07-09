@@ -242,6 +242,12 @@ export function useProduceFormLogic(
     } catch (err: any) {
       console.error(err);
 
+      if (err.name === "ZodError" && err.errors) {
+      const messages = err.errors.map((e: any) => e.message);
+      showToast(false, messages.join("\n"));
+      return;
+    }
+
       let message = "Failed to create listing";
 
       try {
