@@ -35,7 +35,7 @@ const AgroHubOrderSummary = ({
 }: AgroHubOrderSummaryProps) => {
   return (
     <div className="lg:col-span-1">
-      <div className="border border-gray-200 rounded-lg p-6 sticky top-8">
+      <div className="lg:border lg:border-gray-200 lg:rounded-lg p-6 sticky top-8">
         <h3 className="text-xl font-bold flex items-center">
           <ShoppingCart className="w-5 h-5 mr-2" />
           Order Summary

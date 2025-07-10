@@ -11,6 +11,14 @@ import { loadListings } from "@/lib/utils/AgroHubListingsUtils"
 import { useProduceStore } from "@/lib/store/useProductStore"
 import { useToastStore } from "@/lib/store/useToastStore"
 
+import { ShoppingCart, MenuIcon } from "lucide-react";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+
 // ✅ Local types
 interface OrderBreakdown {
   farmerId: string
@@ -54,6 +62,8 @@ export default function AgroHubListings() {
   const [quantityError, setQuantityError] = useState('')
 
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
+
+  const [isCartDialogOpen, setIsCartDialogOpen] = useState(false);
 
   // ✅ Block switch states
   const [isBlockSwitchOpen, setIsBlockSwitchOpen] = useState(false)
@@ -288,6 +298,40 @@ export default function AgroHubListings() {
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-6 py-8">
+
+        {/* 🛒 Mobile Cart Icon in a Button */}
+        <div className="lg:hidden flex justify-end mb-4">
+          <Dialog open={isCartDialogOpen} onOpenChange={setIsCartDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="p-">
+                <ShoppingCart className="h-6 w-6" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="w-[90vw] max-w-sm sm:rounded-xl p- ">
+              <AgroHubOrderSummary
+                selectedQuantity={selectedQuantity}
+                handleQuantityChange={setQuantity}
+                orderBreakdown={orderBreakdown}
+                totalPrice={totalPrice}
+                onAddToCart={() => {
+                  setIsAddingToCart(true)
+                  if (selectedProduceId && selectedProduce) {
+                    addToCart(selectedProduceId, selectedProduce, selectedType)
+                    showToast(
+                      true,
+                      `${selectedQuantity} ${selectedType ? selectedType + " " : ""}${selectedProduce} added to cart`
+                    )
+
+                  }
+                  setIsAddingToCart(false);
+                }}
+                quantityError={quantityError}
+                isAddingToCart={isAddingToCart}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <h2 className="text-3xl font-bold mb-8">Produce Listing</h2>
@@ -305,26 +349,28 @@ export default function AgroHubListings() {
             {renderContent()}
           </div>
 
-          <AgroHubOrderSummary
-            selectedQuantity={selectedQuantity}
-            handleQuantityChange={setQuantity}
-            orderBreakdown={orderBreakdown}
-            totalPrice={totalPrice}
-            onAddToCart={() => {
-              setIsAddingToCart(true)
-              if (selectedProduceId && selectedProduce) {
-                addToCart(selectedProduceId, selectedProduce, selectedType)
-                showToast(
-                  true,
-                  `${selectedQuantity} ${selectedType ? selectedType + " " : ""}${selectedProduce} added to cart`
-                )
-                
-              }
-              setIsAddingToCart(false);
-            }}
-            quantityError={quantityError}
-            isAddingToCart={isAddingToCart}
-          />
+          <div className="hidden lg:block">
+            <AgroHubOrderSummary
+              selectedQuantity={selectedQuantity}
+              handleQuantityChange={setQuantity}
+              orderBreakdown={orderBreakdown}
+              totalPrice={totalPrice}
+              onAddToCart={() => {
+                setIsAddingToCart(true)
+                if (selectedProduceId && selectedProduce) {
+                  addToCart(selectedProduceId, selectedProduce, selectedType)
+                  showToast(
+                    true,
+                    `${selectedQuantity} ${selectedType ? selectedType + " " : ""}${selectedProduce} added to cart`
+                  )
+
+                }
+                setIsAddingToCart(false);
+              }}
+              quantityError={quantityError}
+              isAddingToCart={isAddingToCart}
+            />
+          </div>
         </div>
       </div>
 
