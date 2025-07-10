@@ -54,18 +54,18 @@ export default function SideBar({
         <>
             {/* Mobile Menu Button */}
             <div className="md:hidden fixed top-4 left-4 z-50">
+            {!mobileOpen &&
                 <Button
                     variant="outline"
                     size="icon"
                     onClick={() => setMobileOpen(!mobileOpen)}
                     className="rounded-full"
                 >
-                    {mobileOpen ? (
-                        <X className="h-5 w-5" />
-                    ) : (
+                    
                         <Menu className="h-5 w-5" />
-                    )}
+                    
                 </Button>
+                }
             </div>
 
             {/* Mobile Sidebar */}

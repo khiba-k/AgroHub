@@ -1,5 +1,4 @@
 "use client"
-
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,6 +19,7 @@ interface AgroHubOrderSummaryProps {
   totalPrice: number
   onAddToCart: () => void
   quantityError: string
+  onClose?: () => void;
 }
 
 const AgroHubOrderSummary = ({
@@ -29,11 +29,13 @@ const AgroHubOrderSummary = ({
   totalPrice,
   onAddToCart,
   quantityError,
+  onClose,
 }: AgroHubOrderSummaryProps) => {
   return (
-    <div className="lg:col-span-1">
-      <div className="border border-gray-200 rounded-lg p-6 sticky top-8">
-        <h3 className="text-xl font-bold flex items-center">
+    <div className="w-full max-w-[90vw] sm:max-w-md mx-auto">
+      <div className="border border-transparent sm:border-gray-200 rounded-lg p-3 sm:p-4 bg-background shadow-lg max-h-[90vh] overflow-y-auto relative">
+        {/* Close button */}
+        <h3 className="text-lg sm:text-xl font-bold flex items-center mb-4">
           <ShoppingCart className="w-5 h-5 mr-2" />
           Order Summary
         </h3>
@@ -47,6 +49,7 @@ const AgroHubOrderSummary = ({
               onChange={(e) => handleQuantityChange(Number(e.target.value))}
               className="mt-1 border-gray-300"
               min="1"
+              inputMode="numeric"
             />
             {quantityError && (
               <p className="text-red-600 text-sm mt-1">{quantityError}</p>
@@ -57,10 +60,13 @@ const AgroHubOrderSummary = ({
             <div className="space-y-3">
               <h4 className="font-semibold">Order Breakdown:</h4>
               {orderBreakdown.map((order, index) => (
-                <div key={index} className="bg-black-50 p-3 rounded-lg border border-gray-200">
+                <div
+                  key={index}
+                  className="bg-muted p-3 rounded-lg border border-gray-200"
+                >
                   <p className="text-sm font-medium">{order.farmerName}</p>
                   <p className="text-xs text-gray-600">
-                    {order.quantity}kg × M{(order.price / order.quantity).toFixed(2)}
+                    {order.quantity}kg × M{(order.quantity > 0 ? (order.price / order.quantity) : 0).toFixed(2)}
                   </p>
                   <p className="text-sm font-bold">M{order.price.toFixed(2)}</p>
                 </div>
@@ -69,7 +75,7 @@ const AgroHubOrderSummary = ({
           )}
 
           <div className="border-t border-gray-200 pt-4">
-            <div className="flex justify-between items-center text-xl font-bold">
+            <div className="flex justify-between items-center text-base sm:text-xl font-bold">
               <span>Total Price:</span>
               <span>M{totalPrice.toFixed(2)}</span>
             </div>
@@ -88,3 +94,4 @@ const AgroHubOrderSummary = ({
 }
 
 export default AgroHubOrderSummary
+
