@@ -1,7 +1,6 @@
+import prisma from "@/lib/prisma/prisma";
 import { OnboardingFarmType } from "@/screens/onboarding/utils/onboardingFarmValidation";
-import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
 
 export const createFarm = async (farmData: OnboardingFarmType) => {
     try {

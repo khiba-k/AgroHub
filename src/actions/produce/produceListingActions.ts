@@ -1,10 +1,10 @@
 // lib/actions/getProduceListings.ts
 
+import prisma from '@/lib/prisma/prisma';
 import { CreateProduceListingInput, createProduceListingSchema, updateProduceListingSchema } from '@/lib/utils/farmer/FarmListingUtils';
-import { ActiveDraftStatus, PrismaClient } from '@prisma/client';
+import { ActiveDraftStatus} from '@prisma/client';
 import z from 'zod';
 
-const prisma = new PrismaClient();
 
 export type ListingStatus = 'active' | 'draft' | 'harvest' | 'sold';
 

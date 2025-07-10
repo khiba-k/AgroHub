@@ -1,12 +1,10 @@
 // app/api/users/route.ts
 
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { onboardingAgrohubSchema } from '@/screens/agrohub/utils/onboardingAgrohubValidation';
 import { create } from 'domain';
 import { createAgroHubUser } from '@/actions/onboarding/OnboardingAgroHubActions';
 
-const prisma = new PrismaClient();
 
 // POST /api/users
 export async function POST(req: Request) {
