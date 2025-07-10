@@ -21,6 +21,7 @@ console.log ("farmUser: ", farmUser)
     farmCountry: farmUser.farm.country,
     farmContactNumber1: farmUser.farm.contactNumber1,
     farmContactNumber2: farmUser.farm.contactNumber2,
+    farmHasPaymentMethod: farmUser.farm.hasPaymentMethod
     
   };
 }

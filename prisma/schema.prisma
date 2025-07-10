@@ -25,11 +25,13 @@ model Farm {
   country        String
   contactNumber1 String
   contactNumber2 String?
+  hasPaymentMethod Boolean @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   farmUsers FarmUser[]
   produceListings  ProduceListing[]
+  paymentMethods  PaymentMethod[]
 
   @@map("farms")
   @@schema("public")
@@ -47,6 +49,42 @@ model FarmUser {
 
   @@unique([farmId, userId])
   @@map("farm_users")
+  @@schema("public")
+}
+
+enum PaymentType {
+  EFT
+  MPESA
+  ECOCASH
+
+  @@schema("public")
+}
+
+model PaymentMethod {
+  id         String   @id @default(uuid()) @db.Uuid
+  farmId     String   @db.Uuid
+  type       PaymentType
+  isPrimary  Boolean
+  isMerchant Boolean? // Only for MPESA / ECOCASH
+
+  // Bank (EFT)
+  accountHolder String?
+  accountNumber String?
+  accountType   String?
+  bankName      String?
+  branchCode    String?
+
+  // Mobile Money
+  merchantName    String?
+  merchantNumber  String?
+  recipientName   String?
+  cellphoneNumber String?
+
+  createdAt DateTime @default(now())
+
+  farm Farm @relation(fields: [farmId], references: [id], onDelete: Cascade)
+
+  @@map("payment_methods")
   @@schema("public")
 }
 

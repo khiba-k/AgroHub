@@ -36,7 +36,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 }, [setUser]);
   return (
     <div className='flex flex-row'>
-       <AgroHubSidebar/>
+      <AgroHubSidebar/>
         
         <div className='flex flex-col w-[100%]'>
         <AgroHubHeader/>
