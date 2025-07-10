@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import AgroHubProductFilter from "./components/AgroHubProductFilter"
-import AgroHubProductCard from "./components/AgroHubProductCard"
-import AgroHubOrderSummary from "./components/AgroHubOrderSummary"
-import AgroHubQuantityDialog from "./components/AgroHubQuantityDialog"
-import { AgroHubBlockSwitchDialog } from "./components/AgroHubBlockSwitchDialog"
+import { useState, useEffect } from "react";
+import AgroHubProductFilter from "./components/AgroHubProductFilter";
+import AgroHubProductCard from "./components/AgroHubProductCard";
+import AgroHubOrderSummary from "./components/AgroHubOrderSummary";
+import AgroHubQuantityDialog from "./components/AgroHubQuantityDialog";
+import { AgroHubBlockSwitchDialog } from "./components/AgroHubBlockSwitchDialog";
 
 import { loadListings } from "@/lib/utils/AgroHubListingsUtils"
 import { useProduceStore } from "@/lib/store/useProductStore"
@@ -91,28 +91,27 @@ export default function AgroHubListings() {
     }
   }, [])
 
-  // ✅ Load listings when filters change
   useEffect(() => {
     loadListings(
       setIsLoading,
       (newListings, newTotal, newHasMore, newTotalAvailable) => {
-        setListings(newListings)
-        setTotal(newTotal)
-        setHasMore(newHasMore)
-        setTotalAvailableQuantity(newTotalAvailable)
+        setListings(newListings);
+        setTotal(newTotal);
+        setHasMore(newHasMore);
+        setTotalAvailableQuantity(newTotalAvailable);
       },
       selectedCategory,
       selectedProduce,
       selectedType,
       getSuggestions
-    )
-  }, [selectedCategory, selectedProduce, selectedType, produceMap])
+    );
+  }, [selectedCategory, selectedProduce, selectedType, produceMap]);
 
   // ✅ When selectedProduceId changes: restore quantity etc from cart if any
   useEffect(() => {
     if (!selectedProduceId) {
-      reset()
-      return
+      reset();
+      return;
     }
     const found = cartItems.find(item => item.produceId === selectedProduceId)
     if (found) {
@@ -138,13 +137,12 @@ export default function AgroHubListings() {
   }
 
   const calculateBreakdown = (quantity: number) => {
-    let remaining = quantity
-    const breakdown: OrderBreakdown[] = []
+    let remaining = quantity;
+    const breakdown: OrderBreakdown[] = [];
 
     for (const listing of listings) {
-      if (remaining <= 0) break
-
-      const chunk = Math.min(remaining, listing.quantity)
+      if (remaining <= 0) break;
+      const chunk = Math.min(remaining, listing.quantity);
       if (chunk > 0) {
         breakdown.push({
           farmerId: listing.id,
@@ -172,10 +170,7 @@ export default function AgroHubListings() {
 
   // ✅ Add or update produce in cart & sessionStorage (safe merge)
   const addToCart = (produceId: string, produceName: string, produceType?: string) => {
-    if (selectedQuantity <= 0 || orderBreakdown.length === 0) {
-      console.warn('Nothing to add.')
-      return
-    }
+    if (selectedQuantity <= 0 || orderBreakdown.length === 0) return;
 
     // Get current cart from sessionStorage (fresh)
     let stored: CartItem[] = []
@@ -242,13 +237,12 @@ export default function AgroHubListings() {
 
   // ✅ Produce switch with ID + Name
   const handleProduceSwitch = (newProduceId: string, newProduceName: string | undefined) => {
-    reset()
-    setSelectedProduceId(newProduceId)
-    setSelectedProduce(newProduceName)
-
-    const suggestions = getSuggestions(selectedCategory, newProduceName)
-    if (!suggestions.some(t => t.trim() !== "")) {
-      setSelectedType(undefined)
+    reset();
+    setSelectedProduceId(newProduceId);
+    setSelectedProduce(newProduceName);
+    const suggestions = getSuggestions(selectedCategory, newProduceName);
+    if (!suggestions.some((t) => t.trim() !== "")) {
+      setSelectedType(undefined);
     }
   }
 
@@ -263,17 +257,15 @@ export default function AgroHubListings() {
             <p className="text-gray-600">Loading produce listings...</p>
           </div>
         </div>
-      )
+      );
     }
-
     if (listings.length === 0) {
       return (
         <div className="flex items-center justify-center py-12">
           <p className="text-gray-600">No listings found for current filters.</p>
         </div>
-      )
+      );
     }
-
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {listings.map((listing) => (
@@ -292,8 +284,8 @@ export default function AgroHubListings() {
           />
         ))}
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="min-h-screen">
@@ -341,7 +333,7 @@ export default function AgroHubListings() {
               setSelectedCategory={setSelectedCategory}
               setSelectedProduceId={setSelectedProduceId}
               selectedProduce={selectedProduce}
-              setSelectedProduce={setSelectedProduce} // ✅ One arg only
+              setSelectedProduce={setSelectedProduce}
               selectedType={selectedType}
               setSelectedType={setSelectedType}
             />
@@ -388,29 +380,29 @@ export default function AgroHubListings() {
         open={isBlockSwitchOpen}
         onAddToCart={() => {
           if (pendingProduceId && pendingProduceName) {
-            addToCart(selectedProduceId!, selectedProduce!, selectedType)
-            reset()
-            setIsBlockSwitchOpen(false)
-            handleProduceSwitch(pendingProduceId, pendingProduceName)
-            setPendingProduceId(null)
-            setPendingProduceName(null)
+            addToCart(selectedProduceId!, selectedProduce!, selectedType);
+            reset();
+            setIsBlockSwitchOpen(false);
+            handleProduceSwitch(pendingProduceId, pendingProduceName);
+            setPendingProduceId(null);
+            setPendingProduceName(null);
           }
         }}
         onDiscard={() => {
-          reset()
-          setIsBlockSwitchOpen(false)
+          reset();
+          setIsBlockSwitchOpen(false);
           if (pendingProduceId && pendingProduceName) {
-            handleProduceSwitch(pendingProduceId, pendingProduceName)
+            handleProduceSwitch(pendingProduceId, pendingProduceName);
           }
-          setPendingProduceId(null)
-          setPendingProduceName(null)
+          setPendingProduceId(null);
+          setPendingProduceName(null);
         }}
         onCancel={() => {
-          setIsBlockSwitchOpen(false)
-          setPendingProduceId(null)
-          setPendingProduceName(null)
+          setIsBlockSwitchOpen(false);
+          setPendingProduceId(null);
+          setPendingProduceName(null);
         }}
       />
     </div>
-  )
+  );
 }

@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ThemeSwitcher } from '@/components/theme-switcher';
+import { Button } from "@/components/ui/button";
+import { Plus, MenuIcon } from "lucide-react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -12,57 +12,64 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogTrigger,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import AgroHubAddProductForm from '../listings/components/AgroHubAddProductForm';
-import InviteForm from '@/screens/invite/InviteForm';
-import { useFarmStore, useUserStore } from '@/lib/store/userStores';
+} from "@/components/ui/dialog";
+import AgroHubAddProductForm from "../listings/components/AgroHubAddProductForm";
+import InviteForm from "@/screens/invite/InviteForm";
+import { useFarmStore, useUserStore } from "@/lib/store/userStores";
 
 const AgroHubHeader = () => {
   const [showAddProduct, setShowAddProduct] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { email, avatar, role, clearUser } = useUserStore();
   const { farmName, clearFarm } = useFarmStore();
   const router = useRouter();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
   };
+
   const handleLogout = async () => {
     try {
-      const res = await fetch('/api/signout', {
-        method: 'POST',
+      const res = await fetch("/api/signout", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (res.ok) {
         clearUser();
         clearFarm();
-        router.push('/welcome');
+        router.push("/welcome");
       }
     } catch (error) {
       console.log("Fetch error:", error);
     }
   };
 
-  const userName = email ? email.split('@')[0] : '';
+  const userName = email ? email.split("@")[0] : "";
 
   return (
     <>
       <header className="border-b border-gray-200">
-        <div className=" mx-auto px-6 py-3 flex items-center ">
-          <h1 className="text-2xl font-bold">AgroHub</h1>
+        <div className="mx-auto px-6 py-3 flex items-center">
 
-          <div className="flex items-center gap-2 ml-auto ">
+          {/* 🧭 Sidebar Icon + AgroHub */}
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" className="rounded-full">
+              {/* <MenuIcon className="w-6 h-6" /> */}
+            </Button>
+            <h1 className="text-2xl font-bold">AgroHub</h1>
+          </div>
+
+          {/* 🧑‍💼 Right Actions */}
+          <div className="flex items-center gap-2 ml-auto">
             <Button
               onClick={() => setShowAddProduct(true)}
               className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
@@ -70,74 +77,64 @@ const AgroHubHeader = () => {
               <Plus className="w-4 h-4" />
               <span>Add New Produce</span>
             </Button>
-           
-            
-              <ThemeSwitcher />
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={avatar} alt={userName} />
-                      <AvatarFallback>{email?.charAt(0)?.toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
+            <ThemeSwitcher />
 
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{userName}</p>
-                      <p className="text-xs leading-none text-muted-foreground">{email}</p>
-                      {farmName && (
-                        <p className="text-xs leading-none text-muted-foreground">
-                          Farm: {farmName}
-                        </p>
-                      )}
+            {/* Profile Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={avatar} alt={userName} />
+                    <AvatarFallback>{email?.charAt(0)?.toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{userName}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{email}</p>
+                    {farmName && (
                       <p className="text-xs leading-none text-muted-foreground">
-                        {role && role.charAt(0).toUpperCase() + role.slice(1)}
+                        Farm: {farmName}
                       </p>
-                    </div>
-                  </DropdownMenuLabel>
+                    )}
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {role && role.charAt(0).toUpperCase() + role.slice(1)}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
 
-                  <DropdownMenuSeparator />
+                <DropdownMenuSeparator />
 
-                  <DropdownMenuItem onClick={() => router.push("/profile")}>
-                    Profile
-                  </DropdownMenuItem>
-                  
+                {/* ✅ Invite User Trigger */}
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                      Invite User
+                    </DropdownMenuItem>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md border-none">
+                    <InviteForm closeDialog={handleDialogClose} />
+                  </DialogContent>
+                </Dialog>
 
-                  {/* ✅ INVITE USER TRIGGER */}
-                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen} >
-                    <DialogTrigger asChild>
-                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                        Invite User
-                      </DropdownMenuItem>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-md border-none">
-                      <InviteForm closeDialog={handleDialogClose} />
-                    </DialogContent>
-                  </Dialog>
+                <DropdownMenuItem onClick={() => router.push("/settings")}>
+                  Settings
+                </DropdownMenuItem>
 
-                  <DropdownMenuItem onClick={() => router.push("/settings")}>
-                    Settings
-                  </DropdownMenuItem>
+                <DropdownMenuSeparator />
 
-                  <DropdownMenuSeparator />
-
-                  <DropdownMenuItem
-                    onClick={() => {
-                      handleLogout();
-                    }}
-                  >
-                    Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+                <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
+        </div>
       </header>
 
+      {/* Add Produce Dialog */}
       <AgroHubAddProductForm
         showAddProduct={showAddProduct}
         setShowAddProduct={setShowAddProduct}
@@ -147,3 +144,4 @@ const AgroHubHeader = () => {
 };
 
 export default AgroHubHeader;
+

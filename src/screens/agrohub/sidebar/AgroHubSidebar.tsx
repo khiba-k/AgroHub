@@ -54,18 +54,18 @@ export default function SideBar({
         <>
             {/* Mobile Menu Button */}
             <div className="md:hidden fixed top-4 left-4 z-50">
+            {!mobileOpen &&
                 <Button
                     variant="outline"
                     size="icon"
                     onClick={() => setMobileOpen(!mobileOpen)}
                     className="rounded-full"
                 >
-                    {mobileOpen ? (
-                        <X className="h-5 w-5" />
-                    ) : (
+                    
                         <Menu className="h-5 w-5" />
-                    )}
+                    
                 </Button>
+                }
             </div>
 
             {/* Mobile Sidebar */}
@@ -221,7 +221,7 @@ export default function SideBar({
                             </Avatar>
   
                             <div>
-                                <p className="font-sm break-words max-w-[180px]">{email}</p>
+                                <p className="text-sm break-words max-w-[180px]">{email}</p>
                                 <p className="text-sm text-muted-foreground">{role}</p>
                             </div>
                         </div>
