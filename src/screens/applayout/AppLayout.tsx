@@ -47,11 +47,17 @@ export function AppLayout({
 
                     // Fetch and store farmer-specific info
                     const farmerDetails = await getFarmerInfoRequest();
+                    console.log ("farmerDetails :", farmerDetails)
                     if (farmerDetails) {
                         setFarm({
                             farmId: farmerDetails.farmId,
                             farmName: farmerDetails.farmName,
-                            farmDetails: farmerDetails,
+                            farmDescription: farmerDetails.farmDescription,
+                            farmDistrict: farmerDetails.farmDistrict,
+                            farmCountry: farmerDetails.farmCountry,
+                            farmContactNumber1: farmerDetails.farmContactNumber1,
+                            farmContactNumber2: farmerDetails.farmContactNumber2,
+                            farmHasPaymentMethod: farmerDetails.farmHasPaymentMethod,
                         });
                         console.log("Farmer details fetched and stored:", farmerDetails);   
                     } else {

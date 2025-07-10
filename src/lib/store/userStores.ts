@@ -63,24 +63,39 @@ export const useUserStore = create<UserStore>((set) => ({
 
 // Farm data interface
 interface FarmData {
-  farmId: string | undefined;
-  farmName: string | undefined;
-  farmDetails: any; // Replace 'any' with a more specific type if possible
+  farmId: string;
+  farmName: string;
+  farmDescription: string;
+  farmDistrict: string;
+  farmCountry: string;
+  farmContactNumber1: string;
+  farmContactNumber2: string;
+  farmHasPaymentMethod: string;
 }
 
 // Complete Farm Store interface
 interface FarmStore {
   // State
-  farmId: string | undefined;
-  farmName: string | undefined;
-  farmDetails: any;
+  farmId: string;
+  farmName: string;
+  farmDescription: string;
+  farmDistrict: string;
+  farmCountry: string;
+  farmContactNumber1: string;
+  farmContactNumber2: string;
+  farmHasPaymentMethod: string;  
   loading: boolean;
   
   // Actions
   setFarm: (farmData: FarmData) => void;
-  setFarmId: (farmId: string | undefined) => void;
-  setFarmName: (farmName: string | undefined) => void;
-  setFarmDetails: (farmDetails: any) => void;
+  setFarmId: (farmId: string) => void;
+  setFarmName: (farmName: string) => void;
+  setFarmDescription: (farmDescription: string) => void;
+  setFarmDistrict: (farmDistrict: string | string) => void;
+  setFarmCountry: (farmCountry: string) => void;
+  setFarmContactNumber1: (farmContactNumber1: string) => void;
+  setFarmContactNumber2: (farmContactNumber2: string) => void;
+  setFarmHasPaymentMethod: (farmHasPaymentMethod: string) => void;
   setLoading: (loading: boolean) => void;
   clearFarm: () => void;
 }
@@ -88,28 +103,48 @@ interface FarmStore {
 // Farm store with proper typing
 export const useFarmStore = create<FarmStore>((set) => ({
   // Farm state
-  farmId: undefined,
-  farmName: undefined,
-  farmDetails: null,
+  farmId: "",
+  farmName: "",
+  farmDescription: "",
+  farmDistrict: "",
+  farmCountry: "",
+  farmContactNumber1: "",
+  farmContactNumber2: "",
+  farmHasPaymentMethod: "",
   loading: false,
   
   // Farm actions
   setFarm: (farmData: FarmData) => set({
     farmId: farmData.farmId,
     farmName: farmData.farmName,
-    farmDetails: farmData.farmDetails,
+    farmDescription: farmData.farmDescription,
+    farmDistrict: farmData.farmDistrict,
+    farmCountry: farmData.farmCountry,
+    farmContactNumber1: farmData.farmContactNumber1,
+    farmContactNumber2: farmData.farmContactNumber2,
+    farmHasPaymentMethod: farmData.farmHasPaymentMethod,
   }),
   
-  setFarmId: (farmId: string | undefined) => set({ farmId }),
-  setFarmName: (farmName: string | undefined) => set({ farmName }),
-  setFarmDetails: (farmDetails: any) => set({ farmDetails }),
+  setFarmId: (farmId: string) => set({ farmId }),
+  setFarmName: (farmName: string) => set({ farmName }),
+  setFarmDescription: (farmDescription: string) => set ({farmDescription}),
+  setFarmDistrict: (farmDistrict: string) => set ({farmDistrict}),
+  setFarmCountry: (farmCountry: string) => set ({farmCountry}),
+  setFarmContactNumber1: (farmContactNumber1 : string) => set ({farmContactNumber1}),
+  setFarmContactNumber2: (farmContactNumber2: string) => set ({farmContactNumber2}),
+  setFarmHasPaymentMethod: (farmHasPaymentMethod: string) => set ({farmHasPaymentMethod}),
   setLoading: (loading: boolean) => set({ loading }),
   
   // Clear farm data
   clearFarm: () => set({
-    farmId: undefined,
-    farmName: undefined,
-    farmDetails: null,
+    farmId: "",
+    farmName: "",
+    farmDescription: "",
+    farmDistrict: "",
+    farmCountry: "",
+    farmContactNumber1: "",
+    farmContactNumber2: "",
+    farmHasPaymentMethod:"",
     loading: false,
   }),
 }))

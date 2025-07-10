@@ -84,6 +84,8 @@ export function ProduceList({ status }: ProduceListProps) {
         page: pageToLoad,
       });
 
+      console.log("-----Corect Data: ", data)
+
       if (pageToLoad === 1) {
         setListings(data.listings, data.total, data.hasMore);
       } else {
