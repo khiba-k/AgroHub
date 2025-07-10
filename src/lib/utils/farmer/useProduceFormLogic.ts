@@ -199,7 +199,7 @@ export function useProduceFormLogic(
         files.forEach((file) => formData.append("images", file));
 
         const updatedListing = await updateProduceListing(formData);
-        console.log("Listing updated:", updatedListing);
+        console.log("Incorrect updated data:", updatedListing);
         updateListing(updatedListing.data);
 
         showToast(true, "Listing updated successfully!")
@@ -231,7 +231,7 @@ export function useProduceFormLogic(
 
         const newListing = await postProduceListing(formData);
 
-        console.log("-----------New listing created:", newListing.data);
+        console.log("-----------Incorrect New listing created:", newListing.data);
         addListing(newListing.data);
 
         showToast(true, "Listing created successfully!");

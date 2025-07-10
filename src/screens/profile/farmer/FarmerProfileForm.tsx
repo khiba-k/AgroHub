@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox"; // Checkbox is needed for additional methods
+import { useFarmStore, useUserStore } from "@/lib/store/userStores";
 
 const FarmerProfileForm = () => {
   const [isEditingFarm, setIsEditingFarm] = useState(false);
@@ -38,6 +39,9 @@ const FarmerProfileForm = () => {
   // All available payment methods
   const allPaymentMethods = ["EFT", "MPESA", "ECOCASH",]; // Included CPAY
   const mobileMoneyMethods = ["MPESA", "ECOCASH", ]; // Helper array for mobile money types
+
+  const {farmName, loading, setFarmName} = useFarmStore();
+  
 
   // EFT Fields Renderer
   const renderEFTFields = (disabled: boolean, prefix: string = "") => (
@@ -155,7 +159,13 @@ const FarmerProfileForm = () => {
         <div className="space-y-4">
           <div>
             <Label>Farm Name</Label>
-            <Input type="text" placeholder="Enter farm name" disabled={!isEditingFarm} />
+            <Input
+  type="text"
+  placeholder="Enter farm name"
+  value={farmName}
+  onChange={(e) => setFarmName(e.target.value)}
+  disabled={!isEditingFarm}
+/>
           </div>
 
           <div>

@@ -65,7 +65,11 @@ export const useUserStore = create<UserStore>((set) => ({
 interface FarmData {
   farmId: string | undefined;
   farmName: string | undefined;
-  farmDetails: any; // Replace 'any' with a more specific type if possible
+  farmDescription: string | undefined;
+  farmDistrict: string | undefined;
+  farmCountry: string | undefined;
+  farmContactNumber1: string | undefined;
+  farmContactNumber2: string | undefined;
 }
 
 // Complete Farm Store interface
@@ -73,14 +77,22 @@ interface FarmStore {
   // State
   farmId: string | undefined;
   farmName: string | undefined;
-  farmDetails: any;
+  farmDescription: string | undefined;
+  farmDistrict: string | undefined;
+  farmCountry: string | undefined;
+  farmContactNumber1: string | undefined;
+  farmContactNumber2: string | undefined;  
   loading: boolean;
   
   // Actions
   setFarm: (farmData: FarmData) => void;
   setFarmId: (farmId: string | undefined) => void;
   setFarmName: (farmName: string | undefined) => void;
-  setFarmDetails: (farmDetails: any) => void;
+  setFarmDescription: (farmDescription: string | undefined) => void;
+  setFarmDistrict: (farmDistrict: string | string | undefined) => void;
+  setFarmCountry: (farmCountry: string | undefined) => void;
+  setFarmContactNumber1: (farmContactNumber1: string | undefined) => void;
+  setFarmContactNumber2: (farmContactNumber2: string | undefined) => void;
   setLoading: (loading: boolean) => void;
   clearFarm: () => void;
 }
@@ -90,26 +102,42 @@ export const useFarmStore = create<FarmStore>((set) => ({
   // Farm state
   farmId: undefined,
   farmName: undefined,
-  farmDetails: null,
+  farmDescription: undefined,
+  farmDistrict: undefined,
+  farmCountry: undefined,
+  farmContactNumber1: undefined,
+  farmContactNumber2: undefined,
   loading: false,
   
   // Farm actions
   setFarm: (farmData: FarmData) => set({
     farmId: farmData.farmId,
     farmName: farmData.farmName,
-    farmDetails: farmData.farmDetails,
+    farmDescription: farmData.farmDescription,
+    farmDistrict: farmData.farmDistrict,
+    farmCountry: farmData.farmCountry,
+    farmContactNumber1: farmData.farmContactNumber1,
+    farmContactNumber2: farmData.farmContactNumber2,
   }),
   
   setFarmId: (farmId: string | undefined) => set({ farmId }),
   setFarmName: (farmName: string | undefined) => set({ farmName }),
-  setFarmDetails: (farmDetails: any) => set({ farmDetails }),
+  setFarmDescription: (farmDescription: string | undefined) => set ({farmDescription}),
+  setFarmDistrict: (farmDistrict: string | undefined) => set ({farmDistrict}),
+  setFarmCountry: (farmCountry: string | undefined) => set ({farmCountry}),
+  setFarmContactNumber1: (farmContactNumber1 : string | undefined) => set ({farmContactNumber1}),
+  setFarmContactNumber2: (farmContactNumber2: string | undefined) => set ({farmContactNumber2}),
   setLoading: (loading: boolean) => set({ loading }),
   
   // Clear farm data
   clearFarm: () => set({
     farmId: undefined,
     farmName: undefined,
-    farmDetails: null,
+    farmDescription: undefined,
+    farmDistrict: undefined,
+    farmCountry: undefined,
+    farmContactNumber1: undefined,
+    farmContactNumber2: undefined,
     loading: false,
   }),
 }))

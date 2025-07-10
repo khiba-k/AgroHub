@@ -8,12 +8,20 @@ export async function getFarmerDetailsByUserId(userId: string) {
     },
   });
 
+console.log ("farmUser: ", farmUser)
+
   if (!farmUser) return null;
 
   return {
     role: "farmer",
     farmId: farmUser.farm.id,
     farmName: farmUser.farm.name,
+    farmDescription: farmUser.farm.description,
+    farmDistrict: farmUser.farm.district,
+    farmCountry: farmUser.farm.country,
+    farmContactNumber1: farmUser.farm.contactNumber1,
+    farmContactNumber2: farmUser.farm.contactNumber2,
+    
   };
 }
 
