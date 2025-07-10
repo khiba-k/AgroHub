@@ -1,9 +1,8 @@
 // Prisma action
 
+import prisma from "@/lib/prisma/prisma";
 import { OnboardingAgrohubType } from "@/screens/agrohub/utils/onboardingAgrohubValidation";
-import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
 
 export const createAgroHubUser = async (data: OnboardingAgrohubType) => {
     try {

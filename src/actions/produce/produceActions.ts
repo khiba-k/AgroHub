@@ -1,7 +1,6 @@
+import prisma from '@/lib/prisma/prisma'
 import { ProduceFormData } from '@/screens/agrohub/utils/produceFromValidation'
-import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient()
 
 export const createProduce = async (data: ProduceFormData) => {
     try {
