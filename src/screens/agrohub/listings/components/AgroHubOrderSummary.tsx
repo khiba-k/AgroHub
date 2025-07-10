@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { ShoppingCart } from 'lucide-react'
+import { Loader2, ShoppingCart } from 'lucide-react'
 import React from 'react'
 
 interface OrderBreakdown {
@@ -11,6 +11,7 @@ interface OrderBreakdown {
   farmerName: string
   quantity: number
   price: number
+  location?: string
 }
 
 interface AgroHubOrderSummaryProps {
@@ -20,6 +21,7 @@ interface AgroHubOrderSummaryProps {
   totalPrice: number
   onAddToCart: () => void
   quantityError: string
+  isAddingToCart: boolean
 }
 
 const AgroHubOrderSummary = ({
@@ -29,6 +31,7 @@ const AgroHubOrderSummary = ({
   totalPrice,
   onAddToCart,
   quantityError,
+  isAddingToCart
 }: AgroHubOrderSummaryProps) => {
   return (
     <div className="lg:col-span-1">
@@ -58,7 +61,7 @@ const AgroHubOrderSummary = ({
               <h4 className="font-semibold">Order Breakdown:</h4>
               {orderBreakdown.map((order, index) => (
                 <div key={index} className="bg-black-50 p-3 rounded-lg border border-gray-200">
-                  <p className="text-sm font-medium">{order.farmerName}</p>
+                  <p className="text-sm font-medium">{order.farmerName} - {order.location}</p>
                   <p className="text-xs text-gray-600">
                     {order.quantity}kg × M{(order.price / order.quantity).toFixed(2)}
                   </p>
@@ -76,10 +79,15 @@ const AgroHubOrderSummary = ({
           </div>
 
           <Button
-            className="w-full hover:bg-gray-800 font-semibold py-3"
+            className="w-full hover:bg-gray-800 font-semibold py-3 flex items-center justify-center"
             onClick={onAddToCart}
+            disabled={isAddingToCart}
           >
-            Add to Cart
+            {isAddingToCart ? (
+              <Loader2/>
+            ) : (
+              "Add to Cart"
+            )}
           </Button>
         </div>
       </div>

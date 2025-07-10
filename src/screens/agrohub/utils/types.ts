@@ -21,6 +21,7 @@ export interface Farmer {
     farmerName: string;
     quantity: number;
     price: number;
+    location?: string
   }
   
   export interface CartItem {
@@ -31,5 +32,6 @@ export interface Farmer {
     selectedQuantity: number;
     orderBreakdown: OrderBreakdown[];
     totalPrice: number;
+    category: string
   }
   
