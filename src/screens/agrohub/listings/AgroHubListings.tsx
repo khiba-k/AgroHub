@@ -2,100 +2,109 @@
 
 import { useState, useEffect } from "react";
 import AgroHubProductFilter from "./components/AgroHubProductFilter";
-import AgroHubProductCard from "./components/AgroHubProductCard";
+import AgroHubProductCard from "./components/AgroHubProductCard"; // The component you need to modify
 import AgroHubOrderSummary from "./components/AgroHubOrderSummary";
 import AgroHubQuantityDialog from "./components/AgroHubQuantityDialog";
 import { AgroHubBlockSwitchDialog } from "./components/AgroHubBlockSwitchDialog";
 
-import { loadListings } from "@/lib/utils/AgroHubListingsUtils"
-import { useProduceStore } from "@/lib/store/useProductStore"
-import { useToastStore } from "@/lib/store/useToastStore"
+import { loadListings } from "@/lib/utils/AgroHubListingsUtils";
+import { useProduceStore } from "@/lib/store/useProductStore";
+import { useToastStore } from "@/lib/store/useToastStore";
 
-import { ShoppingCart, MenuIcon } from "lucide-react";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { ShoppingCart } from "lucide-react";
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-// ✅ Local types
-interface OrderBreakdown {
-  farmerId: string
-  farmerName: string
-  quantity: number
-  price: number
-  location?: string
-}
+// ✅ Import all necessary types from utils/types
+// IMPORTANT: Ensure this path is correct based on your tsconfig.json and file location.
+// If you used the new alias:
+import { Farmer, Produce, OrderBreakdown, CartItem } from "../utils/types"; // Make sure you are using your new alias here if you configured it
 
-interface CartItem {
-  produceId: string
-  produceName: string
-  produceType?: string
-  unitType: string
-  selectedQuantity: number
-  orderBreakdown: OrderBreakdown[]
-  totalPrice: number
-  category: string
+// If you did NOT configure a new alias and kept utils at root, then it might be:
+// import { Farmer, Produce, OrderBreakdown, CartItem } from "../../utils/types";
+// but using aliases is cleaner if setup correctly.
+
+// ✅ Define the structure of a 'listing' item returned by your loadListings function
+// This helps TypeScript understand the 'listing' objects correctly.
+interface ListingItem {
+  id: string;
+  quantity: number;
+  images: { url: string }[];
+  location: string;
+  farm: {
+    id: string;
+    name: string;
+    district: string;
+  };
+  produce: {
+    id: string;
+    name: string;
+    category: string;
+    pricePerUnit: string; // This should be string as per previous discussion and error resolution
+    unitType: string;
+  };
 }
 
 export default function AgroHubListings() {
   // ✅ Filter states
-  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined)
-  const [selectedProduceId, setSelectedProduceId] = useState<string | undefined>(undefined)
-  const [selectedProduce, setSelectedProduce] = useState<string | undefined>(undefined)
-  const [selectedType, setSelectedType] = useState<string | undefined>(undefined)
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+  const [selectedProduceId, setSelectedProduceId] = useState<string | undefined>(undefined);
+  const [selectedProduce, setSelectedProduce] = useState<string | undefined>(undefined);
+  const [selectedType, setSelectedType] = useState<string | undefined>(undefined);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   // ✅ Cart states (local to this page)
-  const [selectedQuantity, setSelectedQuantity] = useState(0)
-  const [orderBreakdown, setOrderBreakdown] = useState<OrderBreakdown[]>([])
-  const [totalPrice, setTotalPrice] = useState(0)
-  const [unitType, setUnitType] = useState('')
+  const [selectedQuantity, setSelectedQuantity] = useState(0);
+  // OrderBreakdown and CartItem are now imported
+  const [orderBreakdown, setOrderBreakdown] = useState<OrderBreakdown[]>([]);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [unitType, setUnitType] = useState('');
 
   // This local cartItems reflects what's currently in sessionStorage
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  const [totalAvailableQuantity, setTotalAvailableQuantity] = useState(0)
-  const [quantityError, setQuantityError] = useState('')
+  const [totalAvailableQuantity, setTotalAvailableQuantity] = useState(0);
+  const [quantityError, setQuantityError] = useState('');
 
-  const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
+  const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
 
   const [isCartDialogOpen, setIsCartDialogOpen] = useState(false);
 
   // ✅ Block switch states
-  const [isBlockSwitchOpen, setIsBlockSwitchOpen] = useState(false)
-  const [pendingProduceId, setPendingProduceId] = useState<string | null>(null)
-  const [pendingProduceName, setPendingProduceName] = useState<string | null>(null)
+  const [isBlockSwitchOpen, setIsBlockSwitchOpen] = useState(false);
+  const [pendingProduceId, setPendingProduceId] = useState<string | null>(null);
+  const [pendingProduceName, setPendingProduceName] = useState<string | null>(null);
 
   // ✅ Listings states
-  const [listings, setListings] = useState<any[]>([])
-  const [total, setTotal] = useState(0)
-  const [hasMore, setHasMore] = useState(true)
+  // Use the new ListingItem type for the listings array
+  const [listings, setListings] = useState<ListingItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
 
-  const { getSuggestions, produceMap } = useProduceStore()
-  const { showToast } = useToastStore()
+  const { getSuggestions, produceMap } = useProduceStore();
+  const { showToast } = useToastStore();
 
   // ✅ Load cart from sessionStorage ONCE on mount
   useEffect(() => {
-    const stored = sessionStorage.getItem('cart-items')
+    const stored = sessionStorage.getItem('cart-items');
     if (stored) {
       try {
-        setCartItems(JSON.parse(stored))
+        setCartItems(JSON.parse(stored));
       } catch {
         // fallback, clear bad session data
-        sessionStorage.removeItem('cart-items')
+        sessionStorage.removeItem('cart-items');
       }
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
+    // Ensure your loadListings function aligns with the ListingItem interface
     loadListings(
       setIsLoading,
       (newListings, newTotal, newHasMore, newTotalAvailable) => {
-        setListings(newListings);
+        setListings(newListings); // newListings should be ListingItem[]
         setTotal(newTotal);
         setHasMore(newHasMore);
         setTotalAvailableQuantity(newTotalAvailable);
@@ -113,28 +122,28 @@ export default function AgroHubListings() {
       reset();
       return;
     }
-    const found = cartItems.find(item => item.produceId === selectedProduceId)
+    const found = cartItems.find(item => item.produceId === selectedProduceId);
     if (found) {
-      setSelectedQuantity(found.selectedQuantity)
-      setOrderBreakdown(found.orderBreakdown)
-      setTotalPrice(found.totalPrice)
-      setUnitType(found.unitType)
+      setSelectedQuantity(found.selectedQuantity);
+      setOrderBreakdown(found.orderBreakdown);
+      setTotalPrice(found.totalPrice);
+      setUnitType(found.unitType);
     } else {
-      reset()
+      reset();
     }
-  }, [selectedProduceId, cartItems])
+  }, [selectedProduceId, cartItems]);
 
   // ✅ Cart helpers
 
   const setQuantity = (quantity: number) => {
     if (quantity > totalAvailableQuantity) {
-      setQuantityError(`Exceeded total available. Only ${totalAvailableQuantity}kg available.`)
-      return
+      setQuantityError(`Exceeded total available. Only ${totalAvailableQuantity}kg available.`);
+      return;
     }
-    setQuantityError('')
-    setSelectedQuantity(quantity)
-    calculateBreakdown(quantity)
-  }
+    setQuantityError('');
+    setSelectedQuantity(quantity);
+    calculateBreakdown(quantity);
+  };
 
   const calculateBreakdown = (quantity: number) => {
     let remaining = quantity;
@@ -148,45 +157,43 @@ export default function AgroHubListings() {
       if (chunk > 0) {
         breakdown.push({
           farmerId: listing.farm.id,
-          farmerName: listing.location,
+          farmerName: listing.farm.name,
           quantity: chunk,
           price: chunk * Number(listing.produce.pricePerUnit),
-          location: listing.farm.district,
-        })
-        remaining -= chunk
+          location: listing.location,
+        });
+        remaining -= chunk;
       }
     }
 
-    const newTotalPrice = breakdown.reduce((sum, b) => sum + b.price, 0)
+    const newTotalPrice = breakdown.reduce((sum, b) => sum + b.price, 0);
 
-    setOrderBreakdown(breakdown)
-    setTotalPrice(newTotalPrice)
-    setUnitType(listings[0]?.produce.unitType || '')
-  }
+    setOrderBreakdown(breakdown);
+    setTotalPrice(newTotalPrice);
+    setUnitType(listings.length > 0 ? listings[0].produce.unitType || '' : '');
+  };
 
   // ✅ NEW: Sync cartItems safely with sessionStorage
 
   const saveCartToSession = (items: CartItem[]) => {
-    sessionStorage.setItem('cart-items', JSON.stringify(items))
-  }
+    sessionStorage.setItem('cart-items', JSON.stringify(items));
+  };
 
   // ✅ Add or update produce in cart & sessionStorage (safe merge)
   const addToCart = (produceId: string, produceName: string, produceType?: string) => {
     if (selectedQuantity <= 0 || orderBreakdown.length === 0) return;
 
-    // Get current cart from sessionStorage (fresh)
-    let stored: CartItem[] = []
-    const storedRaw = sessionStorage.getItem('cart-items')
+    let stored: CartItem[] = [];
+    const storedRaw = sessionStorage.getItem('cart-items');
     if (storedRaw) {
       try {
-        stored = JSON.parse(storedRaw)
+        stored = JSON.parse(storedRaw);
       } catch {
-        stored = []
+        stored = [];
       }
     }
 
-    // Check if already exists, replace if so
-    const existingIndex = stored.findIndex(item => item.produceId === produceId)
+    const existingIndex = stored.findIndex(item => item.produceId === produceId);
     const newItem: CartItem = {
       produceId,
       produceName,
@@ -196,46 +203,44 @@ export default function AgroHubListings() {
       orderBreakdown,
       totalPrice,
       category: selectedCategory || '',
-    }
+    };
 
     if (existingIndex >= 0) {
-      stored[existingIndex] = newItem
+      stored[existingIndex] = newItem;
     } else {
-      stored.push(newItem)
+      stored.push(newItem);
     }
 
-    // Save back to sessionStorage and update local state
-    saveCartToSession(stored)
-    setCartItems(stored)
+    saveCartToSession(stored);
+    setCartItems(stored);
 
-    reset()
-  }
+    reset();
+  };
 
   // ✅ Remove produce from cart & sessionStorage
   const removeFromCart = (produceId: string) => {
-    // Get current cart fresh
-    let stored: CartItem[] = []
-    const storedRaw = sessionStorage.getItem('cart-items')
+    let stored: CartItem[] = [];
+    const storedRaw = sessionStorage.getItem('cart-items');
     if (storedRaw) {
       try {
-        stored = JSON.parse(storedRaw)
+        stored = JSON.parse(storedRaw);
       } catch {
-        stored = []
+        stored = [];
       }
     }
 
-    const updated = stored.filter(item => item.produceId !== produceId)
-    saveCartToSession(updated)
-    setCartItems(updated)
-  }
+    const updated = stored.filter(item => item.produceId !== produceId);
+    saveCartToSession(updated);
+    setCartItems(updated);
+  };
 
   const reset = () => {
-    setSelectedQuantity(0)
-    setOrderBreakdown([])
-    setTotalPrice(0)
-    setUnitType('')
-    setQuantityError('')
-  }
+    setSelectedQuantity(0);
+    setOrderBreakdown([]);
+    setTotalPrice(0);
+    setUnitType('');
+    setQuantityError('');
+  };
 
   // ✅ Produce switch with ID + Name
   const handleProduceSwitch = (newProduceId: string, newProduceName: string | undefined) => {
@@ -246,7 +251,7 @@ export default function AgroHubListings() {
     if (!suggestions.some((t) => t.trim() !== "")) {
       setSelectedType(undefined);
     }
-  }
+  };
 
   // ✅ UI rendering
 
@@ -270,21 +275,31 @@ export default function AgroHubListings() {
     }
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {listings.map((listing) => (
-          <AgroHubProductCard
-            key={listing.id}
-            type={selectedType}
-            produce={selectedProduce}
-            farmer={{
-              id: listing.id,
-              name: listing.farm.name,
-              location: listing.farm.district,
-              quantityAvailable: listing.quantity,
-              pricePerKg: Number(listing.produce.pricePerUnit),
-              image: listing.images[0]?.url || "/placeholder.jpg",
-            }}
-          />
-        ))}
+        {listings.map((listing) => {
+          const produceItem: Produce = {
+            id: listing.id,
+            name: listing.produce.name,
+            category: listing.produce.category,
+            quantityAvailable: listing.quantity,
+            pricePerKg: Number(listing.produce.pricePerUnit),
+            images: listing.images.map(img => img.url)
+          };
+
+          const farmer: Farmer = {
+            id: listing.farm.id,
+            name: listing.farm.name,
+            location: listing.location,
+            produces: [],
+          };
+
+          return (
+            <AgroHubProductCard
+              key={produceItem.id}
+              produceItem={produceItem}
+              farmer={farmer}
+            />
+          );
+        })}
       </div>
     );
   };
@@ -292,12 +307,11 @@ export default function AgroHubListings() {
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto px-6 py-8">
-
         {/* 🛒 Mobile Cart Icon in a Button */}
         <div className="lg:hidden flex justify-end mb-4">
           <Dialog open={isCartDialogOpen} onOpenChange={setIsCartDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="p-">
+              <Button className="p-2">
                 <ShoppingCart className="h-6 w-6" />
               </Button>
             </DialogTrigger>
@@ -308,14 +322,13 @@ export default function AgroHubListings() {
                 orderBreakdown={orderBreakdown}
                 totalPrice={totalPrice}
                 onAddToCart={() => {
-                  setIsAddingToCart(true)
+                  setIsAddingToCart(true);
                   if (selectedProduceId && selectedProduce) {
-                    addToCart(selectedProduceId, selectedProduce, selectedType)
+                    addToCart(selectedProduceId, selectedProduce, selectedType);
                     showToast(
                       true,
                       `${selectedQuantity} ${selectedType ? selectedType + " " : ""}${selectedProduce} added to cart`
-                    )
-
+                    );
                   }
                   setIsAddingToCart(false);
                 }}
@@ -350,14 +363,13 @@ export default function AgroHubListings() {
               orderBreakdown={orderBreakdown}
               totalPrice={totalPrice}
               onAddToCart={() => {
-                setIsAddingToCart(true)
+                setIsAddingToCart(true);
                 if (selectedProduceId && selectedProduce) {
-                  addToCart(selectedProduceId, selectedProduce, selectedType)
+                  addToCart(selectedProduceId, selectedProduce, selectedType);
                   showToast(
                     true,
                     `${selectedQuantity} ${selectedType ? selectedType + " " : ""}${selectedProduce} added to cart`
-                  )
-
+                  );
                 }
                 setIsAddingToCart(false);
               }}

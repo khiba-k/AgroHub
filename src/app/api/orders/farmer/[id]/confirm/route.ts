@@ -36,10 +36,14 @@ export async function POST(
 
             await prisma.soldListing.upsert({
                 where: { listingId: breakdown.produceListingId },
-                update: { soldPrice: { increment: breakdown.price } },
+                update: {
+                    soldPrice: { increment: breakdown.price },
+                    soldQuantity: { increment: breakdown.quantity }, // ✅ new
+                },
                 create: {
                     listingId: breakdown.produceListingId,
                     soldPrice: breakdown.price,
+                    soldQuantity: breakdown.quantity, // ✅ new
                 },
             });
         }

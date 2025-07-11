@@ -18,20 +18,20 @@ enum FarmRole {
 }
 
 model Farm {
-  id             String   @id @default(uuid()) @db.Uuid
-  name           String   @unique
-  description    String
-  district       String
-  country        String
-  contactNumber1 String
-  contactNumber2 String?
-  hasPaymentMethod Boolean @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id               String   @id @default(uuid()) @db.Uuid
+  name             String   @unique
+  description      String
+  district         String
+  country          String
+  contactNumber1   String
+  contactNumber2   String?
+  hasPaymentMethod Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  farmUsers FarmUser[]
-  produceListings  ProduceListing[]
-  paymentMethods  PaymentMethod[]
+  farmUsers           FarmUser[]
+  produceListings     ProduceListing[]
+  paymentMethods      PaymentMethod[]
   orderItemBreakdowns OrderItemBreakdown[]
 
   @@map("farms")
@@ -62,8 +62,8 @@ enum PaymentType {
 }
 
 model PaymentMethod {
-  id         String   @id @default(uuid()) @db.Uuid
-  farmId     String   @db.Uuid
+  id         String      @id @default(uuid()) @db.Uuid
+  farmId     String      @db.Uuid
   type       PaymentType
   isPrimary  Boolean
   isMerchant Boolean? // Only for MPESA / ECOCASH
@@ -89,27 +89,27 @@ model PaymentMethod {
   @@schema("public")
 }
 
-model AgroHubUser{
-  id         String    @id @default(uuid()) @db.Uuid
-  firstname  String    @unique
-  lastname   String    @unique
-  userId     String    @unique
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+model AgroHubUser {
+  id        String   @id @default(uuid()) @db.Uuid
+  firstname String   @unique
+  lastname  String   @unique
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  orders     Order[]
+  orders Order[]
 
   @@map("agrohub_users")
   @@schema("public")
 }
 
 model PasswordResetToken {
-  id         String   @id @default(uuid()) @db.Uuid
-  tokenHash  String
-  email      String
-  expiresAt  DateTime
-  used       Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  id        String   @id @default(uuid()) @db.Uuid
+  tokenHash String
+  email     String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
 
   @@map("password_reset_tokens")
   @@schema("public")
@@ -129,7 +129,7 @@ model InviteToken {
 }
 
 model Produce {
-  id           String @id @default(uuid()) @db.Uuid
+  id           String   @id @default(uuid()) @db.Uuid
   category     String
   name         String
   type         String?
@@ -138,7 +138,7 @@ model Produce {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  listings ProduceListing[]
+  listings   ProduceListing[]
   orderItems OrderItem[]
 
   @@map("produce")
@@ -148,9 +148,9 @@ model Produce {
 // Master listing record - persists through all states
 model ProduceListing {
   id          String   @id @default(uuid()) @db.Uuid
-  location    String?  // Make nullable
-  description String?  // Make nullable  
-  quantity    Int?     // Make nullable
+  location    String? // Make nullable
+  description String? // Make nullable  
+  quantity    Int? // Make nullable
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -162,8 +162,8 @@ model ProduceListing {
 
   // Status-specific relations
   activeDraftListing ActiveDraftListing? // One-to-One: Can only be in one active/draft state
-  harvestListings    HarvestListing[]    // One-to-Many: Multiple harvest batches
-  soldListings       SoldListing[]       // One-to-Many: Partial sales to different buyers
+  harvestListings    HarvestListing[] // One-to-Many: Multiple harvest batches
+  soldListings       SoldListing[] // One-to-Many: Partial sales to different buyers
 
   images ListingImg[]
 
@@ -174,17 +174,16 @@ model ProduceListing {
 }
 
 model ListingImg {
-  id        String    @id @default(uuid()) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   url       String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  listingId String    @db.Uuid
+  listingId String         @db.Uuid
   listing   ProduceListing @relation(fields: [listingId], references: [id])
 
   @@map("listing_imgs")
   @@schema("public")
-
 }
 
 enum ActiveDraftStatus {
@@ -198,10 +197,10 @@ enum ActiveDraftStatus {
 model ActiveDraftListing {
   id     String            @id @default(uuid()) @db.Uuid
   status ActiveDraftStatus
-  
+
   // Any active/draft specific fields
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   listingId String         @unique @db.Uuid
   listing   ProduceListing @relation(fields: [listingId], references: [id])
@@ -217,7 +216,7 @@ model HarvestListing {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  listingId String         @unique @db.Uuid  // ✅ Add @unique here
+  listingId String         @unique @db.Uuid // ✅ Add @unique here
   listing   ProduceListing @relation(fields: [listingId], references: [id])
 
   @@map("harvest_listings")
@@ -228,26 +227,27 @@ model HarvestListing {
 
 // Sold status details
 model SoldListing {
-  id         String   @id @default(uuid()) @db.Uuid
-  soldPrice  Int      // use Int for adding up — or Decimal if you want cents
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id           String   @id @default(uuid()) @db.Uuid
+  soldPrice    Int // use Int for adding up — or Decimal if you want cents
+  soldQuantity Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  listingId  String         @unique @db.Uuid  // ✅ unique: 1:1 with ProduceListing
-  listing    ProduceListing @relation(fields: [listingId], references: [id])
+  listingId String         @unique @db.Uuid // ✅ unique: 1:1 with ProduceListing
+  listing   ProduceListing @relation(fields: [listingId], references: [id])
 
   @@map("sold_listings")
   @@schema("public")
 }
 
 model Order {
-  id            String    @id @default(uuid()) @db.Uuid
-  orderNumber   Int       @unique // 4/5 digit sequential
-  buyerId       String    @db.Uuid
-  buyer         AgroHubUser @relation(fields: [buyerId], references: [id])
-  totalPrice    Int
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id          String      @id @default(uuid()) @db.Uuid
+  orderNumber Int         @unique // 4/5 digit sequential
+  buyerId     String      @db.Uuid
+  buyer       AgroHubUser @relation(fields: [buyerId], references: [id])
+  totalPrice  Int
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   items OrderItem[]
 
@@ -256,17 +256,17 @@ model Order {
 }
 
 model OrderItem {
-  id         String   @id @default(uuid()) @db.Uuid
-  orderId    String   @db.Uuid
-  produceId  String   @db.Uuid
-  produce    Produce  @relation(fields: [produceId], references: [id])
-  unitType   String
+  id            String   @id @default(uuid()) @db.Uuid
+  orderId       String   @db.Uuid
+  produceId     String   @db.Uuid
+  produce       Produce  @relation(fields: [produceId], references: [id])
+  unitType      String
   totalQuantity Int
-  totalPrice Int
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  totalPrice    Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  order      Order    @relation(fields: [orderId], references: [id])
+  order      Order                @relation(fields: [orderId], references: [id])
   breakdowns OrderItemBreakdown[]
 
   @@map("order_items")
@@ -274,53 +274,53 @@ model OrderItem {
 }
 
 model OrderItemBreakdown {
-  id               String   @id @default(uuid()) @db.Uuid
+  id String @id @default(uuid()) @db.Uuid
 
-  orderItemId      String   @db.Uuid
-  orderItem        OrderItem @relation(fields: [orderItemId], references: [id])
+  orderItemId String    @db.Uuid
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id])
 
-  produceListingId String   @db.Uuid
+  produceListingId String         @db.Uuid
   produceListing   ProduceListing @relation(fields: [produceListingId], references: [id])
 
-  farmId         String   @db.Uuid
-  farm             Farm     @relation(fields: [farmId], references: [id])
+  farmId String @db.Uuid
+  farm   Farm   @relation(fields: [farmId], references: [id])
 
-  quantity         Int
-  price            Int
+  quantity Int
+  price    Int
 
   // Main AgroHub-side status flow
-  status           BreakdownStatus @default(PROCESSING)
+  status BreakdownStatus @default(PROCESSING)
 
   // Farmer-specific actions
-  farmerConfirmed  Boolean  @default(false)
-  farmerShipped    Boolean  @default(false)
+  farmerConfirmed Boolean @default(false)
+  farmerShipped   Boolean @default(false)
 
   // AgroHub-specific actions
-  agrohubShipped   Boolean  @default(false)
+  agrohubShipped Boolean @default(false)
 
   // Final delivery mark (AgroHub only)
-  delivered        Boolean  @default(false)
+  delivered Boolean @default(false)
 
   // Cancellations
-  cancelledBy      OrderParty?
+  cancelledBy OrderParty?
 
   // Files
-  paymentProofUrl  String?   // AgroHub uploads payment proof PDF here
-  invoiceUrl       String?   // Farmer uploads invoice PDF here
+  paymentProofUrl String? // AgroHub uploads payment proof PDF here
+  invoiceUrl      String? // Farmer uploads invoice PDF here
 
-  farmerConfirmsPayment Boolean @default(false)
+  farmerConfirmsPayment  Boolean @default(false)
   agrohubConfirmsPayment Boolean @default(false)
-  
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("order_item_breakdowns")
   @@schema("public")
 }
 
 enum BreakdownStatus {
-  PROCESSING        // Set by AgroHub when order starts
-  READY_FOR_PICKUP  // Set by AgroHub after farmer confirms
+  PROCESSING // Set by AgroHub when order starts
+  READY_FOR_PICKUP // Set by AgroHub after farmer confirms
 
   @@schema("public")
 }
