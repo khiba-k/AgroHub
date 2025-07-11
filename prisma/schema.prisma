@@ -32,6 +32,7 @@ model Farm {
   farmUsers FarmUser[]
   produceListings  ProduceListing[]
   paymentMethods  PaymentMethod[]
+  orderItemBreakdowns OrderItemBreakdown[]
 
   @@map("farms")
   @@schema("public")
@@ -96,6 +97,7 @@ model AgroHubUser{
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
+  orders     Order[]
 
   @@map("agrohub_users")
   @@schema("public")
@@ -137,6 +139,7 @@ model Produce {
   updatedAt    DateTime @updatedAt
 
   listings ProduceListing[]
+  orderItems OrderItem[]
 
   @@map("produce")
   @@schema("public")
@@ -163,6 +166,8 @@ model ProduceListing {
   soldListings       SoldListing[]       // One-to-Many: Partial sales to different buyers
 
   images ListingImg[]
+
+  orderItemBreakdowns OrderItemBreakdown[]
 
   @@map("produce_listings")
   @@schema("public")
@@ -219,6 +224,8 @@ model HarvestListing {
   @@schema("public")
 }
 
+//Order Related Tables
+
 // Sold status details
 model SoldListing {
   id        String   @id @default(uuid()) @db.Uuid
@@ -239,3 +246,91 @@ model SoldListing {
   @@schema("public")
 }
 
+model Order {
+  id            String    @id @default(uuid()) @db.Uuid
+  orderNumber   Int       @unique // 4/5 digit sequential
+  buyerId       String    @db.Uuid
+  buyer         AgroHubUser @relation(fields: [buyerId], references: [id])
+  totalPrice    Int
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  items OrderItem[]
+
+  @@map("orders")
+  @@schema("public")
+}
+
+model OrderItem {
+  id         String   @id @default(uuid()) @db.Uuid
+  orderId    String   @db.Uuid
+  produceId  String   @db.Uuid
+  produce    Produce  @relation(fields: [produceId], references: [id])
+  unitType   String
+  totalQuantity Int
+  totalPrice Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  order      Order    @relation(fields: [orderId], references: [id])
+  breakdowns OrderItemBreakdown[]
+
+  @@map("order_items")
+  @@schema("public")
+}
+
+model OrderItemBreakdown {
+  id               String   @id @default(uuid()) @db.Uuid
+
+  orderItemId      String   @db.Uuid
+  orderItem        OrderItem @relation(fields: [orderItemId], references: [id])
+
+  produceListingId String   @db.Uuid
+  produceListing   ProduceListing @relation(fields: [produceListingId], references: [id])
+
+  farmId         String   @db.Uuid
+  farm             Farm     @relation(fields: [farmId], references: [id])
+
+  quantity         Int
+  price            Int
+
+  // Main AgroHub-side status flow
+  status           BreakdownStatus @default(PROCESSING)
+
+  // Farmer-specific actions
+  farmerConfirmed  Boolean  @default(false)
+  farmerShipped    Boolean  @default(false)
+
+  // AgroHub-specific actions
+  agrohubShipped   Boolean  @default(false)
+
+  // Final delivery mark (AgroHub only)
+  delivered        Boolean  @default(false)
+
+  // Cancellations
+  cancelledBy      OrderParty?
+
+  // Files
+  paymentProofUrl  String?   // AgroHub uploads payment proof PDF here
+  invoiceUrl       String?   // Farmer uploads invoice PDF here
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("order_item_breakdowns")
+  @@schema("public")
+}
+
+enum BreakdownStatus {
+  PROCESSING        // Set by AgroHub when order starts
+  READY_FOR_PICKUP  // Set by AgroHub after farmer confirms
+
+  @@schema("public")
+}
+
+enum OrderParty {
+  AGROHUB
+  FARMER
+
+  @@schema("public")
+}

@@ -19,6 +19,7 @@ export default function Cart() {
 
   useEffect(() => {
     const stored = sessionStorage.getItem("cart-items");
+    console.log("Stored cart items:", stored);
     if (stored) {
       setCartItems(JSON.parse(stored));
     }

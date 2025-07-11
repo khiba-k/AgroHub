@@ -140,13 +140,15 @@ export default function AgroHubListings() {
     let remaining = quantity;
     const breakdown: OrderBreakdown[] = [];
 
+    console.log("[LISTINGS_BREAKDOWN]", listings);
+
     for (const listing of listings) {
       if (remaining <= 0) break;
       const chunk = Math.min(remaining, listing.quantity);
       if (chunk > 0) {
         breakdown.push({
-          farmerId: listing.id,
-          farmerName: listing.farm.name,
+          farmerId: listing.farm.id,
+          farmerName: listing.location,
           quantity: chunk,
           price: chunk * Number(listing.produce.pricePerUnit),
           location: listing.farm.district,
