@@ -13,10 +13,12 @@ const CartOrderSummary = ({
   totalItems,
   totalPrice,
   cartItems,
+  setCartItems, 
 }: {
   totalItems: number;
   totalPrice: number;
   cartItems: CartItem[];
+  setCartItems: React.Dispatch<React.SetStateAction<CartItem[]>>;
 }) => {
   const { userId } = useUserStore();
   const { showToast } = useToastStore();
@@ -52,6 +54,8 @@ const CartOrderSummary = ({
       if (response.status === 200 || response.status === 201) {
         showToast(true, "Order placed successfully!");
         sessionStorage.removeItem("cart-items");
+        setCartItems([]); // Clear cart state after successful order
+
         // Optional: redirect here if needed
       } else {
         showToast(false, "Something went wrong placing the order.");

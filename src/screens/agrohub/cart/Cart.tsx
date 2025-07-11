@@ -91,11 +91,11 @@ export default function Cart() {
       const chunk = Math.min(remaining, listing.quantity);
       if (chunk > 0) {
         newBreakdown.push({
-          farmerId: listing.id,
+          farmerId: listing.farm.id,
           farmerName: listing.farm.name,
           quantity: chunk,
           price: chunk * Number(listing.produce.pricePerUnit),
-          location: listing.farm.district,
+          location: listing.location,
         });
         remaining -= chunk;
       }
@@ -166,6 +166,7 @@ export default function Cart() {
               totalItems={totalItems}
               totalPrice={totalPrice}
               cartItems={cartItems}
+              setCartItems={setCartItems}
             />
           </div>
         </div>
