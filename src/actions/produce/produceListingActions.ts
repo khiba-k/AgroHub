@@ -140,9 +140,6 @@ export const getProduceListings = async ({
             produce: true,
             images: true,
             soldListings: {
-              orderBy: {
-                soldDate: 'desc',
-              },
               take: 1, // Get the latest sale
             },
           },
