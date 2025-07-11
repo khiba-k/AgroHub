@@ -10,6 +10,9 @@ import {
 } from "@/components/ui/select";
 
 import { useProduceStore } from "@/lib/store/useProductStore";
+import { useFarmStore } from "@/lib/store/userStores";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export function ProduceStepOne({
   category,
@@ -38,6 +41,8 @@ export function ProduceStepOne({
   const typeSuggestions = category && produceName ? getSuggestions(category, produceName) : [];
 
   const [estimatedIncome, setEstimatedIncome] = useState<number | null>(null);
+  const {farmHasPaymentMethod} = useFarmStore();
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
 
   useEffect(() => {
     const price = produceMap?.[category]?.[produceName]?.[produceType]?.pricePerUnit;
@@ -51,6 +56,13 @@ export function ProduceStepOne({
     }
     setEstimatedIncome(null);
   }, [quantity, category, produceName, produceType, produceMap]);
+
+  useEffect(() => {
+  if (produceStatus === "active" && !farmHasPaymentMethod) {
+    setShowPaymentDialog(true);
+  }
+}, [produceStatus, farmHasPaymentMethod]);
+
 
   return (
     <div className="space-y-6">
@@ -162,6 +174,22 @@ export function ProduceStepOne({
           </div>
         )}
       </div>
+
+
+<Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Missing Payment Details</DialogTitle>
+    </DialogHeader>
+    <div className="text-sm text-muted-foreground">
+      To activate your listing, you need to provide at least one payment method.
+      Please go to your profile and enter payment details.
     </div>
+    <DialogFooter className="pt-4">
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+    </div>
+
   );
 }
