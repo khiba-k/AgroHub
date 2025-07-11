@@ -9,7 +9,7 @@ export function OrdersHeader() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
           <p className="text-muted-foreground">
-            Track and manage your marketplace orders
+            Track and manage produce orders
           </p>
         </div>
       </div>
