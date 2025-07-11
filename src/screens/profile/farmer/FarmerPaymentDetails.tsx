@@ -226,8 +226,8 @@ const FarmerPaymentDetails = () => {
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {["accountHolder", "accountNumber", "accountType", "bankName", "branchCode"].map((field, index) => (
-          <div key={field} className={field === "branchCode" ? "md:col-span-2" : ""}>
+        {["Account Holder", "Acount Number", "Account Type", "Bank Name", "Branch Code"].map((field, index) => (
+          <div key={field} className={field === "branch Code" ? "md:col-span-2" : ""}>
             <Label>{prefix}{field.replace(/([A-Z])/g, " $1")}</Label>
             <Input
               type="text"
