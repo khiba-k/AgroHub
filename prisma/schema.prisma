@@ -228,19 +228,13 @@ model HarvestListing {
 
 // Sold status details
 model SoldListing {
-  id        String   @id @default(uuid()) @db.Uuid
-  soldDate  DateTime @default(now())
-  soldPrice String   // Final price it was sold for
-  buyerInfo String?  // Optional buyer information
-  
-  // Any sold-specific fields
-  deliveryDate DateTime?
-  soldNotes    String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id         String   @id @default(uuid()) @db.Uuid
+  soldPrice  Int      // use Int for adding up — or Decimal if you want cents
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  listingId String         @db.Uuid
-  listing   ProduceListing @relation(fields: [listingId], references: [id])
+  listingId  String         @unique @db.Uuid  // ✅ unique: 1:1 with ProduceListing
+  listing    ProduceListing @relation(fields: [listingId], references: [id])
 
   @@map("sold_listings")
   @@schema("public")
@@ -314,6 +308,9 @@ model OrderItemBreakdown {
   paymentProofUrl  String?   // AgroHub uploads payment proof PDF here
   invoiceUrl       String?   // Farmer uploads invoice PDF here
 
+  farmerConfirmsPayment Boolean @default(false)
+  agrohubConfirmsPayment Boolean @default(false)
+  
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
