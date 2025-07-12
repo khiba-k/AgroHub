@@ -48,7 +48,6 @@ export async function updateSession(request: NextRequest) {
     '/onboarding/agrohub',
     '/onboarding/farm',
     '/onboarding/consumer',
-    '/admin',
     'password/reset',
     '/password/forgot',
     'password/validate'
@@ -67,7 +66,7 @@ export async function updateSession(request: NextRequest) {
   // Redirect root to appropriate page
   if (pathname === '/') {
     const url = request.nextUrl.clone()
-    url.pathname = user ? '/dashboard' : '/welcome'
+    url.pathname = user ? '/produce' : '/welcome'
     return NextResponse.redirect(url)
   }
 
@@ -95,7 +94,7 @@ export async function updateSession(request: NextRequest) {
   if (pathname.startsWith('/admin/agrohub/')) {
     if (role !== 'agrohub') {
       const url = request.nextUrl.clone()
-      url.pathname = '/dashboard' // or '/unauthorized' if you have an error page
+      url.pathname = '/produce' // or '/unauthorized' if you have an error page
       return NextResponse.redirect(url)
     }
   }
@@ -103,7 +102,7 @@ export async function updateSession(request: NextRequest) {
   if (isOnboarded && isOnboardingPage) {
     console.log("Already onboarded but visiting onboarding — redirecting to dashboard")
     const url = request.nextUrl.clone()
-    url.pathname = '/dashboard'
+    url.pathname = '/produce'
     return NextResponse.redirect(url)
   }
 

@@ -373,7 +373,7 @@ export function ProduceList({ status }: ProduceListProps) {
                   <strong>Quantity:</strong> {selectedListing.quantity} kg
                 </p>
                 <p>
-                  <strong>Price:</strong> ${selectedListing.produce?.pricePerUnit} per{" "}
+                  <strong>Price:</strong> M{selectedListing.produce?.pricePerUnit} per{" "}
                   {selectedListing.produce?.unitType}
                 </p>
                 {selectedListing.harvestDate && (
