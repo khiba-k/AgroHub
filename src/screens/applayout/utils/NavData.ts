@@ -5,6 +5,7 @@ import {
     Leaf,
     Settings,
     ShoppingCart,
+    List,
     Store,
     Truck
 } from "lucide-react";
@@ -151,7 +152,7 @@ export const navItems: NavItem[] = [
         children: [
             {
                 label: "Listings",
-                icon: ShoppingCart,
+                icon: List,
                 href: "/produce",
                 roles: [
                     "farmer",
@@ -165,7 +166,7 @@ export const navItems: NavItem[] = [
         
             {
                 label: "Orders",
-                icon: ShoppingCart,
+                icon: BarChart,
                 href: "/produce/orders",
                 roles: [ "agrohub","farmer", "retailer",],
             },
