@@ -10,6 +10,8 @@ import {
     handleMarkDelivered,
 } from "../Orders";
 import { AgroHubOrderDetailsDialog } from "./AgroHubOrderDetailsDialog";
+import { Search, SearchIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export function AgroHubOrdersTable({
     data,
@@ -20,6 +22,24 @@ export function AgroHubOrdersTable({
     mutate: () => void;
     tab?: string;
 }) {
+
+    const [search, setSearch] = React.useState("");
+
+    // Filter data based on search input
+    const filteredData = data.filter((b) => {
+        const farmName = b.produceListing.farm.name.toLowerCase();
+        const produceName = b.produceListing.produce.name.toLowerCase();
+        const produceType = b.produceListing.produce.type?.toLowerCase() || "";
+
+        const query = search.toLowerCase();
+
+        return (
+            farmName.includes(query) ||
+            produceName.includes(query) ||
+            produceType.includes(query)
+        );
+    });
+
     function statusColor(b: Breakdown) {
         if (b.status === "PROCESSING") return "bg-yellow-200 text-yellow-800";
         if (b.status === "READY_FOR_PICKUP") {
@@ -45,7 +65,20 @@ export function AgroHubOrdersTable({
 
     return (
         <div className="rounded-md border">
-            {data.length === 0 ? (
+             <div className="p-4 border-b flex items-center justify-between">
+                <h3 className="font-semibold text-lg">Orders</h3>
+                <div className="flex items-end justify-center ">
+                <SearchIcon className="h-8 w-4 "/>
+                <Input
+                    type="search"
+                    placeholder="Search by farm, produce..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-72 ml-2"
+                />
+                </div>
+            </div>
+            {filteredData.length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground">
                     No orders in this tab.
                 </div>
@@ -68,7 +101,7 @@ export function AgroHubOrdersTable({
                                 </tr>
                             </thead>
                             <tbody>
-                                {data.map((b) => (
+                            {filteredData.map((b) => (
                                     <tr key={b.id} className="border-b">
                                         <td className="px-4 py-2">{b.orderItem.order.orderNumber}</td>
                                         <td className="px-4 py-2">
@@ -77,8 +110,8 @@ export function AgroHubOrdersTable({
                                         <td className="px-4 py-2">M{b.price}</td>
                                         <td className="px-4 py-2">{b.produceListing.farm.name}</td>
                                         <td className="px-4 py-2">
-                                            {b.produceListing.produce?.type}{" "}
-                                            {b.produceListing.produce.name}
+                                        {b.produceListing.produce?.type}{" "}
+                                        {b.produceListing.produce.name}
                                         </td>
                                         {tab === "all" && (
                                             <td className="px-4 py-2">
@@ -139,7 +172,8 @@ export function AgroHubOrdersTable({
 
                     {/* Mobile Cards */}
                     <div className="block md:hidden space-y-4 p-4 ">
-                        {data.map((b) => (
+                    {filteredData.map((b) => (
+                            
                             <div
                                 key={b.id}
                                 className="border rounded-lg p-4 bg-background shadow-sm space-y-2"
