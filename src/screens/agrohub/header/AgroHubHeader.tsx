@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Plus, MenuIcon } from "lucide-react";
+import { Plus, MenuIcon, Leaf } from "lucide-react";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ThemeSwitcher } from "@/components/theme-switcher";
@@ -14,11 +14,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import AgroHubAddProductForm from "../listings/components/AgroHubAddProductForm";
 import InviteForm from "@/screens/invite/InviteForm";
 import { useFarmStore, useUserStore } from "@/lib/store/userStores";
@@ -58,21 +54,31 @@ const AgroHubHeader = () => {
   return (
     <>
       <header className="border-b border-gray-200">
-        <div className="mx-auto px-6 py-3 flex items-center">
-
+        <div className="mx-auto px-6 py-3 flex items-center justify-between">
           {/* 🧭 Sidebar Icon + AgroHub */}
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" className="rounded-full">
               {/* <MenuIcon className="w-6 h-6" /> */}
             </Button>
+            <Leaf className="h-6 w-6 text-primary" />
             <h1 className="text-2xl font-bold">AgroHub</h1>
           </div>
 
-          {/* 🧑‍💼 Right Actions */}
-          <div className="flex items-center gap-2 ml-auto">
+          {/* 🧑‍💼 Right Actions - Includes Add Produce for Small Screens, Theme, Profile */}
+          <div className="flex items-center gap-2">
+            {/* Plus icon for 'Add New Produce' - Visible only on small screens */}
             <Button
               onClick={() => setShowAddProduct(true)}
-              className="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors"
+              className="sm:hidden bg-black hover:bg-gray-800 text-white rounded-full p-2 h-8 w-8"
+              size="icon"
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+
+            {/* Full 'Add New Produce' button - Hidden on small screens */}
+            <Button
+              onClick={() => setShowAddProduct(true)}
+              className="hidden sm:flex bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-lg items-center space-x-2 transition-colors"
             >
               <Plus className="w-4 h-4" />
               <span>Add New Produce</span>
@@ -144,4 +150,3 @@ const AgroHubHeader = () => {
 };
 
 export default AgroHubHeader;
-

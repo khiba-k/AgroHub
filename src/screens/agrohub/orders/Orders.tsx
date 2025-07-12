@@ -11,6 +11,7 @@ import { OrdersHeader } from "@/screens/orders/components/OrdersHeader";
 import { AgroHubOrdersTable } from "./components/AgroHubOrdersTable";
 import { useToastStore } from "@/lib/store/useToastStore";
 
+// Re-exporting functions as they are used elsewhere
 export async function handleMarkReady(id: string) {
     try {
         await axios.post(`/api/orders/agrohub/${id}/ready`);
@@ -144,6 +145,17 @@ const LoadingOrders = () => (
 export default function Orders() {
     const [activeTab, setActiveTab] = useState("all");
 
+    // Define your tab options and their display names
+    const tabOptions = [
+        { value: "all", label: "All Orders" },
+        { value: "processing", label: "Processing" },
+        { value: "confirmed", label: "Confirmed" },
+        { value: "ready", label: "Ready For Pickup" },
+        { value: "shipped", label: "Shipped" },
+        { value: "delivered", label: "Delivered" },
+        { value: "cancelled", label: "Cancelled" },
+    ];
+
     const { data, mutate, isLoading } = useSWR(
         `/api/orders/agrohub${activeTab !== "all" ? `?tab=${activeTab}` : ""}`,
         fetcher
@@ -152,55 +164,54 @@ export default function Orders() {
     const breakdowns: Breakdown[] = data || [];
 
     return (
-        <div className="space-y-6 w-[80%]">
+        <div className="space-y-6 p-4 md:p-8 lg:p-12 max-w-7xl mx-auto w-full">
             <OrdersHeader />
 
             <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="w-full justify-start">
-                    <TabsTrigger value="all">All Orders</TabsTrigger>
-                    <TabsTrigger value="processing">Processing</TabsTrigger>
-                    <TabsTrigger value="confirmed">Confirmed</TabsTrigger>
-                    <TabsTrigger value="ready">Ready For Pickup</TabsTrigger>
-                    <TabsTrigger value="shipped">Shipped</TabsTrigger>
-                    <TabsTrigger value="delivered">Delivered</TabsTrigger>
-                    <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
+                {/* Desktop/Larger Screen TabsList */}
+                <TabsList className="w-full justify-start overflow-x-auto whitespace-nowrap hidden sm:flex">
+                    {tabOptions.map((option) => (
+                        <TabsTrigger key={option.value} value={option.value}>
+                            {option.label}
+                        </TabsTrigger>
+                    ))}
                 </TabsList>
 
-                <div className="flex justify-between items-center mt-4">
-                    <div className="relative w-full max-w-sm">
+                {/* Mobile/Small Screen Dropdown */}
+                <div className="w-full sm:hidden">
+                    <select
+                        value={activeTab}
+                        onChange={(e) => setActiveTab(e.target.value)}
+                        className="w-full p-2 border rounded-md bg-background text-foreground"
+                    >
+                        {tabOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
+                    <div className="relative w-full sm:max-w-sm">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input type="search" placeholder="Search orders..." className="pl-8" />
+                        <Input type="search" placeholder="Search orders..." className="pl-8 w-full" />
                     </div>
-                    <Button variant="outline" size="sm">
+                    {/* <Button variant="outline" size="sm" className="w-full sm:w-auto">
                         <Filter className="mr-2 h-4 w-4" /> Filter
-                    </Button>
+                    </Button> */}
                 </div>
 
                 {isLoading ? (
                     <LoadingOrders />
                 ) : (
                     <>
-                        <TabsContent value="all" className="space-y-4 mt-4">
-                            <AgroHubOrdersTable data={breakdowns} mutate={mutate} />
-                        </TabsContent>
-                        <TabsContent value="processing" className="space-y-4 mt-4">
-                            <AgroHubOrdersTable data={breakdowns} mutate={mutate} />
-                        </TabsContent>
-                        <TabsContent value="confirmed" className="space-y-4 mt-4">
-                            <AgroHubOrdersTable data={breakdowns} mutate={mutate} />
-                        </TabsContent>
-                        <TabsContent value="ready" className="space-y-4 mt-4">
-                            <AgroHubOrdersTable data={breakdowns} mutate={mutate} />
-                        </TabsContent>
-                        <TabsContent value="shipped" className="space-y-4 mt-4">
-                            <AgroHubOrdersTable data={breakdowns} mutate={mutate} />
-                        </TabsContent>
-                        <TabsContent value="delivered" className="space-y-4 mt-4">
-                            <AgroHubOrdersTable data={breakdowns} mutate={mutate} />
-                        </TabsContent>
-                        <TabsContent value="cancelled" className="space-y-4 mt-4">
-                            <AgroHubOrdersTable data={breakdowns} mutate={mutate} />
-                        </TabsContent>
+                        {/* Render TabsContent based on activeTab */}
+                        {tabOptions.map((option) => (
+                            <TabsContent key={option.value} value={option.value} className="space-y-4 mt-4">
+                                <AgroHubOrdersTable data={breakdowns} mutate={mutate} />
+                            </TabsContent>
+                        ))}
                     </>
                 )}
             </Tabs>
