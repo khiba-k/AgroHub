@@ -35,11 +35,7 @@ export const loadListings = async (
   selectedType: string | undefined,
   getSuggestions: (category?: string, produce?: string) => string[],
 ) => {
-  console.log("Loading listings with filters:", {
-    selectedCategory,
-    selectedProduce,
-    selectedType,
-  })
+  
 
   try {
     setIsLoading(true)
@@ -66,7 +62,6 @@ export const loadListings = async (
       type: hasTypes ? selectedType : undefined,
     })
 
-    console.log("Listings data received:", data)
 
     const totalAvailable: number = data.reduce(
       (sum: number, item: FilteredListing) => sum + item.quantity,

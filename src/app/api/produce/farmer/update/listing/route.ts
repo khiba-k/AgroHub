@@ -32,35 +32,35 @@ export async function PUT(req: NextRequest) {
     }
 
     // ✅ Check if listing is active/draft
-    if (input.status === "active" || input.status === "draft") {
-      const existingActiveOrDraft = await prisma.produceListing.findFirst({
-        where: {
-          id: { not: input.id }, // ← exclude current listing!
-          farmId: input.farmId,
-          produce: {
-            category: produce.category,
-            name: produce.name,
-            ...(produce.type ? { type: produce.type } : {}),
-          },
-          activeDraftListing: {
-            status: {
-              in: ["active", "draft"],
-            },
-          },
-          location: input.location,
-        },
-      });
+    // if (input.status === "active" || input.status === "draft") {
+    //   const existingActiveOrDraft = await prisma.produceListing.findFirst({
+    //     where: {
+    //       id: { not: input.id }, // ← exclude current listing!
+    //       farmId: input.farmId,
+    //       produce: {
+    //         category: produce.category,
+    //         name: produce.name,
+    //         ...(produce.type ? { type: produce.type } : {}),
+    //       },
+    //       activeDraftListing: {
+    //         status: {
+    //           in: ["active", "draft"],
+    //         },
+    //       },
+    //       location: input.location,
+    //     },
+    //   });
 
-      if (existingActiveOrDraft) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Another active or draft listing already exists with this produce and location.",
-          },
-          { status: 409 }
-        );
-      }
-    }
+    //   if (existingActiveOrDraft) {
+    //     return NextResponse.json(
+    //       {
+    //         success: false,
+    //         error: "Another active or draft listing already exists with this produce and location.",
+    //       },
+    //       { status: 409 }
+    //     );
+    //   }
+    // }
 
     // ✅ Check if listing is harvest
     if (input.status === "harvest" && input.harvestDate) {

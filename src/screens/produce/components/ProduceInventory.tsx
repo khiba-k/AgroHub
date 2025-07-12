@@ -71,7 +71,6 @@ export function ProduceInventory() {
             "0",
         }));
 
-        console.log("[INVENTORY_FETCHED]", enriched);
         setInventory(enriched);
       } else {
         setInventory([]);
