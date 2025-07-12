@@ -63,35 +63,35 @@ export async function PUT(req: NextRequest) {
     // }
 
     // ✅ Check if listing is harvest
-    if (input.status === "harvest" && input.harvestDate) {
-      const existingHarvest = await prisma.produceListing.findFirst({
-        where: {
-          id: { not: input.id }, // ← exclude current listing!
-          farmId: input.farmId,
-          produce: {
-            category: produce.category,
-            name: produce.name,
-            ...(produce.type ? { type: produce.type } : {}),
-          },
-          location: input.location,
-          harvestListings: {
-            some: {
-              harvestDate: input.harvestDate,
-            },
-          },
-        },
-      });
+    // if (input.status === "harvest" && input.harvestDate) {
+    //   const existingHarvest = await prisma.produceListing.findFirst({
+    //     where: {
+    //       id: { not: input.id }, // ← exclude current listing!
+    //       farmId: input.farmId,
+    //       produce: {
+    //         category: produce.category,
+    //         name: produce.name,
+    //         ...(produce.type ? { type: produce.type } : {}),
+    //       },
+    //       location: input.location,
+    //       harvestListings: {
+    //         some: {
+    //           harvestDate: input.harvestDate,
+    //         },
+    //       },
+    //     },
+    //   });
 
-      if (existingHarvest) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Another harvest listing already exists with this produce, location, and date.",
-          },
-          { status: 409 }
-        );
-      }
-    }
+    //   if (existingHarvest) {
+    //     return NextResponse.json(
+    //       {
+    //         success: false,
+    //         error: "Another harvest listing already exists with this produce, location, and date.",
+    //       },
+    //       { status: 409 }
+    //     );
+    //   }
+    // }
 
     // ✅ Proceed to upload new images
     const uploadedUrls: string[] = [];

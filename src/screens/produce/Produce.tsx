@@ -86,27 +86,27 @@ export default function Produce() {
 
           <TabsContent value="active" className="space-y-4 pt-4">
             <div className="flex justify-end">
-              <Button variant="outline" size="sm">
+              {/* <Button variant="outline" size="sm">
                 <Filter className="mr-2 h-4 w-4" /> Filter
-              </Button>
+              </Button> */}
             </div>
             <ProduceList status="active" />
           </TabsContent>
 
           <TabsContent value="sold" className="space-y-4 pt-4">
             <div className="flex justify-end">
-              <Button variant="outline" size="sm">
+              {/* <Button variant="outline" size="sm">
                 <Filter className="mr-2 h-4 w-4" /> Filter
-              </Button>
+              </Button> */}
             </div>
             <ProduceList status="sold" />
           </TabsContent>
 
           <TabsContent value="harvest" className="space-y-4 pt-4">
             <div className="flex justify-end">
-              <Button variant="outline" size="sm">
+              {/* <Button variant="outline" size="sm">
                 <Filter className="mr-2 h-4 w-4" /> Filter
-              </Button>
+              </Button> */}
             </div>
             <ProduceList status="harvest" setActiveMode={
               setActiveMode
@@ -121,9 +121,9 @@ export default function Produce() {
 
           <TabsContent value="draft" className="space-y-4 pt-4">
             <div className="flex justify-end">
-              <Button variant="outline" size="sm">
+              {/* <Button variant="outline" size="sm">
                 <Filter className="mr-2 h-4 w-4" /> Filter
-              </Button>
+              </Button> */}
             </div>
             <ProduceList status="draft"
               setActiveMode={setActiveMode}

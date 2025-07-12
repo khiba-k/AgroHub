@@ -71,6 +71,8 @@ export function ProduceInventory() {
             "0",
         }));
 
+        console.log("[INVENTORY_FETCH_SUCCESS]", enriched);
+
         setInventory(enriched);
       } else {
         setInventory([]);
@@ -227,13 +229,12 @@ export function ProduceInventory() {
 
                 {/* Sold History */}
                 <section className="border-b pb-4">
-                  <h4 className="text-lg font-semibold mb-2">Sold History</h4>
+                  <h4 className="text-lg font-semibold mb-2">Sales</h4>
                   {selected.solds.length ? (
                     <ul className="list-disc list-inside space-y-1">
                       {selected.solds.map((s) => (
                         <li key={s.id}>
-                          Sold Date:{" "}
-                          {new Date(s.soldDate).toLocaleDateString()} — Price: M
+                          Sold {s.soldQuantity} {selected.unitType} for M
                           {s.soldPrice}
                         </li>
                       ))}

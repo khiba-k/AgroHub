@@ -406,22 +406,25 @@ export const updateProduceListing = async (input: any) => {
       },
     });
 
-    // ✅ 2️⃣ Update or create the correct status row
-    const statusToUse: ActiveDraftStatus =
-      validatedData.status === 'draft'
-        ? ActiveDraftStatus.draft
-        : ActiveDraftStatus.active;
+    if (validatedData.status !== "harvest") {
+      // ✅ 2️⃣ Update or create the correct status row
+      const statusToUse: ActiveDraftStatus =
+        validatedData.status === 'draft'
+          ? ActiveDraftStatus.draft
+          : ActiveDraftStatus.active;
 
-    await tx.activeDraftListing.upsert({
-      where: { listingId: validatedData.id },
-      create: {
-        listingId: validatedData.id,
-        status: statusToUse,
-      },
-      update: {
-        status: statusToUse,
-      },
-    });
+      await tx.activeDraftListing.upsert({
+        where: { listingId: validatedData.id },
+        create: {
+          listingId: validatedData.id,
+          status: statusToUse,
+        },
+        update: {
+          status: statusToUse,
+        },
+      });
+    }
+
 
     // ✅ 3️⃣ If harvest, also upsert harvest details
     if (validatedData.status === 'harvest') {

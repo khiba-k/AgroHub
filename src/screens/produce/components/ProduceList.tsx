@@ -215,7 +215,7 @@ export function ProduceList({ status,
             .filter((item) => item.status === status)
             .map((item) => (
               <Card key={item.id} className="overflow-hidden">
-                <div className="aspect-video relative overflow-hidden">
+                <div className={`aspect-video ${status === "harvest" ? "w-full h-[60px]" : ""} relative overflow-hidden`}>
                   {item.images?.length > 0 && (
                     <img
                       src={item.images[0].url}

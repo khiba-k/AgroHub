@@ -16,7 +16,7 @@ export function ProduceFormSteps({
   ...form
 }: any) {
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
+    <form onSubmit={handleSubmit} className="space-y-6 mx-auto">
       {step === 1 && (
         <ProduceStepOne {...form} isActiveListing={isActiveListing} isEditing={isEditing}/>
       )}
