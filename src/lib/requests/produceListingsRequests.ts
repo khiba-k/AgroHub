@@ -42,6 +42,7 @@ export const fetchProduceListings = async ({
 
   const response = await axios.post("/api/produce/farmer/listings", body);
 
+  console.log("Returned by handler: ", response);
   // Return data as-is; adjust here if backend wraps listings in an object
   return response.data.data;
 };
@@ -74,6 +75,7 @@ export const filterProduceListings = async ({
       limit,
     },
   });
+
   return response.data.data;
 };
 

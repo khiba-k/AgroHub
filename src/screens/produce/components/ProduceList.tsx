@@ -221,7 +221,7 @@ export function ProduceList({ status }: ProduceListProps) {
                       </p>
                     </div>
 
-                    <DropdownMenu>
+                    {status !== "sold" && (<DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
                           <MoreHorizontal className="h-4 w-4" />
@@ -248,20 +248,20 @@ export function ProduceList({ status }: ProduceListProps) {
                           <Trash2 className="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
-                    </DropdownMenu>
+                    </DropdownMenu>)}
                   </div>
 
                   {/* ✅ Important details */}
                   <div className="mt-4 space-y-2">
                     <div className="flex justify-between">
                       <span className="text-sm">Quantity:</span>
-                      <span className="font-medium">{item.quantity} kg</span>
+                      <span className="font-medium">{status === "sold" ? item.soldQuantity : item.quantity} kg</span>
                     </div>
 
                     <div className="flex justify-between">
                       <span className="text-sm">Price:</span>
                       <span className="font-medium">
-                        ${item.produce?.pricePerUnit ?? "0"}/
+                        M {item.produce?.pricePerUnit ?? "0"}/
                         {item.produce?.unitType ?? ""}
                       </span>
                     </div>
@@ -283,7 +283,7 @@ export function ProduceList({ status }: ProduceListProps) {
                   </div>
                 </CardContent>
 
-                <CardFooter className="p-4 pt-0 flex justify-between">
+                {status !== "sold" && (<CardFooter className="p-4 pt-0 flex justify-between">
                   <Button
                     variant="outline"
                     size="sm"
@@ -311,7 +311,7 @@ export function ProduceList({ status }: ProduceListProps) {
                       <ProduceForm initialData={item} onClose={handleDialogClose} />
                     </DialogContent>
                   </Dialog>
-                </CardFooter>
+                </CardFooter>)}
               </Card>
             ))}
         </div>

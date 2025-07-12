@@ -7,6 +7,9 @@ interface Listing {
   quantity: number;
   status: string;
   harvestDate?: string;
+  soldDate?: string;        // ✅ new
+  soldPrice?: number;       // ✅ new
+  soldQuantity?: number;    // ✅ new
   produce: {
     id: string;
     name: string;

@@ -26,6 +26,8 @@ export const getProduceListings = async ({
     let listings;
     let total;
 
+    console.log("And the status is: ", status)
+
     switch (status) {
       case 'active':
         listings = await prisma.produceListing.findMany({
@@ -165,26 +167,34 @@ export const getProduceListings = async ({
     }
 
     // Transform data to match your store interface
-    const transformedListings = listings.map((listing: any) => ({
-      id: listing.id,
-      location: listing.location,
-      description: listing.description,
-      quantity: listing.quantity,
-      status: status,
-      harvestDate: listing.harvestListings?.[0]?.harvestDate?.toISOString(),
-      produce: {
-        id: listing.produce.id,
-        name: listing.produce.name,
-        category: listing.produce.category,
-        type: listing.produce.type,
-        unitType: listing.produce.unitType,
-        pricePerUnit: listing.produce.pricePerUnit,
-      },
-      images: listing.images.map((img: any) => ({
-        id: img.id,
-        url: img.url,
-      })),
-    }));
+    const transformedListings = listings.map((listing: any) => {
+  const latestSold = listing.soldListings?.[0];
+
+  return {
+    id: listing.id,
+    location: listing.location,
+    description: listing.description,
+    quantity: listing.quantity,
+    status: status,
+    harvestDate: listing.harvestListings?.[0]?.harvestDate?.toISOString(),
+    soldDate: latestSold?.createdAt?.toISOString(), // ✅ Optional field for sold
+    soldPrice: latestSold?.soldPrice,                // ✅ Optional field
+    soldQuantity: latestSold?.soldQuantity,          // ✅ Optional field
+    produce: {
+      id: listing.produce.id,
+      name: listing.produce.name,
+      category: listing.produce.category,
+      type: listing.produce.type,
+      unitType: listing.produce.unitType,
+      pricePerUnit: listing.produce.pricePerUnit,
+    },
+    images: listing.images.map((img: any) => ({
+      id: img.id,
+      url: img.url,
+    })),
+  };
+});
+
 
     return {
       listings: transformedListings,
