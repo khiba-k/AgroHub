@@ -64,7 +64,7 @@ export function AgroHubOrdersTable({
                                 {tab === "all" && (
                                     <th className="px-4 py-2 text-left">Status</th>
                                 )}
-                                <th className="px-4 py-2 text-right">Actions</th>
+                                <th className="px-4 py-2 ">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -88,7 +88,8 @@ export function AgroHubOrdersTable({
                                             </Badge>
                                         </td>
                                     )}
-                                    <td className="px-4 py-2 text-right flex flex-wrap justify-end gap-2">
+                                    <td className="px-4 py-2  flex  space-x-8">
+            
                                         <AgroHubOrderDetailsDialog breakdown={b} mutate={mutate} />
 
                                         {b.status === "PROCESSING" && (

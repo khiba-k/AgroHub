@@ -17,12 +17,15 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
-  Breakdown,
-  handleCancel,
-  handleConfirmPayment,
-  handleUploadProof,
-} from "../Orders";
+  Breakdown, // Ensure this is correctly defined/imported
+  handleCancel, // Ensure this is correctly defined/imported
+  handleConfirmPayment, // Ensure this is correctly defined/imported
+  handleUploadProof, // Ensure this is correctly defined/imported
+} from "../Orders"; // Adjust path if necessary
 import { useState } from "react";
+
+// Import Tabs components from shadcn/ui
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function AgroHubOrderDetailsDialog({
   breakdown,
@@ -62,10 +65,11 @@ export function AgroHubOrderDetailsDialog({
       await handleUploadProof(b.id, selectedFile);
       mutate();
       setLoadingId(null);
-      setSelectedFile(null);
+      setSelectedFile(null); // Clear selected file after upload
     }
   }
 
+  // Helper component to display payment method details
   function PaymentMethodDisplay({
     payment,
   }: {
@@ -123,166 +127,198 @@ export function AgroHubOrderDetailsDialog({
           <span>Details</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-screen overflow-y-hidden">
+      {/* Dialog content - Optimized for mobile responsiveness */}
+      <DialogContent
+        className="
+          flex flex-col h-[95vh] w-[95vw] max-h-[95vh] max-w-none
+          sm:h-auto sm:w-full sm:max-w-3xl sm:max-h-[90vh]
+        "
+      >
         <DialogHeader>
           <DialogTitle>Order #{b.orderItem.order.orderNumber}</DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col gap-6 max-h-[80vh] overflow-y-auto pr-2">
-          {/* Buyer */}
-          <div>
-            <h4 className="font-semibold mb-1">Buyer</h4>
-            <p>{buyer}</p>
-          </div>
+        {/* Tabs for content organization */}
+        <Tabs defaultValue="order-summary" className="w-full flex-grow flex flex-col">
+          {/* Tab Headers */}
+          {/* TabsList: Default to flex-col, switch to grid-cols-2 on sm screens */}
+          <TabsList className="w-full flex flex-col sm:grid sm:grid-cols-2">
+            <TabsTrigger value="order-summary">Order Summary</TabsTrigger>
+            <TabsTrigger value="payment-actions">Payment & Actions</TabsTrigger>
+          </TabsList>
 
-          {/* Farmer Contact */}
-          <div>
-            <h4 className="font-semibold mb-1">Farmer Contact</h4>
-            <p>Farm: {farm.name}</p>
-            <p>Contact 1: {farm.contactNumber1}</p>
-            {farm.contactNumber2 && <p>Contact 2: {farm.contactNumber2}</p>}
-          </div>
+          {/* Tab 1 Content: Order Summary */}
+          {/* Ensure tabs content can scroll if needed */}
+          <TabsContent value="order-summary" className="flex-grow overflow-y-auto pr-2">
+            <div className="flex flex-col gap-6 pt-4 pb-4"> {/* Added pb-4 for bottom spacing */}
+              {/* Buyer */}
+              <div>
+                <h4 className="font-semibold mb-1">Buyer</h4>
+                <p>{buyer}</p>
+              </div>
 
-          {/* Order Details */}
-          <div>
-            <h4 className="font-semibold mb-1">Order Details</h4>
-            <p>
-              Produce: {b.produceListing.produce.name} (
-              {b.produceListing.produce.type})
-            </p>
-            <p>
-              Quantity: {b.quantity} {b.produceListing.produce.unitType}
-            </p>
-            <p>Total: M{b.price}</p>
-          </div>
-
-          {/* Farmer Confirmation */}
-          <div>
-            <h4 className="font-semibold mb-1">Farmer Confirmation</h4>
-            <p className="text-sm">
-              {b.farmerConfirmed ? "✅ Confirmed" : "❌ Not Confirmed"}
-            </p>
-          </div>
-
-          {/* Payment Status */}
-          <div>
-            <h4 className="font-semibold mb-1">Payment Status</h4>
-            <p className="text-sm">
-              {b.agrohubConfirmsPayment && b.farmerConfirmsPayment ? (
-                <Badge className="bg-green-200 text-green-800">Paid</Badge>
-              ) : (
-                <Badge className="bg-yellow-200 text-yellow-800">
-                  Not Paid
-                </Badge>
-              )}
-            </p>
-            <p className="text-sm text-muted-foreground">
-              <strong>Agrohub:</strong>{" "}
-              {b.agrohubConfirmsPayment ? "✅ Confirmed" : "❌ Not Confirmed"} |{" "}
-              <strong>Farmer:</strong>{" "}
-              {b.farmerConfirmsPayment ? "✅ Confirmed" : "❌ Not Confirmed"}
-            </p>
-          </div>
-
-          {/* Payment Methods */}
-          {primaryPayment && (
-            <div>
-              <h4 className="font-semibold mb-1">Primary Payment Method</h4>
-              <PaymentMethodDisplay payment={primaryPayment} />
-            </div>
-          )}
-
-          {additionalPayments.length > 0 && (
-            <div>
-              <h4 className="font-semibold mb-1">Additional Payment Methods</h4>
-              {additionalPayments.map((p) => (
-                <PaymentMethodDisplay key={p.id} payment={p} />
-              ))}
-            </div>
-          )}
-
-          {/* Payment Proof Section */}
-          <div className="space-y-2">
-            <h4 className="font-semibold">Payment Proof</h4>
-            {b.paymentProofUrl ? (
-              <Button variant="outline" asChild>
-                <a
-                  href={b.paymentProofUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  download
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download Proof of Payment
-                </a>
-              </Button>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No payment proof uploaded yet.
-              </p>
-            )}
-
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-              <label htmlFor="payment-proof-upload" className="sr-only">
-                Upload Payment Proof
-              </label>
-              <input
-                id="payment-proof-upload"
-                type="file"
-                title="Upload Payment Proof"
-                onChange={(e) => {
-                  if (e.target.files?.[0]) {
-                    setSelectedFile(e.target.files[0]);
-                  }
-                }}
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={doUploadSelectedProof}
-                disabled={!selectedFile || loadingId === b.id}
-              >
-                {loadingId === b.id ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                ) : (
-                  <UploadCloud className="w-4 h-4 mr-1" />
+              {/* Farmer Contact */}
+              <div>
+                <h4 className="font-semibold mb-1">Farmer Contact</h4>
+                <p>Farm: {farm.name}</p>
+                <p>Contact 1: {farm.contactNumber1}</p>
+                {farm.contactNumber2 && (
+                  <p>Contact 2: {farm.contactNumber2}</p>
                 )}
-                Upload Proof
-              </Button>
+              </div>
+
+              {/* Order Details */}
+              <div>
+                <h4 className="font-semibold mb-1">Order Details</h4>
+                <p>
+                  Produce: {b.produceListing.produce.name} (
+                  {b.produceListing.produce.type})
+                </p>
+                <p>
+                  Quantity: {b.quantity} {b.produceListing.produce.unitType}
+                </p>
+                <p>Total: M{b.price}</p>
+              </div>
+
+              {/* Farmer Confirmation */}
+              <div>
+                <h4 className="font-semibold mb-1">Farmer Confirmation</h4>
+                <p className="text-sm">
+                  {b.farmerConfirmed ? "✅ Confirmed" : "❌ Not Confirmed"}
+                </p>
+              </div>
             </div>
-          </div>
+          </TabsContent>
 
-          {/* Actions */}
-          {!b.cancelledBy && !b.agrohubShipped && (
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-4">
-              <Button
-                variant="secondary"
-                onClick={doConfirmPayment}
-                disabled={loadingId === b.id}
-              >
-                {loadingId === b.id ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+          {/* Tab 2 Content: Payment & Actions */}
+          {/* Ensure tabs content can scroll if needed */}
+          <TabsContent value="payment-actions" className="flex-grow overflow-y-auto pr-2">
+            <div className="flex flex-col gap-6 pt-4 pb-4"> {/* Added pb-4 for bottom spacing */}
+              {/* Payment Status */}
+              <div>
+                <h4 className="font-semibold mb-1">Payment Status</h4>
+                <p className="text-sm">
+                  {b.agrohubConfirmsPayment && b.farmerConfirmsPayment ? (
+                    <Badge className="bg-green-200 text-green-800">Paid</Badge>
+                  ) : (
+                    <Badge className="bg-yellow-200 text-yellow-800">
+                      Not Paid
+                    </Badge>
+                  )}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  <strong>Agrohub:</strong>{" "}
+                  {b.agrohubConfirmsPayment ? "✅ Confirmed" : "❌ Not Confirmed"}{" "}
+                  | <strong>Farmer:</strong>{" "}
+                  {b.farmerConfirmsPayment ? "✅ Confirmed" : "❌ Not Confirmed"}
+                </p>
+              </div>
+
+              {/* Payment Methods */}
+              {primaryPayment && (
+                <div>
+                  <h4 className="font-semibold mb-1">
+                    Primary Payment Method
+                  </h4>
+                  <PaymentMethodDisplay payment={primaryPayment} />
+                </div>
+              )}
+
+              {additionalPayments.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-1">
+                    Additional Payment Methods
+                  </h4>
+                  {additionalPayments.map((p) => (
+                    <PaymentMethodDisplay key={p.id} payment={p} />
+                  ))}
+                </div>
+              )}
+
+              {/* Payment Proof Section */}
+              <div className="space-y-2">
+                <h4 className="font-semibold">Payment Proof</h4>
+                {b.paymentProofUrl ? (
+                  <Button variant="outline" asChild>
+                    <a
+                      href={b.paymentProofUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download Proof of Payment
+                    </a>
+                  </Button>
                 ) : (
-                  <CheckCircle className="w-4 h-4 mr-2" />
+                  <p className="text-sm text-muted-foreground">
+                    No payment proof uploaded yet.
+                  </p>
                 )}
-                Confirm Payment
-              </Button>
 
-              {!b.agrohubConfirmsPayment && (
-                <Button
-                  variant="destructive"
-                  onClick={doCancel}
-                  disabled={loadingId === b.id}
-                >
-                  {loadingId === b.id ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : null}
-                  Cancel Order
-                </Button>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <label htmlFor="payment-proof-upload" className="sr-only">
+                    Upload Payment Proof
+                  </label>
+                  <input
+                    id="payment-proof-upload"
+                    type="file"
+                    title="Upload Payment Proof"
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        setSelectedFile(e.target.files[0]);
+                      }
+                    }}
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={doUploadSelectedProof}
+                    disabled={!selectedFile || loadingId === b.id}
+                  >
+                    {loadingId === b.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <UploadCloud className="w-4 h-4 mr-1" />
+                    )}
+                    Upload Proof
+                  </Button>
+                </div>
+              </div>
+
+              {/* Actions */}
+              {!b.cancelledBy && !b.agrohubShipped && (
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 pt-4">
+                  <Button
+                    variant="secondary"
+                    onClick={doConfirmPayment}
+                    disabled={loadingId === b.id}
+                  >
+                    {loadingId === b.id ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : (
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                    )}
+                    Confirm Payment
+                  </Button>
+
+                  {!b.agrohubConfirmsPayment && ( // Only show Cancel if Agrohub hasn't confirmed payment
+                    <Button
+                      variant="destructive"
+                      onClick={doCancel}
+                      disabled={loadingId === b.id}
+                    >
+                      {loadingId === b.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : null}
+                      Cancel Order
+                    </Button>
+                  )}
+                </div>
               )}
             </div>
-          )}
-        </div>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
