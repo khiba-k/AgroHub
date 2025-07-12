@@ -12,7 +12,6 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { useProduceStore } from "@/lib/store/useProductStore";
 import { Listing, useProduceListingStore } from "@/lib/store/useProduceListingStore";
-import { toaster } from "@/components/ui/toaster";
 import { useToastStore } from "@/lib/store/useToastStore";
 import { stat } from "fs/promises";
 

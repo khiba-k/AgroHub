@@ -7,7 +7,6 @@ import { Header } from "./Header";
 import SideBar from "./SideBar";
 import { getFarmerInfoRequest } from "./utils/Requests";
 import { useUserStore, useFarmStore } from "@/lib/store/userStores";
-import { Toaster } from "@chakra-ui/react";
 import { Toast } from "@/components/agrohub/ui/Toast";
 
 

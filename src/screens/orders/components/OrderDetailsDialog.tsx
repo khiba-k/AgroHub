@@ -37,8 +37,7 @@ export function OrderDetailsDialog({
 }) {
     const b = breakdown;
 
-    const produceName =
-        `${b.produceListing?.produce?.type} ${b.produceListing?.produce?.name}` ?? "";
+    const produceName = `${b.produceListing?.produce?.type ?? ""} ${b.produceListing?.produce?.name ?? ""}`;
     const unitType = b.produceListing?.produce?.unit ?? "";
 
     const breakdownStatus = b.cancelledBy

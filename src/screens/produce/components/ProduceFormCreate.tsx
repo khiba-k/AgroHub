@@ -4,6 +4,6 @@ import { ProduceFormSteps } from "./ProduceFormSteps";
 
 export function ProduceFormCreate({ onClose }: { onClose?: () => void }) {
   const [step, setStep] = useState(1);
-  const form = useProduceFormLogic(null, onClose, { step, setStep });
+  const form = useProduceFormLogic(null, onClose, null, undefined,{ step, setStep });
   return <ProduceFormSteps {...form} isActiveListing={false} />;
 }
