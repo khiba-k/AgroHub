@@ -30,9 +30,14 @@ import axios from "axios";
 
 interface ProduceListProps {
   status: "active" | "draft" | "harvest" | "sold";
+  setActiveMode?: (mode: any) => void;
+  setHarvestIdToDelete?: (id: string | null) => void;
 }
 
-export function ProduceList({ status }: ProduceListProps) {
+export function ProduceList({ status,
+  setActiveMode,
+  setHarvestIdToDelete,
+}: ProduceListProps) {
   const { farmId } = useFarmStore();
   const {
     listings,
@@ -51,14 +56,10 @@ export function ProduceList({ status }: ProduceListProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<any>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isInActiveMode, setIsInActiveMode] = useState(false);
   const [confirmAction, setConfirmAction] = useState<null | "setActive" | "delete">(null);
 
-  const [activeMode, setActiveMode] = useState<null | {
-    type: "merge" | "new";
-    harvest?: any;
-    active?: any;
-    listing: any;
-  }>(null);
+
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
@@ -69,6 +70,7 @@ export function ProduceList({ status }: ProduceListProps) {
     loadListings(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, farmId]);
+
 
   const loadListings = async (pageToLoad: number) => {
     if (!farmId) {
@@ -83,8 +85,6 @@ export function ProduceList({ status }: ProduceListProps) {
         status,
         page: pageToLoad,
       });
-
-      console.log("-----Corect Data: ", data)
 
       if (pageToLoad === 1) {
         setListings(data.listings, data.total, data.hasMore);
@@ -110,8 +110,11 @@ export function ProduceList({ status }: ProduceListProps) {
       return;
     }
 
+    console.log("[HANDLE_SET_ACTIVE]", listing);
+
     if (listing.status === "harvest") {
       try {
+        setHarvestIdToDelete?.(listing.id);
         const data = await fetchProduceListings({
           farmId,
           status: "active",
@@ -125,17 +128,24 @@ export function ProduceList({ status }: ProduceListProps) {
           l.location === listing.location
         );
 
+        // Transform harvest listing to active before setting active mode
+        const { harvestDate, ...listingWithoutHarvestDate } = listing;
+        const transformedListing = {
+          ...listingWithoutHarvestDate,
+          status: 'active'
+        };
+
         if (match) {
-          setActiveMode({
+          setActiveMode?.({
             type: "merge",
-            harvest: listing,
+            harvest: listing, // Keep original harvest listing for reference
             active: match,
-            listing: match,
+            listing: transformedListing, // Use transformed listing
           });
         } else {
-          setActiveMode({
+          setActiveMode?.({
             type: "new",
-            listing,
+            listing: transformedListing, // Use transformed listing
           });
         }
       } catch (err) {
@@ -145,9 +155,17 @@ export function ProduceList({ status }: ProduceListProps) {
     }
 
     if (listing.status === "draft") {
-      setActiveMode({
+      console.log("[SET_ACTIVE_DRAFT]", listing);
+
+      // Transform draft listing to active
+      const transformedListing = {
+        ...listing,
+        status: 'active'
+      };
+
+      setActiveMode?.({
         type: "new",
-        listing,
+        listing: transformedListing, // Use transformed listing
       });
     }
   };
@@ -241,6 +259,7 @@ export function ProduceList({ status }: ProduceListProps) {
                         <DropdownMenuItem
                           onClick={() => {
                             setSelectedListing(item);
+                            handleDelete(item.id);
                             setConfirmAction("delete");
                           }}
                           className="text-red-600"
@@ -384,12 +403,12 @@ export function ProduceList({ status }: ProduceListProps) {
                 )}
               </div>
 
-              <div>
+              {/* <div>
                 <h4 className="font-semibold">Sales History</h4>
                 <p className="text-muted-foreground text-sm">
                   No sales history available yet.
                 </p>
-              </div>
+              </div> */}
             </div>
           )}
         </DialogContent>

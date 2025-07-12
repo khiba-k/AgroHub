@@ -66,8 +66,6 @@ const ProduceListingUpload = ({
       const removed = existingImages[indexToRemove];
       setExistingImages(existingImages.filter((_, i) => i !== indexToRemove));
       setRemoveImageIds((prev) => [...prev, removed.id]);
-      console.log("Ids to remove: ", [...removeImageIds]);
-      console.log("Removed existing image ID:", removed.id);
     } else {
       const previewIndex = indexToRemove - totalExisting;
       URL.revokeObjectURL(previewUrls[previewIndex]);

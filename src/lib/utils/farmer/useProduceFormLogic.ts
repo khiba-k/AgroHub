@@ -11,14 +11,17 @@ import {
 } from "@/lib/requests/produceListingsRequests";
 import { toast } from "@/components/ui/use-toast";
 import { useProduceStore } from "@/lib/store/useProductStore";
-import { useProduceListingStore } from "@/lib/store/useProduceListingStore";
+import { Listing, useProduceListingStore } from "@/lib/store/useProduceListingStore";
 import { toaster } from "@/components/ui/toaster";
 import { useToastStore } from "@/lib/store/useToastStore";
 import { stat } from "fs/promises";
 
+
 export function useProduceFormLogic(
   initialData: any,
   onClose?: () => void,
+  harvestIdToDelete: string | null = null,
+  setHarvestIdToDelete: (id: string | null) => void = () => { },
   options?: { step?: number; setStep?: (step: number) => void }
 ) {
 
@@ -74,6 +77,49 @@ export function useProduceFormLogic(
   const [showImageWarning, setShowImageWarning] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  function normalizeListing(raw: any): Listing {
+    const hasHarvest = raw.harvestListings && raw.harvestListings.length > 0;
+
+    return {
+      id: raw.id,
+      location: raw.location,
+      description: raw.description,
+      quantity: raw.quantity,
+      status:
+        raw.activeDraftListing?.status ||
+        (hasHarvest ? "harvest" : undefined) ||
+        raw.status ||
+        "draft",
+      harvestDate: hasHarvest ? raw.harvestListings[0].harvestDate : raw.harvestDate ?? undefined,
+      soldDate: raw.soldDate ?? undefined,
+      soldPrice: raw.soldPrice ?? undefined,
+      soldQuantity: raw.soldQuantity ?? undefined,
+      produce: raw.produce
+        ? {
+          id: raw.produce.id,
+          name: raw.produce.name,
+          category: raw.produce.category,
+          type: raw.produce.type ?? null,
+          unitType: raw.produce.unitType,
+          pricePerUnit: raw.produce.pricePerUnit || "0",
+        }
+        : {
+          id: "",
+          name: "",
+          category: "",
+          type: null,
+          unitType: "",
+          pricePerUnit: "0",
+        },
+      images: Array.isArray(raw.images)
+        ? raw.images.map((img: any) => ({
+          id: img.id,
+          url: img.url,
+        }))
+        : [],
+    };
+  }
+
   // ✅ Track which IDs the user wants removed
   const [removeImageIds, setRemoveImageIds] = useState<string[]>([]);
 
@@ -97,11 +143,9 @@ export function useProduceFormLogic(
       setProduceMap(map);
     };
     loadProduce();
-    console.log("************Produce map loaded:", produceMap);
   }, [resetProduce, setProduceMap]);
 
   useEffect(() => {
-    console.log("Updated removeImageIds:", removeImageIds);
   }, [removeImageIds]);
 
   const categorySuggestions = getSuggestions();
@@ -144,29 +188,13 @@ export function useProduceFormLogic(
       e.preventDefault();
     }
 
-    console.log("Submitting produce form with data:", {
-      category,
-      produceName,
-      produceType,
-      quantity,
-      unit,
-      location,
-      description,
-      status,
-      harvestDate,
-      files,
-      existingImages,
-      removeImageIds,
-    });
-
-    if (!isUpdate && files.length === 0 && existingImages.length === 0 && status === "active") { 
+    if (!isUpdate && files.length === 0 && existingImages.length === 0 && status === "active") {
       setShowImageWarning(true);
       return;
     }
 
     setShowImageWarning(false);
 
-    console.log("****Before Harvest Dialog: ", status, harvestDate);
     if (status === "harvest") {
       if ((isUpdate && editHarvestDate) || !harvestDate) {
         setShowHarvestDialog(true);
@@ -199,9 +227,27 @@ export function useProduceFormLogic(
         files.forEach((file) => formData.append("images", file));
 
         const updatedListing = await updateProduceListing(formData);
-        console.log("Incorrect updated data:", updatedListing);
-        updateListing(updatedListing.data);
 
+        if (harvestIdToDelete) {
+          // If we have a harvest to delete, call the delete API
+          try {
+            await fetch(`/api/produce/farmer/update/listing/delete`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ id: harvestIdToDelete }),
+            });
+            setHarvestIdToDelete(null);
+          } catch (err) {
+            console.error("Failed to delete harvest:", err);
+            return null;
+          }
+        }
+
+        const normalized = normalizeListing(updatedListing.data);
+
+        updateListing(normalized);
         showToast(true, "Listing updated successfully!")
 
       } else {
@@ -214,6 +260,8 @@ export function useProduceFormLogic(
           status,
           harvestDate: harvestDate ? harvestDate.toISOString() : undefined,
         };
+
+        console.log("Creating listing with payload:", payload);
         createProduceListingSchema.parse(payload);
 
         const formData = new FormData();
@@ -231,8 +279,11 @@ export function useProduceFormLogic(
 
         const newListing = await postProduceListing(formData);
 
-        console.log("-----------Incorrect New listing created:", newListing.data);
-        addListing(newListing.data);
+
+        const normalized = normalizeListing(newListing.data);
+
+
+        addListing(normalized);
 
         showToast(true, "Listing created successfully!");
       }
@@ -243,19 +294,19 @@ export function useProduceFormLogic(
       console.error(err);
 
       if (err.name === "ZodError" && err.errors) {
-      const messages = err.errors.map((e: any) => e.message);
-      showToast(false, messages.join("\n"));
-      return;
-    }
+        const messages = err.errors.map((e: any) => e.message);
+        showToast(false, messages.join("\n"));
+        return;
+      }
 
       let message = "Failed to create listing";
 
       try {
         const parsed = JSON.parse(err.message);
         if (parsed?.status === 409) {
-          message = status === "harvest" 
-          ? "You already have a harvest listing for this produce, with the same date & location." 
-          : "You already have a listing for this produce, with the same location. Please edit the existing one instead.";
+          message = status === "harvest"
+            ? "You already have a harvest listing for this produce, with the same date & location."
+            : "You already have a listing for this produce, with the same location. Please edit the existing one instead.";
         } else if (parsed?.message) {
           message = parsed.message;
         }
@@ -270,7 +321,6 @@ export function useProduceFormLogic(
   };
 
   const handleHarvestDateSubmit = () => {
-    console.log("Submitting harvest date:", harvestDate);
     if (!harvestDate) {
       alert("Please select a harvest date");
       return;
@@ -278,7 +328,6 @@ export function useProduceFormLogic(
 
     // ✅ CLOSE THE DIALOG FIRST
     setShowHarvestDialog(false);
-    console.log("Harvest date submitted:", harvestDate);
 
     handleSubmit();
   };

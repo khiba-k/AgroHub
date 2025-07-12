@@ -3,21 +3,28 @@
 
 import { useEffect, useState } from "react";
 import { ProduceFormEntry } from "./ProduceFormEntry";
+import { set } from "date-fns";
 
 type ProduceFormProps = {
   initialData?: any; // optional; passed when editing
   onClose?: () => void; // optional; callback when form is closed
-
+  harvestIdToDelete?: string | null; // optional; used for deleting harvests
+  setHarvestIdToDelete?: (id: string | null) => void; // optional; used to set harvest ID to delete
+  setActiveMode?: any; // optional; used to set active mode for the form
 };
 
-export default function ProduceForm({ initialData, onClose }: ProduceFormProps) {
+export default function ProduceForm({ initialData, onClose,
+  harvestIdToDelete = null,
+  setHarvestIdToDelete = () => { /* no-op */ },
+  setActiveMode = () => { /* no-op */ }
+
+}: ProduceFormProps) {
   const [formData, setFormData] = useState<any | null>(null);
 
   useEffect(() => {
-    console.log("ProduceForm mounted with initialData:", initialData);
     if (initialData) {
       setFormData(initialData);
-      console.log("Editing produce listing:", initialData);
+      setActiveMode(null)
     }
   }, [initialData]);
 
@@ -27,7 +34,10 @@ export default function ProduceForm({ initialData, onClose }: ProduceFormProps) 
         {formData ? "Edit Produce Listing" : "Create New Produce Listing"}
       </h1>
 
-      <ProduceFormEntry initialData={formData} onClose={onClose} />
+      <ProduceFormEntry initialData={formData} onClose={onClose}
+        harvestIdToDelete={harvestIdToDelete}
+        setHarvestIdToDelete={setHarvestIdToDelete}
+      />
     </div>
   );
 }

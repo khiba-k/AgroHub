@@ -32,7 +32,6 @@ export function ProduceStepOne({
   produceMap,
   isEditing
 }: any) {
-  console.log("***Status:", produceStatus);
   const isDisabled = isActiveListing;
   const { getSuggestions } = useProduceStore();
 

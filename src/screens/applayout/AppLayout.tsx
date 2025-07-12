@@ -47,7 +47,6 @@ export function AppLayout({
 
                     // Fetch and store farmer-specific info
                     const farmerDetails = await getFarmerInfoRequest();
-                    console.log ("farmerDetails :", farmerDetails)
                     if (farmerDetails) {
                         setFarm({
                             farmId: farmerDetails.farmId,
@@ -59,7 +58,6 @@ export function AppLayout({
                             farmContactNumber2: farmerDetails.farmContactNumber2,
                             farmHasPaymentMethod: farmerDetails.farmHasPaymentMethod,
                         });
-                        console.log("Farmer details fetched and stored:", farmerDetails);   
                     } else {
                         console.log("No farmer details found.");
                     }

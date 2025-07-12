@@ -15,7 +15,6 @@ export function ProduceFormSteps({
   isEditing,
   ...form
 }: any) {
-  console.log("****Form Status: ", form.produceStatus);
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl mx-auto">
       {step === 1 && (

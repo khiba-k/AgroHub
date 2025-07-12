@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-interface Listing {
+export interface Listing {
   id: string;
   location: string;
   description: string;
@@ -50,10 +50,6 @@ export const useProduceListingStore = create<ProduceListingStore>((set) => ({
 
   addListings: (newListings, total, hasMore) =>
     set((state) => {
-      console.log("Previous listings:", state.listings);
-      console.log("New listings:", newListings);
-      console.log("Total:", total);
-      console.log("Has more:", hasMore);
 
       return {
         listings: [...state.listings, ...newListings],
@@ -75,15 +71,11 @@ export const useProduceListingStore = create<ProduceListingStore>((set) => ({
 
   updateListing: (updatedListing) =>
     set((state) => {
-      console.log("Updating listing with ID:", updatedListing.id);
-      console.log("Previous listings:", state.listings);
-      console.log("Updated listing data:", updatedListing);
 
       const newListings = state.listings.map((listing) =>
         listing.id === updatedListing.id ? updatedListing : listing
       );
 
-      console.log("New listings after update:", newListings);
 
       return { listings: newListings };
     }),
