@@ -17,7 +17,6 @@ export async function uploadImage({ file, bucket, folder = "" }: UploadProps) {
     const fileExtension = filename.split(".").pop() || "jpg";
     const path = `${folder ? folder + "/" : ""}${uuidv4()}.${fileExtension}`;
 
-    console.log("Uploading image to Supabase:", { bucket, path, file });
 
     const storage = getStorage();
   
@@ -30,7 +29,6 @@ export async function uploadImage({ file, bucket, folder = "" }: UploadProps) {
   
     const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${bucket}/${data?.path}`;
 
-    console.log("Image uploaded successfully:", imageUrl);
   
     return { imageUrl, error: "" };
   }

@@ -51,9 +51,7 @@ export function AgroHubOrdersTable({
     }
 
     function statusLabel(b: Breakdown) {
-        if (b.status === "PROCESSING" && b.farmerConfirmed) {
-            return "Confirmed";
-        }
+        if (b.status === "PROCESSING" && b.farmerConfirmed) return "Confirmed";
         if (b.status === "PROCESSING") return "Processing";
         if (b.status === "READY_FOR_PICKUP") {
             if (b.delivered) return "Delivered";
@@ -64,10 +62,10 @@ export function AgroHubOrdersTable({
     }
 
     return (
-        <div className="rounded-md border">
-             <div className="p-4 border-b flex items-center justify-between">
-                <h3 className="font-semibold text-lg">Orders</h3>
-                <div className="flex items-end justify-center ">
+        <div className="rounded-md md:border">
+             <div className="p-4 md:border-b flex flex-col md:flex-row items-start md:items-center justify-between">
+                <h3 className="font-semibold text-lg hidden md:block">Orders</h3>
+                <div className="flex items-end justify-center border px-4 py-2 rounded">
                 <SearchIcon className="h-8 w-4 "/>
                 <Input
                     type="search"

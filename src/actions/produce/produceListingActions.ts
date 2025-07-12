@@ -2,7 +2,7 @@
 
 import prisma from '@/lib/prisma/prisma';
 import { CreateProduceListingInput, createProduceListingSchema, updateProduceListingSchema } from '@/lib/utils/farmer/FarmListingUtils';
-import { ActiveDraftStatus} from '@prisma/client';
+import { ActiveDraftStatus } from '@prisma/client';
 import z from 'zod';
 
 
@@ -26,16 +26,36 @@ export const getProduceListings = async ({
     let listings;
     let total;
 
+    const debugListings = await prisma.produceListing.findMany({
+      where: { farmId },
+      include: {
+        harvestListings: true,
+        activeDraftListing: true,
+      },
+    });
+
+    console.log('Debug - All listings with harvest data:',
+      debugListings.map(l => ({
+        id: l.id,
+        hasHarvest: l.harvestListings.length > 0,
+        activeDraftStatus: l.activeDraftListing?.status
+      }))
+    );
+
+
     switch (status) {
       case 'active':
         listings = await prisma.produceListing.findMany({
           where: {
             farmId,
             activeDraftListing: {
-              status: ActiveDraftStatus.active,
+              status: status,
             },
             quantity: {
               gt: 0, // Ensure only active listings with quantity > 0
+            },
+            harvestListings: {
+              none: {},  // ✅ excludes listings that have harvests
             },
           },
           include: {
@@ -140,9 +160,6 @@ export const getProduceListings = async ({
             produce: true,
             images: true,
             soldListings: {
-              orderBy: {
-                soldDate: 'desc',
-              },
               take: 1, // Get the latest sale
             },
           },
@@ -167,27 +184,54 @@ export const getProduceListings = async ({
         throw new Error(`Invalid status: ${status}`);
     }
 
+
+    console.log(`[GET_PRODUCE_LISTINGS]: ${listings}, with status: ${status}`);
+
     // Transform data to match your store interface
-    const transformedListings = listings.map((listing: any) => ({
-      id: listing.id,
-      location: listing.location,
-      description: listing.description,
-      quantity: listing.quantity,
-      status: status,
-      harvestDate: listing.harvestListings?.[0]?.harvestDate?.toISOString(),
-      produce: {
-        id: listing.produce.id,
-        name: listing.produce.name,
-        category: listing.produce.category,
-        type: listing.produce.type,
-        unitType: listing.produce.unitType,
-        pricePerUnit: listing.produce.pricePerUnit,
-      },
-      images: listing.images.map((img: any) => ({
-        id: img.id,
-        url: img.url,
-      })),
-    }));
+    const transformedListings = listings.map((listing: any) => {
+      const latestSold = listing.soldListings?.[0];
+      const latestHarvest = listing.harvestListings?.[0];
+
+      const baseData = {
+        id: listing.id,
+        location: listing.location,
+        description: listing.description,
+        quantity: listing.quantity,
+        status: status,
+        produce: {
+          id: listing.produce.id,
+          name: listing.produce.name,
+          category: listing.produce.category,
+          type: listing.produce.type,
+          unitType: listing.produce.unitType,
+          pricePerUnit: listing.produce.pricePerUnit,
+        },
+        images: listing.images.map((img: any) => ({
+          id: img.id,
+          url: img.url,
+        })),
+      };
+
+      // Add status-specific fields
+      if (status === 'harvest') {
+        return {
+          ...baseData,
+          harvestDate: latestHarvest?.harvestDate?.toISOString(),
+        };
+      }
+
+      if (status === 'sold') {
+        return {
+          ...baseData,
+          soldDate: latestSold?.createdAt?.toISOString(),
+          soldPrice: latestSold?.soldPrice,
+          soldQuantity: latestSold?.soldQuantity,
+        };
+      }
+
+      return baseData;
+    });
+
 
     return {
       listings: transformedListings,
@@ -276,7 +320,6 @@ export const createProduceListing = async (input: CreateProduceListingInput) => 
         },
       });
 
-      console.log('[CREATE_PRODUCE_LISTING]', validatedData);
 
       // Handle status-specific logic
       if (validatedData.status === 'draft') {
@@ -346,6 +389,8 @@ export const createProduceListing = async (input: CreateProduceListingInput) => 
 export const updateProduceListing = async (input: any) => {
   // ✅ Validate all data first
   const validatedData = updateProduceListingSchema.parse(input);
+
+  console.log('[VALIDATED UPDATE_PRODUCE_LISTING]', validatedData);
 
   // 🔄 Perform all in one transaction for safety
   return await prisma.$transaction(async (tx) => {

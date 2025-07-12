@@ -193,10 +193,10 @@ export default function Orders() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
-                    <div className="relative w-full sm:max-w-sm">
+                    {/* <div className="relative w-full sm:max-w-sm">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input type="search" placeholder="Search orders..." className="pl-8 w-full" />
-                    </div>
+                    </div> */}
                     {/* <Button variant="outline" size="sm" className="w-full sm:w-auto">
                         <Filter className="mr-2 h-4 w-4" /> Filter
                     </Button> */}

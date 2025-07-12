@@ -53,7 +53,6 @@ export function ProductForm({ initialData, onSubmit }: ProductFormProps) {
     setIsSubmitting(true);
 
     // In a real app, this would send the data to your backend
-    console.log(formData);
 
     if (onSubmit) {
       onSubmit(formData);

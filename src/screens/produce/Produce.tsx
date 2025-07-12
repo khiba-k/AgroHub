@@ -11,16 +11,30 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Filter, Plus } from "lucide-react";
 import { ProduceCalendar } from "./components/ProduceCalendar";
-import  ProduceForm  from "./components/ProduceForm";
+import ProduceForm from "./components/ProduceForm";
 import { ProduceInventory } from "./components/ProduceInventory";
 import { ProduceList } from "./components/ProduceList";
 import { Calendar } from "@/components/ui/calendar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 
 export default function Produce() {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [activeMode, setActiveMode] = useState<null | {
+    type: "merge" | "new";
+    harvest?: any;
+    active?: any;
+    listing: any;
+  }>(null);
+  const [harvestIdToDelete, setHarvestIdToDelete] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (activeMode) {
+      // If activeMode is set, open the dialog
+      setIsDialogOpen(true);
+    }
+  }, [activeMode]);
 
   const handleDialogClose = () => {
     setIsDialogOpen(false);
@@ -49,7 +63,13 @@ export default function Produce() {
                   Enter details about your new produce listing
                 </DialogDescription>
               </DialogHeader>
-              <ProduceForm onClose={handleDialogClose} />
+              <ProduceForm
+                initialData={activeMode?.listing || null}
+                onClose={handleDialogClose}
+                harvestIdToDelete={harvestIdToDelete}
+                setHarvestIdToDelete={setHarvestIdToDelete}
+                setActiveMode={setActiveMode}
+                />
             </DialogContent>
           </Dialog>
         </div>
@@ -88,7 +108,11 @@ export default function Produce() {
                 <Filter className="mr-2 h-4 w-4" /> Filter
               </Button>
             </div>
-            <ProduceList status="harvest" />
+            <ProduceList status="harvest" setActiveMode={
+              setActiveMode
+            } setHarvestIdToDelete={
+              setHarvestIdToDelete
+            } />
           </TabsContent>
 
           <TabsContent value="calendar" className="space-y-4 pt-4">
@@ -101,14 +125,18 @@ export default function Produce() {
                 <Filter className="mr-2 h-4 w-4" /> Filter
               </Button>
             </div>
-            <ProduceList status="draft" />
+            <ProduceList status="draft"
+              setActiveMode={setActiveMode}
+              setHarvestIdToDelete={
+                setHarvestIdToDelete
+              } />
           </TabsContent>
 
           <TabsContent value="inventory" className="space-y-4 pt-4">
             <ProduceInventory />
           </TabsContent>
         </Tabs>
-        
+
       </div>
     </>
   );

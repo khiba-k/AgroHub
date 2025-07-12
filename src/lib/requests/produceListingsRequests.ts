@@ -74,6 +74,7 @@ export const filterProduceListings = async ({
       limit,
     },
   });
+
   return response.data.data;
 };
 
