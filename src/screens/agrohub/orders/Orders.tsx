@@ -168,12 +168,12 @@ export default function Orders() {
 
                 <div className="flex justify-between items-center mt-4">
                     <div className="relative w-full max-w-sm">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input type="search" placeholder="Search orders..." className="pl-8" />
+                        {/* <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input type="search" placeholder="Search orders..." className="pl-8" /> */}
                     </div>
-                    <Button variant="outline" size="sm">
+                    {/* <Button variant="outline" size="sm">
                         <Filter className="mr-2 h-4 w-4" /> Filter
-                    </Button>
+                    </Button> */}
                 </div>
 
                 {isLoading ? (

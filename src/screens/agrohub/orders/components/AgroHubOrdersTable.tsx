@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"; // ✅ add this import
 import * as React from "react";
 import {
     Breakdown,
@@ -10,7 +11,7 @@ import {
     handleMarkDelivered,
 } from "../Orders";
 import { AgroHubOrderDetailsDialog } from "./AgroHubOrderDetailsDialog";
-import { stat } from "fs";
+import { Search, SearchIcon } from "lucide-react";
 
 export function AgroHubOrdersTable({
     data,
@@ -21,8 +22,24 @@ export function AgroHubOrdersTable({
     mutate: () => void;
     tab?: string;
 }) {
+    const [search, setSearch] = React.useState("");
+
+    // Filter data based on search input
+    const filteredData = data.filter((b) => {
+        const farmName = b.produceListing.farm.name.toLowerCase();
+        const produceName = b.produceListing.produce.name.toLowerCase();
+        const produceType = b.produceListing.produce.type?.toLowerCase() || "";
+
+        const query = search.toLowerCase();
+
+        return (
+            farmName.includes(query) ||
+            produceName.includes(query) ||
+            produceType.includes(query)
+        );
+    });
+
     function statusColor(b: Breakdown) {
-        console.log("BREAKDOWN:", b);
         if (b.status === "PROCESSING") return "bg-yellow-200 text-yellow-800";
         if (b.status === "READY_FOR_PICKUP") {
             if (b.delivered) return "bg-green-200 text-green-800";
@@ -33,9 +50,7 @@ export function AgroHubOrdersTable({
     }
 
     function statusLabel(b: Breakdown) {
-        if (b.status === "PROCESSING" && b.farmerConfirmed) {
-            return "Confirmed";
-        }
+        if (b.status === "PROCESSING" && b.farmerConfirmed) return "Confirmed";
         if (b.status === "PROCESSING") return "Processing";
         if (b.status === "READY_FOR_PICKUP") {
             if (b.delivered) return "Delivered";
@@ -47,10 +62,23 @@ export function AgroHubOrdersTable({
 
     return (
         <div className="rounded-md border">
+            <div className="p-4 border-b flex items-center justify-between">
+                <h3 className="font-semibold text-lg">Orders</h3>
+                <div className="flex items-end justify-center ">
+                <SearchIcon className="h-8 w-4 "/>
+                <Input
+                    type="search"
+                    placeholder="Search by farm, produce..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-72 ml-2"
+                />
+                </div>
+            </div>
             <div className="relative w-full overflow-auto">
-                {data.length === 0 ? (
+                {filteredData.length === 0 ? (
                     <div className="p-8 text-center text-muted-foreground">
-                        No orders in this tab.
+                        No orders found.
                     </div>
                 ) : (
                     <table className="w-full caption-bottom text-sm">
@@ -68,7 +96,7 @@ export function AgroHubOrdersTable({
                             </tr>
                         </thead>
                         <tbody>
-                            {data.map((b) => (
+                            {filteredData.map((b) => (
                                 <tr key={b.id} className="border-b">
                                     <td className="px-4 py-2">
                                         {b.orderItem.order.orderNumber}
@@ -79,7 +107,8 @@ export function AgroHubOrdersTable({
                                     <td className="px-4 py-2">M{b.price}</td>
                                     <td className="px-4 py-2">{b.produceListing.farm.name}</td>
                                     <td className="px-4 py-2">
-                                    {b.produceListing.produce?.type} {b.produceListing.produce.name}
+                                        {b.produceListing.produce?.type}{" "}
+                                        {b.produceListing.produce.name}
                                     </td>
                                     {tab === "all" && (
                                         <td className="px-4 py-2">
@@ -104,31 +133,34 @@ export function AgroHubOrdersTable({
                                             </Button>
                                         )}
 
-                                        {b.status === "READY_FOR_PICKUP" && !b.agrohubShipped && (
-                                            <Button
-                                                variant="secondary"
-                                                size="sm"
-                                                onClick={async () => {
-                                                    await handleMarkShipped(b.id);
-                                                    mutate();
-                                                }}
-                                            >
-                                                Mark Shipped
-                                            </Button>
-                                        )}
+                                        {b.status === "READY_FOR_PICKUP" &&
+                                            !b.agrohubShipped && (
+                                                <Button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    onClick={async () => {
+                                                        await handleMarkShipped(b.id);
+                                                        mutate();
+                                                    }}
+                                                >
+                                                    Mark Shipped
+                                                </Button>
+                                            )}
 
-                                        {b.status === "READY_FOR_PICKUP" && b.agrohubShipped && !b.delivered && (
-                                            <Button
-                                                variant="secondary"
-                                                size="sm"
-                                                onClick={async () => {
-                                                    await handleMarkDelivered(b.id);
-                                                    mutate();
-                                                }}
-                                            >
-                                                Mark Delivered
-                                            </Button>
-                                        )}
+                                        {b.status === "READY_FOR_PICKUP" &&
+                                            b.agrohubShipped &&
+                                            !b.delivered && (
+                                                <Button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    onClick={async () => {
+                                                        await handleMarkDelivered(b.id);
+                                                        mutate();
+                                                    }}
+                                                >
+                                                    Mark Delivered
+                                                </Button>
+                                            )}
                                     </td>
                                 </tr>
                             ))}
